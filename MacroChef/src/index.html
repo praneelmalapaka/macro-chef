@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MacroChef — Eat precise. Cook global.</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <div class="nav-logo" onclick="showView('home')">Macro<span>Chef</span></div>
+    <div class="nav-links">
+      <button class="nav-link active" onclick="showView('home')">Discover</button>
+      <button class="nav-link" onclick="showView('feed')">Feed</button>
+      <button class="nav-link" onclick="showView('upload')">Upload</button>
+      <button class="nav-link" onclick="showView('localiser')">Localise</button>
+      <button class="nav-link" onclick="showView('shopping')">Shop</button>
+    </div>
+    <div class="nav-actions">
+      <button class="cart-btn">🛒 Order</button>
+      <div class="user-avatar">JD</div>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div>
+    <div class="hero-eyebrow">// verified macros · global pantry</div>
+    <h1 class="hero-title">Eat <em>precise.</em><br>Cook <em>global.</em></h1>
+    <p class="hero-sub">
+      Every recipe verified by brand-level nutritional data.
+    </p>
+    <div class="hero-cta-row">
+      <button class="btn-hero">Browse Recipes</button>
+      <button class="btn-hero-ghost">Share a Recipe</button>
+    </div>
+  </div>
+
+  <div class="hero-visual">
+    <div class="hero-food-grid">
+      <div class="hero-food-cell">🍛</div>
+      <div class="hero-food-cell">🥑</div>
+      <div class="hero-food-cell">🐟</div>
+      <div class="hero-food-cell">🌿</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION -->
+<div class="section">
+  <div class="section-header-row">
+    <div>
+      <div class="section-label">// community recipes</div>
+      <h2 class="section-title">Find your next <em>perfect meal</em></h2>
+    </div>
+    <button class="view-all-btn">View all →</button>
+  </div>
+
+  <div class="recipe-grid">
+    <div class="recipe-card">
+      <div class="card-img">🍛</div>
+      <div class="card-body">
+        <div class="card-title">Chicken Tikka</div>
+        <div class="card-author">by priyalifts</div>
+      </div>
+    </div>
+
+    <div class="recipe-card">
+      <div class="card-img">🥑</div>
+      <div class="card-body">
+        <div class="card-title">Avocado Bowl</div>
+        <div class="card-author">by ketomike</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
