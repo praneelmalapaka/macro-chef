@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MacroChef — Eat precise. Cook global.</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-inner">
+    <div class="nav-logo" onclick="showView('home')">Macro<span>Chef</span></div>
+    <div class="nav-links">
+      <button class="nav-link active" id="nav-home" onclick="showView('home')">Discover</button>
+      <button class="nav-link" id="nav-feed" onclick="showView('feed')">Feed</button>
+      <button class="nav-link" id="nav-upload" onclick="showView('upload')">Upload</button>
+      <button class="nav-link" id="nav-localiser" onclick="showView('localiser')">Localise</button>
+      <button class="nav-link" id="nav-shopping" onclick="showView('shopping')">Shop</button>
+    </div>
+    <div class="nav-actions">
+      <button class="cart-btn" onclick="openOrderPanel()">
+        🛒 Order
+        <span class="cart-badge" id="cartBadge">0</span>
+      </button>
+      <div class="user-avatar">JD</div>
+    </div>
+  </div>
+</nav>
+
+<!-- OVERLAY -->
+<div class="overlay" id="overlay" onclick="closeOrderPanel()"></div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ══════════════════ HOME VIEW ══════════════════ -->
+<div class="page-view active" id="view-home">
+  <div style="max-width:1380px;margin:0 auto">
+    <div class="hero">
+      <div class="hero-left">
+        <div class="hero-eyebrow">// verified macros · global pantry</div>
+        <h1 class="hero-title">Eat <em>precise.</em><br>Cook <em>global.</em></h1>
+        <p class="hero-sub">Every recipe verified by brand-level nutritional data. Browse, cook, order your ingredients—then let us handle the rest.</p>
+        <div class="hero-cta-row">
+          <button class="btn-hero" onclick="document.getElementById('browse-section').scrollIntoView({behavior:'smooth'})">Browse Recipes</button>
+          <button class="btn-hero-ghost" onclick="showView('upload')">Share a Recipe</button>
+        </div>
+        <div class="hero-stats">
+          <div><div class="stat-num">2,841</div><div class="stat-lbl">Recipes</div></div>
+          <div><div class="stat-num">14k+</div><div class="stat-lbl">Chefs</div></div>
+          <div><div class="stat-num">99%</div><div class="stat-lbl">Verified macros</div></div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-food-grid">
+          <div class="hero-food-cell">🍛</div>
+          <div class="hero-food-cell">🥑</div>
+          <div class="hero-food-cell">🐟</div>
+          <div class="hero-food-cell">🌿</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-sep"></div>
+
+  <div class="section" id="browse-section">
+    <div class="section-header-row">
+      <div>
+        <div class="section-label">// community recipes</div>
+        <h2 class="section-title">Find your next <em>perfect meal</em></h2>
+      </div>
+      <button class="view-all-btn">View all 2,841 →</button>
+    </div>
+    <div class="filter-bar">
+      <div class="search-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="search-input" placeholder="Search recipes, chefs, ingredients..." id="searchInput" oninput="filterRecipes()">
+      </div>
+      <div class="filter-divider"></div>
+      <div class="diet-pills">
+        <button class="pill active" onclick="setDiet('all',this)">All</button>
+        <button class="pill" onclick="setDiet('high-protein',this)">High Protein</button>
+        <button class="pill" onclick="setDiet('keto',this)">Keto</button>
+        <button class="pill" onclick="setDiet('vegan',this)">Vegan</button>
+        <button class="pill" onclick="setDiet('low-carb',this)">Low Carb</button>
+        <button class="pill" onclick="setDiet('bulking',this)">Bulking</button>
+      </div>
+    </div>
+    <div class="recipe-grid" id="recipeGrid"></div>
+  </div>
+
+  <div class="features-strip">
+    <div class="features-inner">
+      <div class="feature-item">
+        <div class="feature-icon">🔬</div>
+        <div class="feature-title">Brand-verified macros</div>
+        <div class="feature-desc">Every ingredient is tied to a specific brand SKU. We pull live nutritional panels so the macros you see are the macros you get.</div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🌍</div>
+        <div class="feature-title">Global ingredient swaps</div>
+        <div class="feature-desc">US recipe? We automatically replace unavailable brands with local equivalents that match macros within 2%—wherever you are.</div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🛒</div>
+        <div class="feature-title">Order in one tap</div>
+        <div class="feature-desc">Build your shopping list from any recipe, see what's in stock near you, and place a same-day delivery order without leaving the page.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ RECIPE DETAIL VIEW ══════════════════ -->
+<div class="page-view" id="view-detail">
+  <div class="recipe-detail">
+    <button class="detail-back" onclick="showView('home')">← Back to recipes</button>
+    <div class="detail-hero">
+      <div class="detail-emoji-wrap" id="detailEmoji"></div>
+      <div class="detail-meta">
+        <div class="card-tags" id="detailTags"></div>
+        <h1 class="detail-title" id="detailTitle"></h1>
+        <div class="detail-author-row">
+          <div class="detail-avatar" id="detailAvatarText"></div>
+          <div>
+            <div class="detail-author-name" id="detailAuthorName"></div>
+            <div class="detail-author-stats" id="detailAuthorStats"></div>
+          </div>
+        </div>
+        <div class="detail-verified">✓ Macros verified · Brand data confirmed</div>
+        <div class="detail-macro-grid" id="detailMacros"></div>
+        <div class="detail-action-row">
+          <button class="btn-order" onclick="goToShopRecipe()">🛒 Order Ingredients</button>
+          <button class="btn-secondary" onclick="showView('localiser')">🌍 Localise Recipe</button>
+        </div>
+      </div>
+    </div>
+    <div class="detail-tabs">
+      <button class="detail-tab active" onclick="switchDetailTab('ingredients',this)">Ingredients</button>
+      <button class="detail-tab" onclick="switchDetailTab('method',this)">Method</button>
+      <button class="detail-tab" onclick="switchDetailTab('comments',this)">Comments</button>
+    </div>
+    <div id="detailIngredients"></div>
+    <div id="detailMethod" style="display:none"></div>
+    <div id="detailComments" style="display:none"></div>
+  </div>
+</div>
+
+<!-- ══════════════════ FEED VIEW ══════════════════ -->
+<div class="page-view" id="view-feed">
+  <div class="feed-wrap">
+    <div id="feedPosts"></div>
+    <div class="feed-sidebar">
+      <div class="sidebar-block">
+        <div class="sidebar-heading">Suggested Chefs</div>
+        <div id="suggestedChefs"></div>
+      </div>
+      <div class="sidebar-block">
+        <div class="sidebar-heading">Your Stats</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="macro-box"><div class="macro-val">12</div><div class="macro-lbl">Recipes</div></div>
+          <div class="macro-box"><div class="macro-val">847</div><div class="macro-lbl">Followers</div></div>
+          <div class="macro-box"><div class="macro-val">4.8★</div><div class="macro-lbl">Rating</div></div>
+          <div class="macro-box"><div class="macro-val">2.1k</div><div class="macro-lbl">Cooked</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ UPLOAD VIEW ══════════════════ -->
+<div class="page-view" id="view-upload">
+  <div class="upload-wrap">
+    <div class="section-label">// share with the community</div>
+    <h2 class="section-title" style="margin-bottom:8px">Upload a <em>Recipe</em></h2>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:32px">Add brand names per ingredient and we'll verify your macros against live nutrition databases.</p>
+    <div class="upload-card">
+      <div class="form-grid">
+        <div class="form-full">
+          <label class="form-label">Recipe Name</label>
+          <input class="form-input" placeholder="e.g. High-Protein Chicken Tikka" id="upName">
+        </div>
+        <div>
+          <label class="form-label">Prep Time (mins)</label>
+          <input class="form-input" type="number" placeholder="30">
+        </div>
+        <div>
+          <label class="form-label">Servings</label>
+          <input class="form-input" type="number" placeholder="4">
+        </div>
+        <div>
+          <label class="form-label">Dietary Category</label>
+          <select class="form-select">
+            <option value="">Select...</option>
+            <option>High Protein</option><option>Keto</option><option>Vegan</option>
+            <option>Low Carb</option><option>Bulking</option><option>Cutting</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">Country of Origin</label>
+          <select class="form-select">
+            <option>🇦🇺 Australia</option><option>🇺🇸 United States</option>
+            <option>🇬🇧 United Kingdom</option><option>🇮🇳 India</option><option>🇯🇵 Japan</option>
+          </select>
+        </div>
+        <div class="form-full">
+          <label class="form-label">Ingredients & Brands <span style="color:var(--gold);font-weight:400">— brand names unlock macro verification</span></label>
+          <div id="uploadIngredients">
+            <div class="ingredient-entry">
+              <input class="form-input" placeholder="Ingredient name">
+              <input class="form-input" placeholder="Amount">
+              <input class="form-input" placeholder="Brand name" oninput="checkBrand(this)">
+              <span class="brand-verify" style="display:none" id="bv0">✓ Verified</span>
+            </div>
+            <div class="ingredient-entry">
+              <input class="form-input" placeholder="Ingredient name">
+              <input class="form-input" placeholder="Amount">
+              <input class="form-input" placeholder="Brand name">
+              <span></span>
+            </div>
+            <div class="ingredient-entry">
+              <input class="form-input" placeholder="Ingredient name">
+              <input class="form-input" placeholder="Amount">
+              <input class="form-input" placeholder="Brand name">
+              <span></span>
+            </div>
+          </div>
+          <button onclick="addIngRow()" style="background:none;border:1px dashed var(--border2);border-radius:var(--radius-sm);padding:9px 16px;font-family:var(--font-body);font-size:13px;color:var(--text2);cursor:pointer;margin-top:10px;transition:.2s" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border2)'">+ Add ingredient</button>
+        </div>
+        <div><label class="form-label">Calories (per serving)</label><input class="form-input" type="number" placeholder="420"></div>
+        <div><label class="form-label">Protein (g)</label><input class="form-input" type="number" placeholder="38"></div>
+        <div><label class="form-label">Carbs (g)</label><input class="form-input" type="number" placeholder="32"></div>
+        <div><label class="form-label">Fat (g)</label><input class="form-input" type="number" placeholder="12"></div>
+        <div class="form-full">
+          <label class="form-label">Recipe Photo</label>
+          <div class="drop-zone" onclick="simUpload(this)" id="dropZone">
+            <div class="drop-icon">📸</div>
+            <div class="drop-text">Click or drag to upload photo</div>
+            <div class="drop-sub">JPG, PNG, HEIC · max 20MB</div>
+          </div>
+        </div>
+        <div class="form-full">
+          <label class="form-label">Method</label>
+          <textarea class="form-textarea" rows="6" placeholder="Step-by-step cooking instructions..."></textarea>
+        </div>
+      </div>
+      <div class="submit-row">
+        <button class="btn-submit" onclick="submitRecipe()">Submit for Verification</button>
+        <div class="verify-status" id="uploadStatus"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ LOCALISER VIEW ══════════════════ -->
+<div class="page-view" id="view-localiser">
+  <div class="localiser-wrap">
+    <div class="section-label">// ingredient intelligence</div>
+    <h2 class="section-title" style="margin-bottom:8px">Global <em>Localiser</em></h2>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:36px">Select your country. We'll swap every US brand with a local equivalent that keeps macros within 2%.</p>
+    <div class="country-grid" id="countryGrid"></div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:20px">Showing ingredient swaps for <strong style="color:var(--ink)" id="localiserRecipeName">High-Protein Chicken Tikka</strong> (US → <span id="locCountryLabel">Australia</span>)</div>
+    <div class="swap-table">
+      <div class="swap-thead">
+        <div class="swap-th">Ingredient</div>
+        <div class="swap-th">US Brand</div>
+        <div class="swap-th">Local Brand</div>
+        <div class="swap-th">Match</div>
+        <div class="swap-th">Δ Macro</div>
+      </div>
+      <div id="swapRows"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ SHOPPING VIEW ══════════════════ -->
+<div class="page-view" id="view-shopping">
+  <div class="shopping-wrap">
+    <div class="section-label">// smart grocery</div>
+    <h2 class="section-title" style="margin-bottom:8px">Shop & <em>Order</em></h2>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:32px">We find what's in stock near you and place the order. Delivery in 2–4 hours.</p>
+    <div class="shopping-top">
+      <div class="shop-summary-card">
+        <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;margin-bottom:6px">Shopping for</div>
+        <div class="shop-recipe-name" id="shopRecipeName">High-Protein Chicken Tikka</div>
+        <div class="shop-region-label">Your Delivery Region</div>
+        <select class="shop-region-select" id="shopRegion" onchange="refreshShopList()">
+          <option>Sydney, NSW, Australia</option>
+          <option>Melbourne, VIC, Australia</option>
+          <option>London, UK</option>
+          <option>New York, USA</option>
+          <option>Toronto, Canada</option>
+        </select>
+        <div class="shop-region-label">Optimise For</div>
+        <div class="shop-mode-row">
+          <button class="shop-mode-btn active" id="mode-cheapest" onclick="setShopMode('cheapest',this)">Cheapest</button>
+          <button class="shop-mode-btn" id="mode-nutrition" onclick="setShopMode('nutrition',this)">Best nutrition</button>
+          <button class="shop-mode-btn" id="mode-closest" onclick="setShopMode('closest',this)">Closest</button>
+        </div>
+        <div class="shop-mini-summary" id="shopMiniSummary"></div>
+        <div class="availability-ring">
+          <svg class="ring-svg" width="100" height="100" viewBox="0 0 100 100">
+            <circle class="ring-bg" cx="50" cy="50" r="42"/>
+            <circle class="ring-fill" cx="50" cy="50" r="42" id="ringFill" stroke-dasharray="197 264" stroke-dashoffset="0"/>
+          </svg>
+          <div class="ring-text">
+            <div class="ring-num" id="ringNum">6/8</div>
+            <div class="ring-sub">in stock</div>
+          </div>
+        </div>
+        <button class="btn-order" style="width:100%;margin-top:16px" onclick="openOrderPanel()">Place Order →</button>
+      </div>
+      <div class="stores-card">
+        <div class="sidebar-heading">Nearby Stores</div>
+        <div id="nearbyStores"></div>
+      </div>
+    </div>
+    <div class="shop-list-card">
+      <div class="shop-list-header">
+        <div class="shop-list-title">Optimised Basket</div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <div style="font-size:12px;color:var(--text3);font-family:var(--font-mono)" id="checkedCount">0 checked</div>
+          <button onclick="openOrderPanel()" style="padding:9px 18px;background:var(--gold);border:none;border-radius:var(--radius-sm);font-family:var(--font-body);font-size:13px;font-weight:700;color:var(--ink);cursor:pointer;transition:.2s" onmouseover="this.style.background='var(--gold-lt)'" onmouseout="this.style.background='var(--gold)'">Order All →</button>
+        </div>
+      </div>
+      <div id="shopListRows"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ ORDER PANEL ══════════════════ -->
+<div class="order-panel" id="orderPanel">
+  <div class="order-panel-header">
+    <div class="order-panel-title">Your Order</div>
+    <button class="panel-close" onclick="closeOrderPanel()">×</button>
+  </div>
+  <div class="order-panel-body" id="orderPanelBody"></div>
+  <div class="order-panel-footer" id="orderPanelFooter">
+    <button class="btn-place-order" id="placeOrderBtn" onclick="placeOrder()">Place Order · $<span id="orderTotalBtn">0.00</span></button>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

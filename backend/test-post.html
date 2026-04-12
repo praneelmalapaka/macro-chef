@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Test Recipe POST</title>
+</head>
+<body>
+  <button id="sendBtn">Send Test Recipe</button>
+
+  <pre id="output"></pre>
+
+  <script>
+    async function sendRecipe() {
+      const recipe = {
+        title: "High Protein Paneer Wrap",
+        description: "Quick lunch with good macros",
+        method: "1. Cook paneer\n2. Toast wraps\n3. Assemble",
+        prepTimeMinutes: 10,
+        cookTimeMinutes: 8,
+        servings: 2,
+        calories: 430,
+        proteinG: 32,
+        carbsG: 28,
+        fatG: 18,
+        imageUrl: "https://placehold.co/600x400",
+        ingredients: [
+          {
+            name: "Paneer",
+            amount: "200",
+            unit: "g",
+            brandName: "Amul"
+          },
+          {
+            name: "Wraps",
+            amount: "2",
+            unit: "pieces",
+            brandName: "Mission"
+          }
+        ],
+        tags: ["vegetarian", "high-protein", "quick"]
+      };
+
+      try {
+        const response = await fetch("http://localhost:5000/api/recipes", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(recipe)
+        });
+
+        const data = await response.json();
+        document.getElementById("output").textContent =
+          JSON.stringify(data, null, 2);
+      } catch (error) {
+        document.getElementById("output").textContent = error.message;
+      }
+    }
+
+    document.getElementById("sendBtn").addEventListener("click", sendRecipe);
+  </script>
+</body>
+</html>
