@@ -3,1306 +3,2616 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MacroChef — Eat precise. Cook global.</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<title>MacroChef</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
-:root{
-  --ink:#0a0a08;--paper:#f5f2eb;--cream:#ede9df;--warm:#e8e2d4;
-  --gold:#b8922a;--gold-lt:#d4a843;--gold-dim:#b8922a18;
-  --rust:#c24b2a;--forest:#2d5a3d;--slate:#3d4a5c;
-  --text:#1a1a16;--text2:#5a5a50;--text3:#9a9a8a;
-  --white:#ffffff;--border:#d8d2c4;--border2:#c8c2b4;
-  --surface:#ffffff;--surface2:#f9f6f0;
-  --radius:10px;--radius-sm:6px;--radius-lg:16px;--radius-xl:24px;
-  --shadow:0 2px 20px rgba(0,0,0,0.06);--shadow-lg:0 8px 48px rgba(0,0,0,0.12);
-  --font-display:'Cormorant Garamond',serif;
-  --font-body:'Syne',sans-serif;
-  --font-mono:'JetBrains Mono',monospace;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-html{scroll-behavior:smooth}
-body{font-family:var(--font-body);background:var(--paper);color:var(--text);min-height:100vh;overflow-x:hidden}
+:root {
+  color-scheme: dark;
+  --bg: #07090d;
+  --surface: rgba(17, 20, 28, 0.9);
+  --surface-2: rgba(24, 28, 38, 0.94);
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.14);
+  --text: #f4f7fb;
+  --muted: #97a0b1;
+  --muted-strong: #c1c8d5;
+  --accent: #7f9f90;
+  --accent-rgb: 127, 159, 144;
+  --accent-deep: #1d2822;
+  --danger: #ff7a7a;
+  --warning: #ffc96f;
+  --shadow: 0 26px 80px rgba(0, 0, 0, 0.46);
+  --radius-xl: 28px;
+  --radius-lg: 22px;
+  --radius-md: 18px;
+  --radius-sm: 14px;
+  --font-display: "Fraunces", serif;
+  --font-body: "Space Grotesk", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+}
 
-/* ── SCROLLBAR ── */
-::-webkit-scrollbar{width:6px}
-::-webkit-scrollbar-track{background:var(--cream)}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+html {
+  scroll-behavior: smooth;
+}
 
-/* ── NAVBAR ── */
-.navbar{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(245,242,235,0.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border);height:64px;display:flex;align-items:center;padding:0 40px}
-.nav-inner{max-width:1380px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between}
-.nav-logo{font-family:var(--font-display);font-size:26px;font-weight:700;color:var(--ink);letter-spacing:-0.5px;cursor:pointer}
-.nav-logo span{color:var(--gold)}
-.nav-links{display:flex;align-items:center;gap:4px}
-.nav-link{padding:8px 16px;border-radius:var(--radius-sm);background:none;border:none;font-family:var(--font-body);font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;transition:.2s;letter-spacing:.3px}
-.nav-link:hover{color:var(--text);background:var(--warm)}
-.nav-link.active{color:var(--gold);background:var(--gold-dim)}
-.nav-actions{display:flex;align-items:center;gap:12px}
-.cart-btn{display:flex;align-items:center;gap:8px;padding:9px 18px;background:var(--ink);border:none;border-radius:var(--radius);color:var(--paper);font-family:var(--font-body);font-size:13px;font-weight:600;cursor:pointer;transition:.2s;position:relative}
-.cart-btn:hover{background:#2a2a24;transform:translateY(-1px)}
-.cart-badge{position:absolute;top:-6px;right:-6px;width:18px;height:18px;background:var(--gold);border-radius:50%;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;color:var(--ink)}
-.user-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-lt));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--ink);cursor:pointer;border:2px solid var(--border)}
+body {
+  min-height: 100vh;
+  font-family: var(--font-body);
+  color: var(--text);
+  background:
+    radial-gradient(circle at top, rgba(127, 159, 144, 0.12), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(106, 135, 255, 0.08), transparent 20%),
+    linear-gradient(180deg, #05070a 0%, #0a0d12 100%);
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+}
 
-/* ── HERO ── */
-.hero{padding:140px 40px 80px;max-width:1380px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
-.hero-eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:20px}
-.hero-title{font-family:var(--font-display);font-size:72px;font-weight:300;line-height:1.05;color:var(--ink);margin-bottom:24px}
-.hero-title em{font-style:italic;color:var(--gold)}
-.hero-sub{font-size:16px;color:var(--text2);line-height:1.7;max-width:440px;margin-bottom:36px}
-.hero-cta-row{display:flex;gap:14px;align-items:center}
-.btn-hero{padding:14px 28px;background:var(--ink);border:none;border-radius:var(--radius);color:var(--paper);font-family:var(--font-body);font-size:14px;font-weight:600;cursor:pointer;transition:.2s;letter-spacing:.3px}
-.btn-hero:hover{background:var(--gold);transform:translateY(-1px)}
-.btn-hero-ghost{padding:14px 28px;background:none;border:1.5px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:var(--font-body);font-size:14px;font-weight:500;cursor:pointer;transition:.2s}
-.btn-hero-ghost:hover{border-color:var(--ink);background:var(--warm)}
-.hero-stats{display:flex;gap:40px;margin-top:48px;padding-top:40px;border-top:1px solid var(--border)}
-.stat-num{font-family:var(--font-display);font-size:36px;font-weight:600;color:var(--ink)}
-.stat-lbl{font-size:12px;color:var(--text3);margin-top:2px;font-family:var(--font-mono);letter-spacing:.5px}
-.hero-visual{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);overflow:hidden;box-shadow:var(--shadow-lg)}
-.hero-food-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
-.hero-food-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:64px;background:var(--surface2);transition:.3s}
-.hero-food-cell:hover{transform:scale(1.05)}
-.hero-food-cell:nth-child(2){background:var(--warm)}
-.hero-food-cell:nth-child(3){background:var(--warm)}
-.hero-food-cell:nth-child(4){background:var(--cream)}
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
 
-/* ── SECTION WRAPPER ── */
-.section{padding:80px 40px;max-width:1380px;margin:0 auto}
-.section-label{font-family:var(--font-mono);font-size:10px;letter-spacing:2.5px;color:var(--gold);text-transform:uppercase;margin-bottom:14px}
-.section-title{font-family:var(--font-display);font-size:48px;font-weight:300;line-height:1.1;color:var(--ink);margin-bottom:10px}
-.section-title em{font-style:italic}
-.section-sub{font-size:15px;color:var(--text2);line-height:1.6}
-.section-header-row{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:40px;flex-wrap:wrap;gap:16px}
+button {
+  cursor: pointer;
+}
 
-/* ── SEARCH & FILTER ── */
-.filter-bar{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 20px;display:flex;gap:12px;align-items:center;margin-bottom:36px;flex-wrap:wrap;box-shadow:var(--shadow)}
-.search-wrap{flex:1;min-width:220px;display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 16px}
-.search-wrap svg{color:var(--text3);flex-shrink:0}
-.search-input{background:none;border:none;font-family:var(--font-body);font-size:14px;color:var(--text);outline:none;width:100%}
-.search-input::placeholder{color:var(--text3)}
-.filter-divider{width:1px;height:32px;background:var(--border);flex-shrink:0}
-.diet-pills{display:flex;gap:6px;flex-wrap:wrap}
-.pill{padding:8px 14px;border-radius:20px;border:1px solid var(--border);background:none;font-family:var(--font-body);font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;transition:.2s;white-space:nowrap;letter-spacing:.2px}
-.pill:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-dim)}
-.pill.active{border-color:var(--gold);color:var(--gold);background:var(--gold-dim)}
+input,
+select,
+textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  outline: none;
+  transition: border-color 180ms ease, transform 180ms ease, background 180ms ease;
+}
 
-/* ── RECIPE GRID ── */
-.recipe-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:24px}
-.recipe-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);overflow:hidden;cursor:pointer;transition:.25s;position:relative}
-.recipe-card:hover{border-color:var(--gold);box-shadow:0 12px 40px rgba(184,146,42,0.12);transform:translateY(-3px)}
-.card-img{width:100%;height:200px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:72px;position:relative;overflow:hidden}
-.card-img-bg{position:absolute;inset:0;opacity:0.06;font-size:200px;display:flex;align-items:center;justify-content:center;pointer-events:none}
-.card-country{position:absolute;top:14px;right:14px;background:rgba(10,10,8,0.7);backdrop-filter:blur(8px);color:var(--paper);padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;font-family:var(--font-mono)}
-.card-verified{position:absolute;top:14px;left:14px;background:rgba(45,90,61,0.9);color:#a8e6ba;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:.5px;font-family:var(--font-mono)}
-.card-body{padding:20px 22px}
-.card-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-.tag{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.3px;font-family:var(--font-mono)}
-.tag-protein{background:#3d4a5c18;color:var(--slate)}
-.tag-keto{background:#c24b2a18;color:var(--rust)}
-.tag-vegan{background:#2d5a3d18;color:var(--forest)}
-.tag-bulk{background:#b8922a18;color:var(--gold)}
-.tag-low{background:#5a3d7a18;color:#7a5da0}
-.card-title{font-family:var(--font-display);font-size:20px;font-weight:600;line-height:1.25;margin-bottom:6px;color:var(--ink)}
-.card-author{font-size:12px;color:var(--text3);margin-bottom:16px;font-family:var(--font-mono)}
-.macro-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border-radius:var(--radius-sm);overflow:hidden;margin-bottom:16px}
-.macro-box{background:var(--surface2);padding:10px 6px;text-align:center}
-.macro-val{font-size:16px;font-weight:700;color:var(--ink);font-family:var(--font-display)}
-.macro-lbl{font-size:9px;color:var(--text3);margin-top:2px;font-family:var(--font-mono);letter-spacing:.5px;text-transform:uppercase}
-.card-footer{display:flex;justify-content:space-between;align-items:center}
-.rating-row{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:600;color:var(--gold)}
-.rating-count{font-size:11px;color:var(--text3);font-weight:400}
-.card-btns{display:flex;gap:6px}
-.card-btn{padding:7px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:none;font-family:var(--font-body);font-size:11px;font-weight:600;color:var(--text2);cursor:pointer;transition:.2s;letter-spacing:.2px}
-.card-btn:hover{border-color:var(--ink);color:var(--ink);background:var(--warm)}
-.card-btn.shop{background:var(--ink);border-color:var(--ink);color:var(--paper)}
-.card-btn.shop:hover{background:var(--gold);border-color:var(--gold)}
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: rgba(var(--accent-rgb), 0.52);
+  background: rgba(255, 255, 255, 0.05);
+}
 
-/* ── FULL-PAGE VIEWS ── */
-.page-view{display:none;padding-top:80px}
-.page-view.active{display:block}
+textarea {
+  min-height: 110px;
+  resize: vertical;
+}
 
-/* ── RECIPE DETAIL ── */
-.recipe-detail{max-width:900px;margin:0 auto;padding:48px 40px}
-.detail-back{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--text2);cursor:pointer;margin-bottom:32px;font-family:var(--font-mono);letter-spacing:.3px;background:none;border:none;transition:.2s}
-.detail-back:hover{color:var(--gold)}
-.detail-hero{display:grid;grid-template-columns:1fr 400px;gap:48px;align-items:start;margin-bottom:48px}
-.detail-emoji-wrap{width:100%;aspect-ratio:4/3;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);display:flex;align-items:center;justify-content:center;font-size:96px}
-.detail-meta{padding-top:8px}
-.detail-title{font-family:var(--font-display);font-size:38px;font-weight:600;line-height:1.15;color:var(--ink);margin-bottom:8px}
-.detail-author-row{display:flex;align-items:center;gap:12px;margin-bottom:20px}
-.detail-avatar{width:34px;height:34px;border-radius:50%;background:var(--gold-dim);border:1.5px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--gold)}
-.detail-author-name{font-size:13px;font-weight:600;color:var(--text)}
-.detail-author-stats{font-size:11px;color:var(--text3);font-family:var(--font-mono)}
-.detail-macro-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:24px}
-.detail-macro-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
-.detail-macro-num{font-family:var(--font-display);font-size:28px;font-weight:600;color:var(--ink)}
-.detail-macro-lbl{font-size:11px;color:var(--text3);font-family:var(--font-mono);letter-spacing:.5px;margin-top:2px}
-.detail-verified{display:inline-flex;align-items:center;gap:6px;background:#2d5a3d18;border:1px solid #2d5a3d40;border-radius:20px;padding:6px 14px;font-size:12px;color:var(--forest);font-weight:600;margin-bottom:20px}
-.detail-action-row{display:flex;gap:10px;flex-wrap:wrap}
-.btn-order{padding:13px 24px;background:var(--gold);border:none;border-radius:var(--radius);color:var(--ink);font-family:var(--font-body);font-size:14px;font-weight:700;cursor:pointer;transition:.2s;letter-spacing:.3px}
-.btn-order:hover{background:var(--gold-lt);transform:translateY(-1px);box-shadow:0 4px 20px rgba(184,146,42,0.3)}
-.btn-secondary{padding:13px 20px;background:none;border:1.5px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:var(--font-body);font-size:14px;font-weight:500;cursor:pointer;transition:.2s}
-.btn-secondary:hover{border-color:var(--ink);background:var(--warm)}
+::placeholder {
+  color: #70798b;
+}
 
-.detail-tabs{display:flex;gap:2px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:4px;width:fit-content;margin-bottom:32px}
-.detail-tab{padding:8px 20px;border-radius:var(--radius-sm);background:none;border:none;font-family:var(--font-body);font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;transition:.2s}
-.detail-tab.active{background:var(--surface);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,0.08)}
-.ingredients-list{display:flex;flex-direction:column;gap:8px;margin-bottom:32px}
-.ingredient-row{display:grid;grid-template-columns:1fr 120px 160px;gap:12px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);align-items:center}
-.ing-name{font-size:14px;font-weight:500}
-.ing-amount{font-size:13px;color:var(--text2);font-family:var(--font-mono)}
-.ing-brand{display:inline-flex;align-items:center;gap:5px;background:var(--gold-dim);color:var(--gold);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;font-family:var(--font-mono)}
-.comments-section{margin-top:40px}
-.comments-title{font-family:var(--font-display);font-size:24px;font-weight:600;margin-bottom:24px;color:var(--ink)}
-.comment-card{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--border)}
-.comment-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
-.comment-content{flex:1}
-.comment-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
-.comment-name{font-size:13px;font-weight:600}
-.comment-time{font-size:11px;color:var(--text3);font-family:var(--font-mono)}
-.comment-text{font-size:14px;color:var(--text2);line-height:1.6}
-.comment-actions{display:flex;gap:12px;margin-top:8px}
-.comment-action-btn{background:none;border:none;font-size:12px;color:var(--text3);cursor:pointer;font-family:var(--font-body);transition:.2s}
-.comment-action-btn:hover{color:var(--gold)}
-.comment-input-box{display:flex;gap:12px;margin-top:24px;align-items:flex-start}
-.comment-textarea{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;font-family:var(--font-body);font-size:14px;color:var(--text);outline:none;resize:none;transition:.2s;min-height:80px}
-.comment-textarea:focus{border-color:var(--gold)}
-.btn-post{padding:12px 20px;background:var(--ink);border:none;border-radius:var(--radius);color:var(--paper);font-family:var(--font-body);font-size:13px;font-weight:600;cursor:pointer;transition:.2s;white-space:nowrap;margin-top:4px}
-.btn-post:hover{background:var(--gold);color:var(--ink)}
+.app-shell {
+  width: min(100%, 460px);
+  min-height: calc(100vh - 32px);
+  position: relative;
+  overflow: hidden;
+  border-radius: 34px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: var(--shadow);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 34%),
+    rgba(8, 10, 14, 0.92);
+  backdrop-filter: blur(18px);
+}
 
-/* ── FEED PAGE ── */
-.feed-wrap{display:grid;grid-template-columns:600px 1fr;gap:32px;max-width:1100px;margin:0 auto;padding:48px 40px}
-.feed-post{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);overflow:hidden;margin-bottom:24px}
-.feed-post-header{display:flex;align-items:center;gap:12px;padding:16px 20px}
-.feed-av{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
-.feed-post-name{font-size:14px;font-weight:600}
-.feed-post-meta{font-size:12px;color:var(--text3);font-family:var(--font-mono)}
-.feed-post-img{width:100%;height:280px;display:flex;align-items:center;justify-content:center;font-size:80px;position:relative;overflow:hidden}
-.feed-post-actions{display:flex;align-items:center;gap:8px;padding:12px 20px;border-bottom:1px solid var(--border)}
-.action-btn{background:none;border:none;font-size:20px;cursor:pointer;transition:.2s;padding:6px}
-.action-btn:hover{transform:scale(1.15)}
-.star-rating{display:flex;gap:3px}
-.star{font-size:20px;color:var(--border2);cursor:pointer;transition:.2s}
-.star.lit{color:var(--gold)}
-.star:hover{transform:scale(1.2)}
-.feed-post-body{padding:16px 20px}
-.feed-recipe-tag{font-size:12px;color:var(--gold);font-weight:600;font-family:var(--font-mono);margin-bottom:6px}
-.feed-caption{font-size:14px;color:var(--text2);line-height:1.65}
-.feed-sidebar{position:sticky;top:88px;align-self:start}
-.sidebar-block{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:22px;margin-bottom:20px}
-.sidebar-heading{font-family:var(--font-mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:16px}
-.follow-item{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-.follow-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
-.follow-name{font-size:13px;font-weight:600}
-.follow-sub{font-size:11px;color:var(--text3);font-family:var(--font-mono)}
-.btn-follow{margin-left:auto;padding:6px 14px;border:1.5px solid var(--border2);border-radius:20px;background:none;font-family:var(--font-body);font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;transition:.2s;white-space:nowrap}
-.btn-follow:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-dim)}
-.btn-follow.following{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.app-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at top left, rgba(127, 159, 144, 0.1), transparent 22%),
+    radial-gradient(circle at bottom right, rgba(98, 116, 169, 0.08), transparent 24%);
+  pointer-events: none;
+}
 
-/* ── UPLOAD PAGE ── */
-.upload-wrap{max-width:780px;margin:0 auto;padding:48px 40px}
-.upload-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:36px;box-shadow:var(--shadow)}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-.form-full{grid-column:1/-1}
-.form-label{display:block;font-size:12px;font-weight:600;color:var(--text2);font-family:var(--font-mono);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
-.form-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 16px;font-family:var(--font-body);font-size:14px;color:var(--text);outline:none;transition:.2s}
-.form-input:focus{border-color:var(--gold);background:var(--white)}
-.form-select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 16px;font-family:var(--font-body);font-size:14px;color:var(--text);outline:none;appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239a9a8a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:calc(100% - 14px) center}
-.form-textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 16px;font-family:var(--font-body);font-size:14px;color:var(--text);outline:none;resize:vertical;min-height:100px;transition:.2s}
-.form-textarea:focus{border-color:var(--gold)}
-.ingredient-entry{display:grid;grid-template-columns:2fr 100px 2fr auto;gap:10px;align-items:center;margin-bottom:8px}
-.brand-verify{display:inline-flex;align-items:center;gap:5px;background:#2d5a3d18;border:1px solid #2d5a3d40;border-radius:20px;padding:3px 10px;font-size:11px;color:var(--forest);font-weight:600;white-space:nowrap}
-.drop-zone{border:2px dashed var(--border2);border-radius:var(--radius-lg);padding:40px;text-align:center;cursor:pointer;transition:.2s;background:var(--surface2)}
-.drop-zone:hover{border-color:var(--gold);background:var(--gold-dim)}
-.drop-icon{font-size:36px;margin-bottom:10px}
-.drop-text{font-size:14px;font-weight:500;color:var(--text2);margin-bottom:4px}
-.drop-sub{font-size:12px;color:var(--text3)}
-.submit-row{display:flex;align-items:center;gap:16px;margin-top:28px;flex-wrap:wrap}
-.btn-submit{padding:14px 30px;background:var(--ink);border:none;border-radius:var(--radius);color:var(--paper);font-family:var(--font-body);font-size:14px;font-weight:700;cursor:pointer;transition:.2s;letter-spacing:.3px}
-.btn-submit:hover{background:var(--gold);color:var(--ink);transform:translateY(-1px)}
-.verify-status{font-size:13px;color:var(--text2);display:flex;align-items:center;gap:8px}
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  padding: 18px 20px 12px;
+  background: linear-gradient(180deg, rgba(10, 12, 17, 0.97), rgba(10, 12, 17, 0.78) 86%, transparent);
+  backdrop-filter: blur(16px);
+}
 
-/* ── LOCALISER ── */
-.localiser-wrap{max-width:1000px;margin:0 auto;padding:48px 40px}
-.country-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:40px}
-.country-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:16px;text-align:center;cursor:pointer;transition:.2s}
-.country-card:hover{border-color:var(--gold);transform:translateY(-2px)}
-.country-card.active{border-color:var(--gold);background:var(--gold-dim)}
-.country-flag{font-size:32px;margin-bottom:8px}
-.country-name{font-size:13px;font-weight:600;font-family:var(--font-mono)}
-.swap-table{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);overflow:hidden;box-shadow:var(--shadow)}
-.swap-thead{display:grid;grid-template-columns:140px 1fr 1fr 120px 80px;gap:0;background:var(--ink);color:var(--paper)}
-.swap-th{padding:14px 18px;font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;font-family:var(--font-mono)}
-.swap-row{display:grid;grid-template-columns:140px 1fr 1fr 120px 80px;gap:0;border-top:1px solid var(--border);transition:.2s;align-items:center}
-.swap-row:hover{background:var(--surface2)}
-.swap-td{padding:16px 18px;font-size:14px}
-.swap-ingredient{font-size:11px;font-weight:600;font-family:var(--font-mono);color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
-.brand-us{font-size:14px;font-weight:500;color:var(--text)}
-.brand-local{font-size:14px;font-weight:600;color:var(--gold)}
-.match-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;font-family:var(--font-mono)}
-.match-exact{background:#2d5a3d18;color:var(--forest)}
-.match-good{background:#b8922a18;color:var(--gold)}
-.match-ok{background:#c24b2a18;color:var(--rust)}
-.diff-text{font-size:12px;font-family:var(--font-mono);font-weight:500}
+.status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
 
-/* ── SHOPPING ── */
-.shopping-wrap{max-width:1000px;margin:0 auto;padding:48px 40px}
-.shopping-top{display:grid;grid-template-columns:1fr 320px;gap:24px;margin-bottom:32px}
-.shop-summary-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:28px;box-shadow:var(--shadow)}
-.shop-recipe-name{font-family:var(--font-display);font-size:22px;font-weight:600;margin-bottom:4px}
-.shop-region-label{font-size:11px;color:var(--text3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;margin-top:16px}
-.shop-region-select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;font-family:var(--font-body);font-size:14px;color:var(--text);outline:none;margin-bottom:20px}
-.availability-ring{position:relative;width:100px;height:100px;margin:0 auto 12px}
-.ring-svg{transform:rotate(-90deg)}
-.ring-bg{fill:none;stroke:var(--border);stroke-width:8}
-.ring-fill{fill:none;stroke:var(--gold);stroke-width:8;stroke-linecap:round;transition:stroke-dasharray .6s ease}
-.ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--font-display)}
-.ring-num{font-size:24px;font-weight:700;color:var(--ink)}
-.ring-sub{font-size:10px;color:var(--text3);font-family:var(--font-mono)}
-.stores-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:24px;box-shadow:var(--shadow)}
-.store-item{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)}
-.store-item:last-child{border-bottom:none}
-.store-name{font-size:14px;font-weight:500}
-.store-dist{font-size:11px;color:var(--text3);font-family:var(--font-mono)}
-.store-items{font-size:12px;color:var(--gold);font-weight:600}
-.shop-list-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);overflow:hidden;box-shadow:var(--shadow)}
-.shop-list-header{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid var(--border);background:var(--surface2)}
-.shop-list-title{font-family:var(--font-display);font-size:18px;font-weight:600}
-.shop-item-row{display:flex;align-items:center;gap:16px;padding:16px 24px;border-bottom:1px solid var(--border);transition:.15s}
-.shop-item-row:hover{background:var(--surface2)}
-.shop-item-row:last-child{border-bottom:none}
-.shop-check{width:20px;height:20px;border-radius:5px;border:1.5px solid var(--border2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.2s;font-size:11px}
-.shop-check.ticked{background:var(--ink);border-color:var(--ink);color:var(--paper)}
-.shop-item-info{flex:1}
-.shop-item-name{font-size:14px;font-weight:500;transition:.2s}
-.shop-item-name.done{text-decoration:line-through;color:var(--text3)}
-.shop-item-meta{display:flex;gap:8px;align-items:center;margin-top:4px;flex-wrap:wrap}
-.shop-brand-tag{background:var(--gold-dim);color:var(--gold);padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;font-family:var(--font-mono)}
-.shop-store-tag{font-size:11px;color:var(--text3);font-family:var(--font-mono)}
-.shop-unavail{background:#c24b2a18;color:var(--rust);padding:3px 10px;border-radius:6px;font-size:11px;font-weight:500;margin-top:4px;display:inline-block}
-.shop-item-price{font-size:14px;font-weight:600;color:var(--ink);white-space:nowrap;font-family:var(--font-display)}
-.shop-item-qty{display:flex;align-items:center;gap:8px;margin-right:8px}
-.qty-btn{width:26px;height:26px;border-radius:50%;border:1px solid var(--border);background:none;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:.2s;font-family:var(--font-body)}
-.qty-btn:hover{border-color:var(--gold);color:var(--gold)}
-.qty-num{font-size:13px;font-weight:600;min-width:16px;text-align:center;font-family:var(--font-mono)}
+.status-stack {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
 
-/* ── ORDER PANEL ── */
-.order-panel{position:fixed;right:-440px;top:0;bottom:0;width:440px;background:var(--surface);border-left:1px solid var(--border);z-index:900;transition:.4s cubic-bezier(.22,1,.36,1);box-shadow:-8px 0 40px rgba(0,0,0,0.12);display:flex;flex-direction:column;overflow:hidden}
-.order-panel.open{right:0}
-.order-panel-header{padding:24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--surface2)}
-.order-panel-title{font-family:var(--font-display);font-size:22px;font-weight:700}
-.panel-close{background:none;border:none;font-size:24px;cursor:pointer;color:var(--text2);line-height:1;transition:.2s}
-.panel-close:hover{color:var(--ink)}
-.order-panel-body{flex:1;overflow-y:auto;padding:24px}
-.order-section-title{font-size:11px;font-weight:600;font-family:var(--font-mono);letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:14px;margin-top:24px}
-.order-section-title:first-child{margin-top:0}
-.order-item{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)}
-.order-item-left{flex:1}
-.order-item-name{font-size:14px;font-weight:500}
-.order-item-brand{font-size:11px;color:var(--text3);font-family:var(--font-mono);margin-top:2px}
-.order-item-qty{font-size:12px;color:var(--text2);margin-top:2px}
-.order-item-price{font-size:14px;font-weight:600;font-family:var(--font-display);color:var(--ink)}
-.order-divider{border:none;border-top:1px solid var(--border);margin:16px 0}
-.order-row{display:flex;justify-content:space-between;font-size:14px;color:var(--text2);margin-bottom:8px}
-.order-total{display:flex;justify-content:space-between;font-size:18px;font-weight:700;font-family:var(--font-display);margin-top:12px;padding-top:12px;border-top:2px solid var(--ink)}
-.delivery-options{display:flex;flex-direction:column;gap:8px}
-.delivery-opt{display:flex;align-items:center;gap:12px;padding:12px 16px;border:1.5px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:.2s}
-.delivery-opt:hover{border-color:var(--gold)}
-.delivery-opt.selected{border-color:var(--gold);background:var(--gold-dim)}
-.delivery-opt-radio{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;transition:.2s;display:flex;align-items:center;justify-content:center}
-.delivery-opt.selected .delivery-opt-radio{border-color:var(--gold);background:var(--gold)}
-.delivery-dot{width:6px;height:6px;border-radius:50%;background:var(--ink);display:none}
-.delivery-opt.selected .delivery-dot{display:block}
-.delivery-opt-name{font-size:13px;font-weight:600;flex:1}
-.delivery-opt-detail{font-size:11px;color:var(--text3);font-family:var(--font-mono)}
-.delivery-opt-price{font-size:13px;font-weight:600;font-family:var(--font-display)}
-.address-input-group{display:flex;flex-direction:column;gap:10px}
-.addr-input{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 14px;font-family:var(--font-body);font-size:14px;color:var(--text);outline:none;transition:.2s;width:100%}
-.addr-input:focus{border-color:var(--gold)}
-.order-panel-footer{padding:20px 24px;border-top:1px solid var(--border);background:var(--surface2)}
-.btn-place-order{width:100%;padding:16px;background:var(--gold);border:none;border-radius:var(--radius);color:var(--ink);font-family:var(--font-body);font-size:16px;font-weight:700;cursor:pointer;transition:.2s;letter-spacing:.3px}
-.btn-place-order:hover{background:var(--gold-lt);transform:translateY(-1px);box-shadow:0 6px 24px rgba(184,146,42,0.35)}
-.btn-place-order:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.status-chip,
+.storage-chip,
+.user-chip {
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted);
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 8px 10px;
+}
 
-/* ── ORDER SUCCESS ── */
-.order-success{text-align:center;padding:40px 24px}
-.success-icon{font-size:56px;margin-bottom:20px}
-.success-title{font-family:var(--font-display);font-size:28px;font-weight:700;margin-bottom:10px;color:var(--ink)}
-.success-sub{font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:24px}
-.tracking-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;text-align:left}
-.tracking-steps{display:flex;flex-direction:column;gap:12px;margin-top:12px}
-.tracking-step{display:flex;align-items:center;gap:12px}
-.track-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.track-active{background:var(--gold)}
-.track-pending{background:var(--border2)}
-.track-label{font-size:13px}
-.track-label.active{font-weight:600;color:var(--ink)}
-.track-label.pending{color:var(--text3)}
+.storage-chip strong,
+.user-chip strong {
+  color: var(--accent);
+  font-weight: 500;
+}
 
-/* ── OVERLAY ── */
-.overlay{display:none;position:fixed;inset:0;background:rgba(10,10,8,0.5);z-index:800;backdrop-filter:blur(2px)}
-.overlay.open{display:block}
+.brand-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
 
-/* ── TOAST ── */
-.toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:var(--paper);padding:14px 24px;border-radius:var(--radius);font-size:14px;font-weight:500;z-index:2000;transition:.4s;opacity:0;pointer-events:none;white-space:nowrap}
-.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.brand-copy h1 {
+  font-family: var(--font-display);
+  font-size: 31px;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+}
 
-/* ── FEATURE STRIP ── */
-.features-strip{background:var(--ink);padding:64px 40px;margin:60px 0 0}
-.features-inner{max-width:1380px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:40px}
-.feature-item{padding:32px;border:1px solid #ffffff18;border-radius:var(--radius-xl)}
-.feature-icon{font-size:32px;margin-bottom:16px}
-.feature-title{font-family:var(--font-display);font-size:22px;font-weight:600;color:var(--paper);margin-bottom:8px}
-.feature-desc{font-size:14px;color:#ffffff80;line-height:1.6}
+.brand-copy p {
+  margin-top: 8px;
+  max-width: 260px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
 
-/* ── MISC ── */
-.view-all-btn{padding:10px 22px;border:1.5px solid var(--border2);border-radius:var(--radius);background:none;font-family:var(--font-body);font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;transition:.2s}
-.view-all-btn:hover{border-color:var(--ink);color:var(--ink);background:var(--warm)}
-.divider-line{border:none;border-top:1px solid var(--border);margin:60px 0}
-.page-sep{height:1px;background:var(--border)}
+.brand-badge {
+  width: 52px;
+  height: 52px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--accent);
+  background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.24), rgba(var(--accent-rgb), 0.08));
+  border: 1px solid rgba(var(--accent-rgb), 0.2);
+}
 
-@media(max-width:900px){
-  .hero{grid-template-columns:1fr;padding:120px 24px 60px}
-  .hero-title{font-size:52px}
-  .hero-visual{display:none}
-  .section{padding:60px 24px}
-  .feed-wrap{grid-template-columns:1fr;padding:32px 24px}
-  .feed-sidebar{display:none}
-  .shopping-top{grid-template-columns:1fr}
-  .detail-hero{grid-template-columns:1fr}
-  .detail-emoji-wrap{aspect-ratio:2/1}
-  .country-grid{grid-template-columns:repeat(3,1fr)}
-  .swap-thead,.swap-row{grid-template-columns:100px 1fr 1fr 100px}
-  .order-panel{width:100%;right:-100%}
-  .features-inner{grid-template-columns:1fr}
-  .form-grid{grid-template-columns:1fr}
-  .upload-wrap,.localiser-wrap,.shopping-wrap,.recipe-detail{padding:32px 24px}
-  .navbar{padding:0 20px}
-  .nav-links .nav-link{font-size:12px;padding:7px 10px}
+.screen-stack {
+  padding: 0 16px 108px;
+}
+
+.screen {
+  display: none;
+  animation: rise-in 220ms ease;
+}
+
+.screen.active {
+  display: block;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-card,
+.panel,
+.post-card,
+.recipe-card,
+.metric-card,
+.log-card,
+.form-card,
+.modal-card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.02));
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.hero-card {
+  position: relative;
+  overflow: hidden;
+  padding: 22px;
+  margin-top: 4px;
+}
+
+.hero-card::after {
+  content: "";
+  position: absolute;
+  inset: auto -44px -44px auto;
+  width: 160px;
+  height: 160px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(var(--accent-rgb), 0.18), transparent 68%);
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.hero-title {
+  margin-top: 14px;
+  max-width: 340px;
+  font-size: 33px;
+  line-height: 1.02;
+  letter-spacing: -0.05em;
+}
+
+.hero-title strong {
+  color: var(--accent);
+}
+
+.hero-sub {
+  margin-top: 12px;
+  max-width: 340px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.hero-stat {
+  padding: 14px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.hero-stat strong {
+  display: block;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.hero-stat span {
+  display: block;
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 12px;
+  margin: 22px 2px 14px;
+}
+
+.section-head h2 {
+  font-size: 21px;
+  letter-spacing: -0.04em;
+}
+
+.section-head p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.section-note {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.panel {
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.search-panel,
+.toolbar-grid,
+.account-form,
+.field-group,
+.auth-stack {
+  display: grid;
+  gap: 12px;
+}
+
+.input-shell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0 14px;
+}
+
+.input-shell span {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.input-shell input {
+  padding: 14px 0;
+  border: 0;
+  background: transparent;
+}
+
+.chip-row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+
+.chip-row::-webkit-scrollbar {
+  display: none;
+}
+
+.chip,
+.diet-toggle {
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--muted-strong);
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, color 180ms ease;
+}
+
+.chip.active,
+.chip:hover,
+.diet-toggle.active {
+  border-color: rgba(var(--accent-rgb), 0.28);
+  background: rgba(var(--accent-rgb), 0.12);
+  color: var(--accent);
+}
+
+.card-list {
+  display: grid;
+  gap: 14px;
+}
+
+.recipe-card,
+.post-card,
+.log-card,
+.metric-card,
+.form-card {
+  padding: 16px;
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.recipe-card:hover,
+.post-card:hover,
+.log-card:hover,
+.metric-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--line-strong);
+}
+
+.recipe-top,
+.post-top,
+.log-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 12px;
+}
+
+.recipe-visual,
+.post-visual {
+  width: 62px;
+  height: 62px;
+  flex-shrink: 0;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: grid;
+  place-items: end start;
+  padding: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.92);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.tone-a { background: linear-gradient(135deg, #203229, #0d1118); }
+.tone-b { background: linear-gradient(135deg, #223450, #0d1118); }
+.tone-c { background: linear-gradient(135deg, #4a3026, #0d1118); }
+.tone-d { background: linear-gradient(135deg, #342c49, #0d1118); }
+.tone-e { background: linear-gradient(135deg, #39401f, #0d1118); }
+
+.stack {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.title-row h3 {
+  font-size: 18px;
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+}
+
+.label {
+  border-radius: 999px;
+  padding: 5px 8px;
+  background: rgba(var(--accent-rgb), 0.1);
+  border: 1px solid rgba(var(--accent-rgb), 0.16);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.subtle {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.tag-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mini-tag {
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--muted-strong);
+  font-size: 11px;
+}
+
+.macro-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.macro-cell {
+  padding: 12px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.macro-cell strong {
+  display: block;
+  font-size: 17px;
+}
+
+.macro-cell span {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.action-row,
+.button-row,
+.auth-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.button,
+.ghost-button,
+.nav-button,
+.secondary-button,
+.tiny-button {
+  border-radius: 16px;
+  border: 1px solid transparent;
+  padding: 13px 14px;
+  transition: transform 180ms ease, background 180ms ease, border-color 180ms ease, color 180ms ease, opacity 180ms ease;
+}
+
+.button,
+.tiny-button {
+  background: var(--accent);
+  color: #09110d;
+  font-weight: 700;
+}
+
+.button:hover,
+.tiny-button:hover {
+  transform: translateY(-1px);
+  background: #93b2a3;
+}
+
+.ghost-button,
+.secondary-button {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: var(--line);
+  color: var(--text);
+}
+
+.ghost-button:hover,
+.secondary-button:hover,
+.nav-button:hover {
+  transform: translateY(-1px);
+  border-color: var(--line-strong);
+}
+
+.button:disabled,
+.ghost-button:disabled,
+.secondary-button:disabled,
+.tiny-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.button.flex,
+.ghost-button.flex,
+.secondary-button.flex {
+  flex: 1;
+}
+
+.meta-grid,
+.metric-grid,
+.split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.metric-card strong {
+  display: block;
+  font-size: 28px;
+  letter-spacing: -0.05em;
+}
+
+.metric-card span {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.post-card {
+  display: grid;
+  gap: 14px;
+}
+
+.post-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 14px;
+  background: rgba(var(--accent-rgb), 0.12);
+  border: 1px solid rgba(var(--accent-rgb), 0.16);
+  color: var(--accent);
+}
+
+.author-meta {
+  display: grid;
+  gap: 2px;
+}
+
+.author-meta strong {
+  font-size: 14px;
+}
+
+.author-meta span,
+.post-copy {
+  color: var(--muted-strong);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.stats-inline {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.stats-inline span {
+  border-radius: 999px;
+  padding: 7px 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.empty-state {
+  padding: 26px 18px;
+  border-radius: var(--radius-lg);
+  border: 1px dashed var(--line);
+  background: rgba(255, 255, 255, 0.025);
+  color: var(--muted);
+  line-height: 1.6;
+  text-align: center;
+}
+
+.field-label {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.diet-selector,
+.quick-list {
+  display: grid;
+  gap: 10px;
+}
+
+.diet-selector {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ingredient-list {
+  display: grid;
+  gap: 10px;
+}
+
+.ingredient-row {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr 1fr 44px;
+  gap: 10px;
+}
+
+.icon-button {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--muted);
+}
+
+.status-line {
+  min-height: 20px;
+  font-size: 13px;
+}
+
+.status-line.success {
+  color: var(--accent);
+}
+
+.status-line.error {
+  color: var(--danger);
+}
+
+.progress-card {
+  padding: 18px;
+  margin-top: 10px;
+}
+
+.progress-ring {
+  width: 144px;
+  height: 144px;
+  margin: 0 auto 18px;
+  position: relative;
+}
+
+.progress-ring svg {
+  transform: rotate(-90deg);
+}
+
+.progress-ring .center {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.progress-ring strong {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.progress-ring span {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.macro-bars {
+  display: grid;
+  gap: 12px;
+}
+
+.macro-bar-row {
+  display: grid;
+  gap: 8px;
+}
+
+.macro-bar-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.bar {
+  height: 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+
+.bar > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(var(--accent-rgb), 0.72), rgba(var(--accent-rgb), 1));
+}
+
+.log-card {
+  display: grid;
+  gap: 10px;
+}
+
+.log-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.muted-button {
+  border: 0;
+  background: transparent;
+  color: var(--danger);
+  font-size: 12px;
+  padding: 0;
+}
+
+.quick-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.quick-item strong {
+  display: block;
+  font-size: 14px;
+}
+
+.quick-item span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.auth-divider {
+  height: 1px;
+  background: var(--line);
+  margin: 2px 0;
+}
+
+.auth-card-title {
+  display: grid;
+  gap: 8px;
+}
+
+.auth-card-title h3 {
+  font-size: 22px;
+  letter-spacing: -0.04em;
+}
+
+.account-summary {
+  display: grid;
+  gap: 12px;
+}
+
+.account-stat {
+  padding: 14px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.wizard-shell {
+  display: grid;
+  gap: 14px;
+}
+
+.wizard-progress {
+  display: flex;
+  gap: 8px;
+}
+
+.wizard-dot {
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.wizard-dot::after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-origin: left;
+  transform: scaleX(0);
+  background: linear-gradient(90deg, rgba(var(--accent-rgb), 0.75), rgba(var(--accent-rgb), 1));
+  transition: transform 220ms ease;
+}
+
+.wizard-dot.active::after {
+  transform: scaleX(1);
+}
+
+.wizard-viewport {
+  overflow: hidden;
+}
+
+.wizard-track {
+  display: flex;
+  width: 100%;
+  transition: transform 280ms ease;
+}
+
+.wizard-step {
+  width: 100%;
+  flex: 0 0 100%;
+  display: grid;
+  gap: 14px;
+}
+
+.wizard-step h4 {
+  font-size: 22px;
+  letter-spacing: -0.04em;
+}
+
+.wizard-step p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.wizard-nav {
+  display: flex;
+  gap: 10px;
+}
+
+.wizard-note {
+  min-height: 18px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.wizard-note.error {
+  color: var(--danger);
+}
+
+.wizard-note.success {
+  color: var(--accent);
+}
+
+.option-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.option-card {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--muted-strong);
+  text-align: left;
+  padding: 14px;
+  display: grid;
+  gap: 6px;
+}
+
+.option-card strong {
+  font-size: 14px;
+}
+
+.option-card span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.option-card.active {
+  border-color: rgba(var(--accent-rgb), 0.28);
+  background: rgba(var(--accent-rgb), 0.12);
+  color: var(--accent);
+}
+
+.option-card.active span {
+  color: var(--muted-strong);
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.summary-card {
+  padding: 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.summary-card strong {
+  display: block;
+  font-size: 18px;
+}
+
+.summary-card span {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.helper-callout {
+  padding: 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(var(--accent-rgb), 0.16);
+  background: rgba(var(--accent-rgb), 0.08);
+}
+
+.bottom-nav {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 15;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  padding: 8px;
+  border-radius: 24px;
+  background: rgba(12, 15, 22, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(18px);
+}
+
+.nav-button {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  display: grid;
+  gap: 5px;
+  justify-items: center;
+  padding: 10px 8px;
+  font-size: 11px;
+}
+
+.nav-button strong {
+  font-size: 12px;
+}
+
+.nav-button.active {
+  background: rgba(var(--accent-rgb), 0.12);
+  border-color: rgba(var(--accent-rgb), 0.2);
+  color: var(--accent);
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: none;
+  align-items: end;
+  padding: 16px;
+  background: rgba(4, 6, 10, 0.72);
+  backdrop-filter: blur(10px);
+}
+
+.modal-backdrop.open {
+  display: flex;
+}
+
+.modal-card {
+  width: 100%;
+  max-height: 84vh;
+  overflow: auto;
+  padding: 18px;
+  border-radius: 28px;
+}
+
+.modal-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.modal-title {
+  display: grid;
+  gap: 7px;
+}
+
+.ingredient-detail {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.ingredient-detail div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.ingredient-detail span:last-child {
+  color: var(--muted);
+}
+
+.method-block {
+  margin-top: 14px;
+  color: var(--muted-strong);
+  font-size: 14px;
+  line-height: 1.7;
+  white-space: pre-line;
+}
+
+.toast {
+  position: absolute;
+  left: 50%;
+  bottom: 94px;
+  transform: translate(-50%, 20px);
+  z-index: 40;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease, transform 180ms ease;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 13, 18, 0.95);
+  color: var(--text);
+  padding: 12px 16px;
+  font-size: 13px;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+@media (min-width: 900px) {
+  body {
+    padding: 22px;
+  }
+
+  .app-shell {
+    width: min(100%, 1180px);
+    min-height: calc(100vh - 44px);
+  }
+
+  .topbar {
+    padding: 22px 26px 16px;
+  }
+
+  .brand-row {
+    align-items: end;
+  }
+
+  .brand-copy p {
+    max-width: none;
+  }
+
+  .screen-stack {
+    padding: 0 22px 116px;
+  }
+
+  .screen.active.desktop-grid {
+    display: grid;
+    gap: 18px;
+  }
+
+  .explore-grid {
+    display: grid;
+    grid-template-columns: 1.12fr 0.88fr;
+    gap: 18px;
+  }
+
+  .community-grid,
+  .tracker-grid,
+  .create-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 18px;
+    align-items: start;
+  }
+
+  .hero-card,
+  .panel {
+    margin-top: 0;
+  }
+
+  .card-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ingredient-row {
+    grid-template-columns: 1.5fr 0.8fr 1fr 44px;
+  }
 }
 </style>
 </head>
 <body>
-
-<!-- NAVBAR -->
-<nav class="navbar">
-  <div class="nav-inner">
-    <div class="nav-logo" onclick="showView('home')">Macro<span>Chef</span></div>
-    <div class="nav-links">
-      <button class="nav-link active" id="nav-home" onclick="showView('home')">Discover</button>
-      <button class="nav-link" id="nav-feed" onclick="showView('feed')">Feed</button>
-      <button class="nav-link" id="nav-upload" onclick="showView('upload')">Upload</button>
-      <button class="nav-link" id="nav-localiser" onclick="showView('localiser')">Localise</button>
-      <button class="nav-link" id="nav-shopping" onclick="showView('shopping')">Shop</button>
-    </div>
-    <div class="nav-actions">
-      <button class="cart-btn" onclick="openOrderPanel()">
-        🛒 Order
-        <span class="cart-badge" id="cartBadge">0</span>
-      </button>
-      <div class="user-avatar">JD</div>
-    </div>
-  </div>
-</nav>
-
-<!-- OVERLAY -->
-<div class="overlay" id="overlay" onclick="closeOrderPanel()"></div>
-
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
-
-<!-- ══════════════════ HOME VIEW ══════════════════ -->
-<div class="page-view active" id="view-home">
-  <div style="max-width:1380px;margin:0 auto">
-    <div class="hero">
-      <div class="hero-left">
-        <div class="hero-eyebrow">// verified macros · global pantry</div>
-        <h1 class="hero-title">Eat <em>precise.</em><br>Cook <em>global.</em></h1>
-        <p class="hero-sub">Every recipe verified by brand-level nutritional data. Browse, cook, order your ingredients—then let us handle the rest.</p>
-        <div class="hero-cta-row">
-          <button class="btn-hero" onclick="document.getElementById('browse-section').scrollIntoView({behavior:'smooth'})">Browse Recipes</button>
-          <button class="btn-hero-ghost" onclick="showView('upload')">Share a Recipe</button>
-        </div>
-        <div class="hero-stats">
-          <div><div class="stat-num">2,841</div><div class="stat-lbl">Recipes</div></div>
-          <div><div class="stat-num">14k+</div><div class="stat-lbl">Chefs</div></div>
-          <div><div class="stat-num">99%</div><div class="stat-lbl">Verified macros</div></div>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="status-row">
+        <div class="status-chip" id="todayStamp">Today</div>
+        <div class="status-stack">
+          <div class="storage-chip">Storage <strong>local PostgreSQL</strong></div>
+          <div class="user-chip" id="userSessionChip">Session <strong>Guest</strong></div>
         </div>
       </div>
-      <div class="hero-visual">
-        <div class="hero-food-grid">
-          <div class="hero-food-cell">🍛</div>
-          <div class="hero-food-cell">🥑</div>
-          <div class="hero-food-cell">🐟</div>
-          <div class="hero-food-cell">🌿</div>
+      <div class="brand-row">
+        <div class="brand-copy">
+          <h1>MacroChef</h1>
+          <p>Sign up, post recipes, browse everyone’s meals, and store your tracking data in a local relational database.</p>
         </div>
+        <div class="brand-badge">MC</div>
       </div>
-    </div>
-  </div>
+    </header>
 
-  <div class="page-sep"></div>
+    <main class="screen-stack">
+      <section class="screen active desktop-grid" data-screen="explore">
+        <div class="explore-grid">
+          <div class="hero-card">
+            <div class="eyebrow">Community kitchen</div>
+            <div class="hero-title">Build a <strong>premium recipe feed</strong> backed by local Postgres.</div>
+            <p class="hero-sub">Recipes, posts, daily targets, and calorie logs now live in a relational schema instead of browser-only storage.</p>
+            <div class="hero-stats" id="heroStats"></div>
+          </div>
 
-  <div class="section" id="browse-section">
-    <div class="section-header-row">
-      <div>
-        <div class="section-label">// community recipes</div>
-        <h2 class="section-title">Find your next <em>perfect meal</em></h2>
-      </div>
-      <button class="view-all-btn">View all 2,841 →</button>
-    </div>
-    <div class="filter-bar">
-      <div class="search-wrap">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input class="search-input" placeholder="Search recipes, chefs, ingredients..." id="searchInput" oninput="filterRecipes()">
-      </div>
-      <div class="filter-divider"></div>
-      <div class="diet-pills">
-        <button class="pill active" onclick="setDiet('all',this)">All</button>
-        <button class="pill" onclick="setDiet('high-protein',this)">High Protein</button>
-        <button class="pill" onclick="setDiet('keto',this)">Keto</button>
-        <button class="pill" onclick="setDiet('vegan',this)">Vegan</button>
-        <button class="pill" onclick="setDiet('low-carb',this)">Low Carb</button>
-        <button class="pill" onclick="setDiet('bulking',this)">Bulking</button>
-      </div>
-    </div>
-    <div class="recipe-grid" id="recipeGrid"></div>
-  </div>
+          <div class="panel search-panel">
+            <div class="section-note">Filter recipes</div>
+            <label class="input-shell">
+              <span>Search</span>
+              <input id="recipeSearch" type="text" placeholder="Titles, authors, diets">
+            </label>
+            <div class="chip-row" id="recipeFilterRow"></div>
+          </div>
+        </div>
 
-  <div class="features-strip">
-    <div class="features-inner">
-      <div class="feature-item">
-        <div class="feature-icon">🔬</div>
-        <div class="feature-title">Brand-verified macros</div>
-        <div class="feature-desc">Every ingredient is tied to a specific brand SKU. We pull live nutritional panels so the macros you see are the macros you get.</div>
-      </div>
-      <div class="feature-item">
-        <div class="feature-icon">🌍</div>
-        <div class="feature-title">Global ingredient swaps</div>
-        <div class="feature-desc">US recipe? We automatically replace unavailable brands with local equivalents that match macros within 2%—wherever you are.</div>
-      </div>
-      <div class="feature-item">
-        <div class="feature-icon">🛒</div>
-        <div class="feature-title">Order in one tap</div>
-        <div class="feature-desc">Build your shopping list from any recipe, see what's in stock near you, and place a same-day delivery order without leaving the page.</div>
-      </div>
-    </div>
-  </div>
-</div>
+        <div>
+          <div class="section-head">
+            <div>
+              <h2>Explore community recipes</h2>
+              <p>Filter by goal, open a recipe, or log it straight into your tracker.</p>
+            </div>
+            <div class="section-note" id="recipeCountNote">0 recipes</div>
+          </div>
+          <div class="card-list" id="recipeList"></div>
+        </div>
+      </section>
 
-<!-- ══════════════════ RECIPE DETAIL VIEW ══════════════════ -->
-<div class="page-view" id="view-detail">
-  <div class="recipe-detail">
-    <button class="detail-back" onclick="showView('home')">← Back to recipes</button>
-    <div class="detail-hero">
-      <div class="detail-emoji-wrap" id="detailEmoji"></div>
-      <div class="detail-meta">
-        <div class="card-tags" id="detailTags"></div>
-        <h1 class="detail-title" id="detailTitle"></h1>
-        <div class="detail-author-row">
-          <div class="detail-avatar" id="detailAvatarText"></div>
+      <section class="screen desktop-grid" data-screen="community">
+        <div class="community-grid">
           <div>
-            <div class="detail-author-name" id="detailAuthorName"></div>
-            <div class="detail-author-stats" id="detailAuthorStats"></div>
-          </div>
-        </div>
-        <div class="detail-verified">✓ Macros verified · Brand data confirmed</div>
-        <div class="detail-macro-grid" id="detailMacros"></div>
-        <div class="detail-action-row">
-          <button class="btn-order" onclick="goToShopRecipe()">🛒 Order Ingredients</button>
-          <button class="btn-secondary" onclick="showView('localiser')">🌍 Localise Recipe</button>
-        </div>
-      </div>
-    </div>
-    <div class="detail-tabs">
-      <button class="detail-tab active" onclick="switchDetailTab('ingredients',this)">Ingredients</button>
-      <button class="detail-tab" onclick="switchDetailTab('method',this)">Method</button>
-      <button class="detail-tab" onclick="switchDetailTab('comments',this)">Comments</button>
-    </div>
-    <div id="detailIngredients"></div>
-    <div id="detailMethod" style="display:none"></div>
-    <div id="detailComments" style="display:none"></div>
-  </div>
-</div>
-
-<!-- ══════════════════ FEED VIEW ══════════════════ -->
-<div class="page-view" id="view-feed">
-  <div class="feed-wrap">
-    <div id="feedPosts"></div>
-    <div class="feed-sidebar">
-      <div class="sidebar-block">
-        <div class="sidebar-heading">Suggested Chefs</div>
-        <div id="suggestedChefs"></div>
-      </div>
-      <div class="sidebar-block">
-        <div class="sidebar-heading">Your Stats</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <div class="macro-box"><div class="macro-val">12</div><div class="macro-lbl">Recipes</div></div>
-          <div class="macro-box"><div class="macro-val">847</div><div class="macro-lbl">Followers</div></div>
-          <div class="macro-box"><div class="macro-val">4.8★</div><div class="macro-lbl">Rating</div></div>
-          <div class="macro-box"><div class="macro-val">2.1k</div><div class="macro-lbl">Cooked</div></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ══════════════════ UPLOAD VIEW ══════════════════ -->
-<div class="page-view" id="view-upload">
-  <div class="upload-wrap">
-    <div class="section-label">// share with the community</div>
-    <h2 class="section-title" style="margin-bottom:8px">Upload a <em>Recipe</em></h2>
-    <p style="font-size:14px;color:var(--text2);margin-bottom:32px">Add brand names per ingredient and we'll verify your macros against live nutrition databases.</p>
-    <div class="upload-card">
-      <div class="form-grid">
-        <div class="form-full">
-          <label class="form-label">Recipe Name</label>
-          <input class="form-input" placeholder="e.g. High-Protein Chicken Tikka" id="upName">
-        </div>
-        <div>
-          <label class="form-label">Prep Time (mins)</label>
-          <input class="form-input" type="number" placeholder="30">
-        </div>
-        <div>
-          <label class="form-label">Servings</label>
-          <input class="form-input" type="number" placeholder="4">
-        </div>
-        <div>
-          <label class="form-label">Dietary Category</label>
-          <select class="form-select">
-            <option value="">Select...</option>
-            <option>High Protein</option><option>Keto</option><option>Vegan</option>
-            <option>Low Carb</option><option>Bulking</option><option>Cutting</option>
-          </select>
-        </div>
-        <div>
-          <label class="form-label">Country of Origin</label>
-          <select class="form-select">
-            <option>🇦🇺 Australia</option><option>🇺🇸 United States</option>
-            <option>🇬🇧 United Kingdom</option><option>🇮🇳 India</option><option>🇯🇵 Japan</option>
-          </select>
-        </div>
-        <div class="form-full">
-          <label class="form-label">Ingredients & Brands <span style="color:var(--gold);font-weight:400">— brand names unlock macro verification</span></label>
-          <div id="uploadIngredients">
-            <div class="ingredient-entry">
-              <input class="form-input" placeholder="Ingredient name">
-              <input class="form-input" placeholder="Amount">
-              <input class="form-input" placeholder="Brand name" oninput="checkBrand(this)">
-              <span class="brand-verify" style="display:none" id="bv0">✓ Verified</span>
+            <div class="section-head">
+              <div>
+                <h2>Everyone's board</h2>
+                <p>See what other people posted and log anything that fits your day.</p>
+              </div>
             </div>
-            <div class="ingredient-entry">
-              <input class="form-input" placeholder="Ingredient name">
-              <input class="form-input" placeholder="Amount">
-              <input class="form-input" placeholder="Brand name">
-              <span></span>
+            <div class="panel toolbar-grid">
+              <label class="input-shell">
+                <span>Search</span>
+                <input id="communitySearch" type="text" placeholder="Recipe, handle, caption">
+              </label>
+              <div class="chip-row" id="communityFilterRow"></div>
             </div>
-            <div class="ingredient-entry">
-              <input class="form-input" placeholder="Ingredient name">
-              <input class="form-input" placeholder="Amount">
-              <input class="form-input" placeholder="Brand name">
-              <span></span>
+            <div class="card-list" id="communityList" style="margin-top: 16px;"></div>
+          </div>
+
+          <div style="display:grid; gap: 16px;">
+            <div class="section-head" style="margin-top: 0;">
+              <div>
+                <h2>Community pulse</h2>
+                <p>Counts update against the Postgres data every time you reload or publish.</p>
+              </div>
+            </div>
+            <div class="metric-grid" id="communityMetrics"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen desktop-grid" data-screen="create">
+        <div class="create-grid">
+          <div class="form-card">
+            <div class="section-head" style="margin: 0;">
+              <div>
+                <h2>Post a recipe</h2>
+                <p>Publishing stores the recipe, its ingredients, and the feed post in PostgreSQL.</p>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="recipeTitleInput">Recipe title</label>
+              <input id="recipeTitleInput" type="text" placeholder="High-protein gochujang salmon bowl">
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="recipeCaptionInput">Caption for the feed</label>
+              <textarea id="recipeCaptionInput" placeholder="Tell the community why this one works for your training week."></textarea>
+            </div>
+
+            <div class="meta-grid">
+              <div class="field-group">
+                <label class="field-label" for="prepTimeInput">Prep time</label>
+                <input id="prepTimeInput" type="number" min="0" placeholder="20">
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="servingsInput">Servings</label>
+                <input id="servingsInput" type="number" min="1" placeholder="2">
+              </div>
+            </div>
+
+            <div class="field-group">
+              <div class="field-label">Diet filters</div>
+              <div class="diet-selector" id="createDietSelector"></div>
+            </div>
+
+            <div class="meta-grid">
+              <div class="field-group">
+                <label class="field-label" for="caloriesInput">Calories</label>
+                <input id="caloriesInput" type="number" min="0" placeholder="540">
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="proteinInput">Protein (g)</label>
+                <input id="proteinInput" type="number" min="0" placeholder="42">
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="carbsInput">Carbs (g)</label>
+                <input id="carbsInput" type="number" min="0" placeholder="38">
+              </div>
+              <div class="field-group">
+                <label class="field-label" for="fatInput">Fat (g)</label>
+                <input id="fatInput" type="number" min="0" placeholder="16">
+              </div>
+            </div>
+
+            <div class="field-group">
+              <div class="field-label">Ingredients</div>
+              <div class="ingredient-list" id="ingredientRows"></div>
+              <button class="ghost-button" id="addIngredientButton" type="button">Add ingredient</button>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="methodInput">Method</label>
+              <textarea id="methodInput" placeholder="1. Prep the protein. 2. Cook the grains. 3. Assemble and finish."></textarea>
+            </div>
+
+            <button class="button" id="submitRecipeButton" type="button">Publish recipe</button>
+            <div class="status-line" id="createStatus"></div>
+          </div>
+
+          <div style="display:grid; gap:16px;">
+            <div class="panel" id="accountPanel"></div>
+            <div class="panel">
+              <div class="section-note">Recent recipes you created</div>
+              <div class="quick-list" id="recentCreatedList" style="margin-top: 14px;"></div>
             </div>
           </div>
-          <button onclick="addIngRow()" style="background:none;border:1px dashed var(--border2);border-radius:var(--radius-sm);padding:9px 16px;font-family:var(--font-body);font-size:13px;color:var(--text2);cursor:pointer;margin-top:10px;transition:.2s" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border2)'">+ Add ingredient</button>
         </div>
-        <div><label class="form-label">Calories (per serving)</label><input class="form-input" type="number" placeholder="420"></div>
-        <div><label class="form-label">Protein (g)</label><input class="form-input" type="number" placeholder="38"></div>
-        <div><label class="form-label">Carbs (g)</label><input class="form-input" type="number" placeholder="32"></div>
-        <div><label class="form-label">Fat (g)</label><input class="form-input" type="number" placeholder="12"></div>
-        <div class="form-full">
-          <label class="form-label">Recipe Photo</label>
-          <div class="drop-zone" onclick="simUpload(this)" id="dropZone">
-            <div class="drop-icon">📸</div>
-            <div class="drop-text">Click or drag to upload photo</div>
-            <div class="drop-sub">JPG, PNG, HEIC · max 20MB</div>
+      </section>
+
+      <section class="screen desktop-grid" data-screen="tracker">
+        <div class="tracker-grid">
+          <div>
+            <div class="section-head">
+              <div>
+                <h2>Calorie tracker</h2>
+                <p>Log meals from your recipes or add a custom entry. Targets and logs are stored per signed-in user.</p>
+              </div>
+            </div>
+
+            <div class="panel toolbar-grid">
+              <div class="split">
+                <div class="field-group">
+                  <label class="field-label" for="trackerDateInput">Date</label>
+                  <input id="trackerDateInput" type="date">
+                </div>
+                <div class="field-group">
+                  <label class="field-label" for="dailyTargetInput">Daily target</label>
+                  <input id="dailyTargetInput" type="number" min="0" placeholder="2200">
+                </div>
+              </div>
+              <button class="ghost-button" id="saveTargetButton" type="button">Save calorie target</button>
+            </div>
+
+            <div class="panel">
+              <div class="section-note">Quick log from recipe</div>
+              <div class="toolbar-grid" style="margin-top: 12px;">
+                <select id="trackerRecipeSelect"></select>
+                <div class="split">
+                  <select id="mealTypeSelect">
+                    <option value="Breakfast">Breakfast</option>
+                    <option value="Lunch">Lunch</option>
+                    <option value="Dinner">Dinner</option>
+                    <option value="Snack">Snack</option>
+                  </select>
+                  <button class="button" id="quickLogButton" type="button">Log selected recipe</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="section-note">Custom meal</div>
+              <div class="toolbar-grid" style="margin-top: 12px;">
+                <input id="customMealTitleInput" type="text" placeholder="Protein yogurt bowl">
+                <div class="split">
+                  <input id="customMealCaloriesInput" type="number" min="0" placeholder="Calories">
+                  <select id="customMealTypeSelect">
+                    <option value="Breakfast">Breakfast</option>
+                    <option value="Lunch">Lunch</option>
+                    <option value="Dinner">Dinner</option>
+                    <option value="Snack">Snack</option>
+                  </select>
+                </div>
+                <div class="split">
+                  <input id="customMealProteinInput" type="number" min="0" placeholder="Protein">
+                  <input id="customMealCarbsInput" type="number" min="0" placeholder="Carbs">
+                </div>
+                <input id="customMealFatInput" type="number" min="0" placeholder="Fat">
+                <button class="ghost-button" id="customLogButton" type="button">Add custom meal</button>
+              </div>
+            </div>
+
+            <div class="section-head">
+              <div>
+                <h2>Daily meals</h2>
+                <p id="trackerLogSubtitle">0 entries</p>
+              </div>
+            </div>
+            <div class="card-list" id="trackerLogList"></div>
+          </div>
+
+          <div style="display:grid; gap:16px;">
+            <div class="panel progress-card">
+              <div class="section-note">Daily progress</div>
+              <div class="progress-ring">
+                <svg width="144" height="144" viewBox="0 0 144 144" aria-hidden="true">
+                  <circle cx="72" cy="72" r="58" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="14"></circle>
+                  <circle id="progressStroke" cx="72" cy="72" r="58" fill="none" stroke="url(#progressGradient)" stroke-width="14" stroke-linecap="round" stroke-dasharray="364.42 364.42"></circle>
+                  <defs>
+                    <linearGradient id="progressGradient" x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stop-color="#6f8d80"></stop>
+                      <stop offset="100%" stop-color="#a1bcaf"></stop>
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <div class="center">
+                  <div>
+                    <strong id="consumedCalories">0</strong>
+                    <span id="remainingCalories">0 remaining</span>
+                  </div>
+                </div>
+              </div>
+              <div class="macro-bars" id="trackerMacroBars"></div>
+            </div>
+
+            <div class="panel">
+              <div class="section-note">Fast add</div>
+              <div class="quick-list" id="trackerQuickList" style="margin-top: 14px;"></div>
+            </div>
           </div>
         </div>
-        <div class="form-full">
-          <label class="form-label">Method</label>
-          <textarea class="form-textarea" rows="6" placeholder="Step-by-step cooking instructions..."></textarea>
-        </div>
-      </div>
-      <div class="submit-row">
-        <button class="btn-submit" onclick="submitRecipe()">Submit for Verification</button>
-        <div class="verify-status" id="uploadStatus"></div>
-      </div>
-    </div>
-  </div>
-</div>
+      </section>
+    </main>
 
-<!-- ══════════════════ LOCALISER VIEW ══════════════════ -->
-<div class="page-view" id="view-localiser">
-  <div class="localiser-wrap">
-    <div class="section-label">// ingredient intelligence</div>
-    <h2 class="section-title" style="margin-bottom:8px">Global <em>Localiser</em></h2>
-    <p style="font-size:14px;color:var(--text2);margin-bottom:36px">Select your country. We'll swap every US brand with a local equivalent that keeps macros within 2%.</p>
-    <div class="country-grid" id="countryGrid"></div>
-    <div style="font-size:13px;color:var(--text2);margin-bottom:20px">Showing ingredient swaps for <strong style="color:var(--ink)">High-Protein Chicken Tikka</strong> (US → <span id="locCountryLabel">Australia</span>)</div>
-    <div class="swap-table">
-      <div class="swap-thead">
-        <div class="swap-th">Ingredient</div>
-        <div class="swap-th">US Brand</div>
-        <div class="swap-th">Local Brand</div>
-        <div class="swap-th">Match</div>
-        <div class="swap-th">Δ Macro</div>
-      </div>
-      <div id="swapRows"></div>
-    </div>
-  </div>
-</div>
+    <nav class="bottom-nav" id="bottomNav">
+      <button class="nav-button active" data-screen-target="explore" type="button"><strong>Explore</strong><span>Recipes</span></button>
+      <button class="nav-button" data-screen-target="community" type="button"><strong>Community</strong><span>Posts</span></button>
+      <button class="nav-button" data-screen-target="create" type="button"><strong>Create</strong><span>Publish</span></button>
+      <button class="nav-button" data-screen-target="tracker" type="button"><strong>Tracker</strong><span>Calories</span></button>
+    </nav>
 
-<!-- ══════════════════ SHOPPING VIEW ══════════════════ -->
-<div class="page-view" id="view-shopping">
-  <div class="shopping-wrap">
-    <div class="section-label">// smart grocery</div>
-    <h2 class="section-title" style="margin-bottom:8px">Shop & <em>Order</em></h2>
-    <p style="font-size:14px;color:var(--text2);margin-bottom:32px">We find what's in stock near you and place the order. Delivery in 2–4 hours.</p>
-    <div class="shopping-top">
-      <div class="shop-summary-card">
-        <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;margin-bottom:6px">Shopping for</div>
-        <div class="shop-recipe-name" id="shopRecipeName">High-Protein Chicken Tikka</div>
-        <div class="shop-region-label">Your Delivery Region</div>
-        <select class="shop-region-select" id="shopRegion" onchange="refreshShopList()">
-          <option>Sydney, NSW, Australia</option>
-          <option>Melbourne, VIC, Australia</option>
-          <option>London, UK</option>
-          <option>New York, USA</option>
-          <option>Toronto, Canada</option>
-        </select>
-        <div class="availability-ring">
-          <svg class="ring-svg" width="100" height="100" viewBox="0 0 100 100">
-            <circle class="ring-bg" cx="50" cy="50" r="42"/>
-            <circle class="ring-fill" cx="50" cy="50" r="42" id="ringFill" stroke-dasharray="197 264" stroke-dashoffset="0"/>
-          </svg>
-          <div class="ring-text">
-            <div class="ring-num" id="ringNum">6/8</div>
-            <div class="ring-sub">in stock</div>
-          </div>
-        </div>
-        <button class="btn-order" style="width:100%;margin-top:16px" onclick="openOrderPanel()">Place Order →</button>
-      </div>
-      <div class="stores-card">
-        <div class="sidebar-heading">Nearby Stores</div>
-        <div id="nearbyStores"></div>
-      </div>
+    <div class="modal-backdrop" id="recipeModal">
+      <div class="modal-card" id="recipeModalContent"></div>
     </div>
-    <div class="shop-list-card">
-      <div class="shop-list-header">
-        <div class="shop-list-title">Shopping List</div>
-        <div style="display:flex;gap:10px;align-items:center">
-          <div style="font-size:12px;color:var(--text3);font-family:var(--font-mono)" id="checkedCount">0 checked</div>
-          <button onclick="openOrderPanel()" style="padding:9px 18px;background:var(--gold);border:none;border-radius:var(--radius-sm);font-family:var(--font-body);font-size:13px;font-weight:700;color:var(--ink);cursor:pointer;transition:.2s" onmouseover="this.style.background='var(--gold-lt)'" onmouseout="this.style.background='var(--gold)'">Order All →</button>
-        </div>
-      </div>
-      <div id="shopListRows"></div>
-    </div>
-  </div>
-</div>
 
-<!-- ══════════════════ ORDER PANEL ══════════════════ -->
-<div class="order-panel" id="orderPanel">
-  <div class="order-panel-header">
-    <div class="order-panel-title">Your Order</div>
-    <button class="panel-close" onclick="closeOrderPanel()">×</button>
+    <div class="toast" id="toast"></div>
   </div>
-  <div class="order-panel-body" id="orderPanelBody"></div>
-  <div class="order-panel-footer" id="orderPanelFooter">
-    <button class="btn-place-order" id="placeOrderBtn" onclick="placeOrder()">Place Order · $<span id="orderTotalBtn">0.00</span></button>
-  </div>
-</div>
 
 <script>
-/* ═══════════════════ DATA ═══════════════════ */
-const RECIPES=[
-  {id:1,title:"High-Protein Chicken Tikka",author:"priyalifts",emoji:"🍛",diet:["high-protein"],country:"IN",cals:420,protein:52,carbs:18,fat:14,rating:4.8,reviews:234,ingredients:[{name:"Chicken Breast",amount:"200g",brand:"Ingham's"},{name:"Greek Yoghurt",amount:"100g",brand:"Chobani"},{name:"Tikka Masala Paste",amount:"30g",brand:"Patak's"},{name:"Basmati Rice",amount:"80g",brand:"SunRice"}],method:"1. Dice chicken into 3cm cubes.\n2. Mix yoghurt with tikka paste and marinate chicken for 2+ hours.\n3. Cook rice per packet instructions.\n4. Grill chicken at 220°C for 18–22 minutes, turning halfway.\n5. Rest 5 min before serving over rice.",comments:[{user:"JS",name:"Jake S",col:"#3d4a5c",text:"Made this last night — 52g protein confirmed on my macro tracker!",time:"2h ago",likes:14},{user:"AM",name:"Amy M",col:"#b8922a",text:"Swapped chicken for tofu. Still incredible.",time:"5h ago",likes:7}]},
-  {id:2,title:"Keto Beef & Avocado Bowl",author:"ketomike",emoji:"🥑",diet:["keto","low-carb"],country:"US",cals:580,protein:42,carbs:8,fat:42,rating:4.6,reviews:189,ingredients:[{name:"Ground Beef 93%",amount:"150g",brand:"Laura's Lean"},{name:"Avocado",amount:"1 whole",brand:"Fresh"},{name:"Cheddar",amount:"40g",brand:"Tillamook"},{name:"Butter Lettuce",amount:"80g",brand:"Fresh"}],method:"1. Brown ground beef in a pan over high heat, seasoning with salt, pepper, and cumin.\n2. Slice avocado. Shred cheddar.\n3. Layer lettuce, beef, avocado, and cheese in a bowl.\n4. Drizzle with lime juice and serve immediately.",comments:[{user:"RK",name:"Rachel K",col:"#2d5a3d",text:"Perfect macro split for strict keto. Meal prepped 5 of these!",time:"1d ago",likes:22}]},
-  {id:3,title:"Vegan Lentil & Quinoa Bowl",author:"plantpowered",emoji:"🌿",diet:["vegan","high-protein"],country:"AU",cals:380,protein:22,carbs:58,fat:8,rating:4.9,reviews:412,ingredients:[{name:"Red Lentils",amount:"100g",brand:"McKenzie's"},{name:"Quinoa",amount:"60g",brand:"Absolute Organic"},{name:"Baby Spinach",amount:"80g",brand:"Fresh"},{name:"Tahini",amount:"20g",brand:"Mayver's"}],method:"1. Rinse lentils and quinoa separately.\n2. Cook lentils 20 min in salted water, drain.\n3. Cook quinoa 15 min in 2x water ratio.\n4. Combine and toss with spinach and tahini dressing (tahini + lemon + garlic).",comments:[{user:"TO",name:"Tom O",col:"#c24b2a",text:"22g protein from plants is insane! Love this recipe.",time:"3h ago",likes:31},{user:"SF",name:"Sara F",col:"#5a3d7a",text:"Added roasted pumpkin seeds — 10/10.",time:"1d ago",likes:18}]},
-  {id:4,title:"Overnight Oats Protein Stack",author:"fitnessfreya",emoji:"🥣",diet:["high-protein","bulking"],country:"AU",cals:520,protein:38,carbs:62,fat:12,rating:4.7,reviews:301,ingredients:[{name:"Rolled Oats",amount:"80g",brand:"Uncle Tobys"},{name:"Whey Protein",amount:"30g",brand:"Optimum Nutrition"},{name:"Banana",amount:"1 medium",brand:"Fresh"},{name:"Almond Milk",amount:"200ml",brand:"Milklab"}],method:"1. Mix oats, protein powder, and almond milk in a jar.\n2. Seal and refrigerate overnight (min 6 hours).\n3. Top with sliced banana and a drizzle of honey.\n4. Consume cold or microwave 60 sec.",comments:[{user:"BW",name:"Ben W",col:"#3d4a5c",text:"My go-to pre-workout meal. 38g protein before I even lift!",time:"6h ago",likes:9}]},
-  {id:5,title:"Japanese Salmon Teriyaki",author:"tokyocooks",emoji:"🐟",diet:["low-carb","high-protein"],country:"JP",cals:440,protein:46,carbs:22,fat:18,rating:4.9,reviews:567,ingredients:[{name:"Atlantic Salmon",amount:"180g",brand:"Tassal"},{name:"Soy Sauce",amount:"30ml",brand:"Kikkoman"},{name:"Mirin",amount:"20ml",brand:"Obento"},{name:"Broccolini",amount:"120g",brand:"Fresh"}],method:"1. Mix soy sauce, mirin, and a tsp of sugar for teriyaki glaze.\n2. Marinate salmon 15 minutes.\n3. Heat pan to medium-high. Sear salmon 4 min each side, glazing frequently.\n4. Steam broccolini 3 min. Serve alongside with remaining glaze.",comments:[{user:"LN",name:"Lily N",col:"#2d5a3d",text:"Restaurant quality at home. Used the Localiser to find Kikkoman in AU!",time:"12h ago",likes:45},{user:"DR",name:"Dan R",col:"#b8922a",text:"Used the localiser feature — worked perfectly for me in Melbourne.",time:"2d ago",likes:12}]},
-  {id:6,title:"Bulking Pasta Bolognese",author:"massmonster",emoji:"🍝",diet:["bulking"],country:"US",cals:780,protein:55,carbs:88,fat:22,rating:4.5,reviews:98,ingredients:[{name:"Lean Ground Beef",amount:"200g",brand:"Laura's Lean"},{name:"Rigatoni Pasta",amount:"120g",brand:"Barilla"},{name:"Tomato Passata",amount:"200g",brand:"Mutti"},{name:"Parmesan",amount:"30g",brand:"Zanetti"}],method:"1. Brown beef with onion and garlic.\n2. Add passata, simmer 20 min, season well.\n3. Cook pasta al dente per packet.\n4. Combine and top with grated parmesan.",comments:[]}
+const CURRENT_USER_STORAGE_KEY = "macrochef-current-user";
+const DEFAULT_TARGET = 2200;
+const DIETS = [
+  { value: "all", label: "All" },
+  { value: "high-protein", label: "High protein" },
+  { value: "low-carb", label: "Low carb" },
+  { value: "keto", label: "Keto" },
+  { value: "vegan", label: "Vegan" },
+  { value: "recovery", label: "Recovery" }
 ];
 
-const LOCALISER={
-  AU:[
-    {ing:"Chicken Breast",us:"Tyson",local:"Ingham's",match:"exact",diff:"0%"},
-    {ing:"Greek Yoghurt",us:"Fage",local:"Chobani AU",match:"exact",diff:"0%"},
-    {ing:"Protein Powder",us:"Quest",local:"Optimum Nutrition AU",match:"good",diff:"~2g protein"},
-    {ing:"Oats",us:"Quaker",local:"Uncle Tobys",match:"exact",diff:"0%"},
-    {ing:"Almond Milk",us:"Silk",local:"Milklab",match:"exact",diff:"0%"},
-    {ing:"Cheddar Cheese",us:"Tillamook",local:"Bega Tasty",match:"good",diff:"~1g fat"},
-    {ing:"Ground Beef",us:"Laura's Lean",local:"Coles Finest 5% Fat",match:"exact",diff:"0%"},
-  ],
-  GB:[
-    {ing:"Chicken Breast",us:"Tyson",local:"Waitrose Essential",match:"exact",diff:"0%"},
-    {ing:"Greek Yoghurt",us:"Fage",local:"Fage UK",match:"exact",diff:"0%"},
-    {ing:"Protein Powder",us:"Quest",local:"MyProtein Impact Whey",match:"good",diff:"~3g protein"},
-    {ing:"Oats",us:"Quaker",local:"Quaker UK",match:"exact",diff:"0%"},
-    {ing:"Almond Milk",us:"Silk",local:"Alpro Almond",match:"good",diff:"~0.5g fat"},
-    {ing:"Cheddar Cheese",us:"Tillamook",local:"Cathedral City Mature",match:"exact",diff:"0%"},
-    {ing:"Ground Beef",us:"Laura's Lean",local:"Waitrose British Lean",match:"exact",diff:"0%"},
-  ],
-  IN:[
-    {ing:"Chicken Breast",us:"Tyson",local:"Venky's",match:"exact",diff:"0%"},
-    {ing:"Greek Yoghurt",us:"Fage",local:"Epigamia Greek Yoghurt",match:"good",diff:"~2g protein"},
-    {ing:"Protein Powder",us:"Quest",local:"MuscleBlaze Whey",match:"good",diff:"~2g protein"},
-    {ing:"Oats",us:"Quaker",local:"Quaker India",match:"exact",diff:"0%"},
-    {ing:"Almond Milk",us:"Silk",local:"So Good",match:"ok",diff:"~3g carbs"},
-    {ing:"Cheddar Cheese",us:"Tillamook",local:"Amul Processed Cheddar",match:"good",diff:"~1g fat"},
-    {ing:"Ground Beef",us:"Laura's Lean",local:"Nandus Lean Minced",match:"good",diff:"~2g fat"},
-  ],
-  JP:[
-    {ing:"Chicken Breast",us:"Tyson",local:"Ito-Yokado Fresh",match:"exact",diff:"0%"},
-    {ing:"Greek Yoghurt",us:"Fage",local:"Meiji Bulgarian Yoghurt",match:"good",diff:"~1g carbs"},
-    {ing:"Protein Powder",us:"Quest",local:"DNS Whey",match:"good",diff:"~2g protein"},
-    {ing:"Oats",us:"Quaker",local:"Quaker Japan",match:"exact",diff:"0%"},
-    {ing:"Almond Milk",us:"Silk",local:"Kikkoman Almond Milk",match:"exact",diff:"0%"},
-    {ing:"Cheddar Cheese",us:"Tillamook",local:"Snow Brand Sliced",match:"good",diff:"~1g fat"},
-    {ing:"Ground Beef",us:"Laura's Lean",local:"Costco Japan Lean Beef",match:"exact",diff:"0%"},
-  ],
-  CA:[
-    {ing:"Chicken Breast",us:"Tyson",local:"No Name Chicken",match:"exact",diff:"0%"},
-    {ing:"Greek Yoghurt",us:"Fage",local:"Liberté Méditerranée",match:"exact",diff:"0%"},
-    {ing:"Protein Powder",us:"Quest",local:"Kaizen Naturals Whey",match:"good",diff:"~2g protein"},
-    {ing:"Oats",us:"Quaker",local:"Quaker CA",match:"exact",diff:"0%"},
-    {ing:"Almond Milk",us:"Silk",local:"Silk Canada",match:"exact",diff:"0%"},
-    {ing:"Cheddar Cheese",us:"Tillamook",local:"Black Diamond Cheddar",match:"exact",diff:"0%"},
-    {ing:"Ground Beef",us:"Laura's Lean",local:"President's Choice Lean",match:"good",diff:"~1g fat"},
-  ]
+const ACTIVITY_OPTIONS = [
+  { value: "sedentary", label: "Sedentary", detail: "Mostly sitting, minimal planned exercise" },
+  { value: "light", label: "Light", detail: "Some walking or 1-3 light sessions each week" },
+  { value: "moderate", label: "Moderate", detail: "Regular training or an active routine" },
+  { value: "very", label: "Very active", detail: "Hard training most days or physical work" }
+];
+
+const GOAL_OPTIONS = [
+  { value: "lose", label: "Lose weight", detail: "Uses a moderate calorie deficit" },
+  { value: "maintain", label: "Maintain", detail: "Keeps calories near maintenance" },
+  { value: "build", label: "Build muscle", detail: "Adds a modest calorie surplus" }
+];
+
+const WIZARD_STEP_COUNT = 7;
+
+const state = {
+  currentUser: readStoredUser(),
+  recipes: [],
+  posts: [],
+  logs: [],
+  activeScreen: "explore",
+  recipeSearch: "",
+  recipeFilter: "all",
+  communitySearch: "",
+  communityFilter: "all",
+  createDiets: new Set(["high-protein"]),
+  selectedDate: dateKeyFromDate(new Date()),
+  dailyTarget: DEFAULT_TARGET,
+  wizardStep: 0,
+  onboarding: createDefaultOnboardingState(),
+  onboardingNote: "",
+  onboardingNoteTone: "",
+  pendingVerificationUserId: null
 };
 
-const SHOPS={
-  "Sydney, NSW, Australia":{
-    stores:[{name:"Woolworths Bondi Junction",dist:"0.4km",items:6},{name:"Coles Bondi",dist:"0.7km",items:5},{name:"Chemist Warehouse",dist:"1.1km",items:2},{name:"Asian Grocery · Haymarket",dist:"3.2km",items:7}],
-    items:[
-      {name:"Chicken Breast",brand:"Ingham's",amount:"500g",store:"Woolworths Bondi Junction",avail:true,price:8.50,sub:null},
-      {name:"Greek Yoghurt",brand:"Chobani",amount:"500g",store:"Coles Bondi",avail:true,price:6.00,sub:null},
-      {name:"Tikka Masala Paste",brand:"Patak's",amount:"285g",store:"Woolworths Bondi Junction",avail:true,price:4.20,sub:null},
-      {name:"Basmati Rice",brand:"SunRice",amount:"1kg",store:"Woolworths Bondi Junction",avail:true,price:3.80,sub:null},
-      {name:"Protein Powder",brand:"Optimum Nutrition",amount:"907g",store:"Chemist Warehouse",avail:true,price:59.99,sub:null},
-      {name:"Rolled Oats",brand:"Uncle Tobys",amount:"1kg",store:"Coles Bondi",avail:true,price:3.40,sub:null},
-      {name:"Mirin",brand:"Obento",amount:"300ml",store:"Asian Grocery · Haymarket",avail:false,price:5.50,sub:"Sub: dry sherry + pinch sugar (same macros)"},
-      {name:"Tahini",brand:"Mayver's",amount:"385g",store:"Woolworths Bondi Junction",avail:true,price:8.00,sub:null},
-    ]
-  },
-  "Melbourne, VIC, Australia":{
-    stores:[{name:"Coles Melbourne Central",dist:"0.3km",items:7},{name:"Woolworths CBD",dist:"0.5km",items:6},{name:"Nutrition Warehouse Richmond",dist:"2.1km",items:3}],
-    items:[
-      {name:"Chicken Breast",brand:"Ingham's",amount:"500g",store:"Coles Melbourne Central",avail:true,price:8.20,sub:null},
-      {name:"Greek Yoghurt",brand:"Chobani",amount:"500g",store:"Woolworths CBD",avail:true,price:5.90,sub:null},
-      {name:"Tikka Masala Paste",brand:"Patak's",amount:"285g",store:"Coles Melbourne Central",avail:true,price:4.10,sub:null},
-      {name:"Basmati Rice",brand:"SunRice",amount:"1kg",store:"Coles Melbourne Central",avail:true,price:3.70,sub:null},
-      {name:"Protein Powder",brand:"Optimum Nutrition",amount:"907g",store:"Nutrition Warehouse Richmond",avail:true,price:57.99,sub:null},
-      {name:"Rolled Oats",brand:"Uncle Tobys",amount:"1kg",store:"Woolworths CBD",avail:true,price:3.30,sub:null},
-      {name:"Mirin",brand:"Obento",amount:"300ml",store:"Asian Grocery · Richmond",avail:false,price:5.50,sub:"Sub: dry sherry + pinch sugar"},
-      {name:"Tahini",brand:"Mayver's",amount:"385g",store:"Coles Melbourne Central",avail:true,price:7.90,sub:null},
-    ]
-  },
-  "London, UK":{
-    stores:[{name:"Waitrose Kensington",dist:"0.6km",items:6},{name:"Tesco Express",dist:"0.2km",items:5},{name:"Sainsbury's Local",dist:"0.8km",items:4}],
-    items:[
-      {name:"Chicken Breast",brand:"Waitrose Essential",amount:"400g",store:"Waitrose Kensington",avail:true,price:5.20,sub:null},
-      {name:"Greek Yoghurt",brand:"Fage UK",amount:"500g",store:"Tesco Express",avail:true,price:3.80,sub:null},
-      {name:"Tikka Masala Paste",brand:"Patak's UK",amount:"285g",store:"Tesco Express",avail:true,price:2.90,sub:null},
-      {name:"Basmati Rice",brand:"Tilda",amount:"1kg",store:"Sainsbury's Local",avail:true,price:3.50,sub:null},
-      {name:"Protein Powder",brand:"MyProtein Impact",amount:"1kg",store:"Online — myprotein.com",avail:true,price:34.99,sub:null},
-      {name:"Rolled Oats",brand:"Quaker UK",amount:"1kg",store:"Tesco Express",avail:true,price:1.80,sub:null},
-      {name:"Mirin",brand:"Kikkoman",amount:"300ml",store:"Japan Centre Soho",avail:false,price:4.20,sub:"Sub: dry sherry + honey"},
-      {name:"Tahini",brand:"Belazu",amount:"300g",store:"Waitrose Kensington",avail:true,price:4.50,sub:null},
-    ]
-  },
-  "New York, USA":{
-    stores:[{name:"Whole Foods SoHo",dist:"0.3km",items:8},{name:"Trader Joe's",dist:"0.8km",items:7},{name:"GNC Fifth Ave",dist:"1.2km",items:4}],
-    items:[
-      {name:"Chicken Breast",brand:"Tyson",amount:"1lb",store:"Whole Foods SoHo",avail:true,price:6.99,sub:null},
-      {name:"Greek Yoghurt",brand:"Fage",amount:"17.6oz",store:"Trader Joe's",avail:true,price:5.49,sub:null},
-      {name:"Tikka Masala Paste",brand:"Patak's",amount:"10oz",store:"Whole Foods SoHo",avail:true,price:4.99,sub:null},
-      {name:"Basmati Rice",brand:"Royal",amount:"2lb",store:"Trader Joe's",avail:true,price:4.29,sub:null},
-      {name:"Protein Powder",brand:"Quest",amount:"2lb",store:"GNC Fifth Ave",avail:true,price:44.99,sub:null},
-      {name:"Rolled Oats",brand:"Quaker",amount:"2lb",store:"Whole Foods SoHo",avail:true,price:3.99,sub:null},
-      {name:"Mirin",brand:"Kikkoman",amount:"10fl oz",store:"H Mart Koreatown",avail:true,price:3.79,sub:null},
-      {name:"Tahini",brand:"Soom Foods",amount:"16oz",store:"Whole Foods SoHo",avail:true,price:9.99,sub:null},
-    ]
-  },
-  "Toronto, Canada":{
-    stores:[{name:"Loblaws Bay St",dist:"0.4km",items:7},{name:"Metro",dist:"0.6km",items:5},{name:"T&T Supermarket",dist:"1.8km",items:8}],
-    items:[
-      {name:"Chicken Breast",brand:"No Name",amount:"500g",store:"Loblaws Bay St",avail:true,price:7.99,sub:null},
-      {name:"Greek Yoghurt",brand:"Liberté",amount:"500g",store:"Metro",avail:true,price:5.49,sub:null},
-      {name:"Tikka Masala Paste",brand:"Patak's CA",amount:"285g",store:"Loblaws Bay St",avail:true,price:4.49,sub:null},
-      {name:"Basmati Rice",brand:"Uncle Ben's",amount:"1kg",store:"Loblaws Bay St",avail:true,price:4.29,sub:null},
-      {name:"Protein Powder",brand:"Kaizen",amount:"2lb",store:"GNC",avail:true,price:49.99,sub:null},
-      {name:"Rolled Oats",brand:"Quaker CA",amount:"1kg",store:"Metro",avail:true,price:3.89,sub:null},
-      {name:"Mirin",brand:"Kikkoman",amount:"300ml",store:"T&T Supermarket",avail:false,price:4.99,sub:"Sub: white wine + sugar"},
-      {name:"Tahini",brand:"Nuts to You",amount:"365g",store:"Whole Foods",avail:true,price:7.99,sub:null},
-    ]
+function createDefaultOnboardingState() {
+  return {
+    displayName: "",
+    username: "",
+    age: "",
+    sex: "",
+    heightCm: "",
+    weightKg: "",
+    activityLevel: "",
+    goal: "",
+    email: "",
+    password: "",
+    verificationCode: ""
+  };
+}
+
+function calculateNutritionEstimate(profile) {
+  const age = Number(profile.age);
+  const heightCm = Number(profile.heightCm);
+  const weightKg = Number(profile.weightKg);
+  if (!age || !heightCm || !weightKg || !profile.sex || !profile.activityLevel || !profile.goal) {
+    return null;
   }
-};
 
-const FEED=[
-  {user:"JS",name:"Jake S",col:"#3d4a5c",recipe:"High-Protein Chicken Tikka",emoji:"🍛",rating:5,caption:"Finally nailed this on attempt #3. The Patak's tikka paste is the secret. Hit exactly 52g protein per serving — verified!",time:"2h ago",bg:"#3d4a5c0a"},
-  {user:"AM",name:"Amy M",col:"#b8922a",recipe:"Vegan Lentil & Quinoa Bowl",emoji:"🌿",rating:5,caption:"22g plant-based protein in one bowl is genuinely crazy. Made it for meal prep — 4 serves in 25 minutes.",time:"5h ago",bg:"#b8922a0a"},
-  {user:"RK",name:"Rachel K",col:"#2d5a3d",recipe:"Keto Beef & Avocado Bowl",emoji:"🥑",rating:4,caption:"Only 8g net carbs. I live on this recipe during cut season. Swapped iceberg for butter lettuce = 10/10.",time:"1d ago",bg:"#2d5a3d0a"},
-  {user:"DR",name:"Dan R",col:"#c24b2a",recipe:"Japanese Salmon Teriyaki",emoji:"🐟",rating:5,caption:"Used the Localiser to swap Kikkoman — available at my local Asian grocer in 10 minutes. Flawless macro match.",time:"2d ago",bg:"#c24b2a0a"},
-];
+  const restingBase = (9.99 * weightKg) + (6.25 * heightCm) - (4.92 * age);
+  const restingCalories = profile.sex === "male" ? restingBase + 5 : restingBase - 161;
+  const activityMultipliers = {
+    sedentary: 1.2,
+    light: 1.375,
+    moderate: 1.55,
+    very: 1.725
+  };
+  const goalMultipliers = {
+    lose: 0.85,
+    maintain: 1,
+    build: 1.1
+  };
+  const macroSplits = {
+    lose: { protein: 0.3, carbs: 0.45, fat: 0.25 },
+    maintain: { protein: 0.25, carbs: 0.45, fat: 0.3 },
+    build: { protein: 0.25, carbs: 0.5, fat: 0.25 }
+  };
 
-const SUGGESTED=[
-  {user:"PL",name:"priyalifts",col:"#b8922a",recipes:24,followers:"12.4k"},
-  {user:"KM",name:"ketomike",col:"#3d4a5c",recipes:18,followers:"8.2k"},
-  {user:"PP",name:"plantpowered",col:"#2d5a3d",recipes:31,followers:"22.1k"},
-  {user:"FF",name:"fitnessfreya",col:"#c24b2a",recipes:15,followers:"9.7k"},
-];
+  const maintenanceCalories = Math.round(restingCalories * activityMultipliers[profile.activityLevel]);
+  const recommendedCalories = Math.max(1200, Math.round(maintenanceCalories * goalMultipliers[profile.goal]));
+  const split = macroSplits[profile.goal];
 
-const COUNTRIES=[
-  {code:"AU",flag:"🇦🇺",name:"Australia"},
-  {code:"GB",flag:"🇬🇧",name:"United Kingdom"},
-  {code:"IN",flag:"🇮🇳",name:"India"},
-  {code:"JP",flag:"🇯🇵",name:"Japan"},
-  {code:"CA",flag:"🇨🇦",name:"Canada"},
-];
-
-/* ═══════════════════ STATE ═══════════════════ */
-let currentDiet="all";
-let currentCountry="AU";
-let currentRecipe=null;
-let followState={};
-let qtyState={};
-let checkState={};
-let tempComments={};
-let deliveryOpt="express";
-let orderPlaced=false;
-
-/* ═══════════════════ NAVIGATION ═══════════════════ */
-function showView(v){
-  document.querySelectorAll('.page-view').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-link').forEach(n=>n.classList.remove('active'));
-  document.getElementById('view-'+v).classList.add('active');
-  const navEl=document.getElementById('nav-'+v);
-  if(navEl)navEl.classList.add('active');
-  window.scrollTo({top:0,behavior:'smooth'});
+  return {
+    restingCalories: Math.round(restingCalories),
+    maintenanceCalories,
+    recommendedCalories,
+    proteinGrams: Math.round((recommendedCalories * split.protein) / 4),
+    carbsGrams: Math.round((recommendedCalories * split.carbs) / 4),
+    fatGrams: Math.round((recommendedCalories * split.fat) / 9)
+  };
 }
 
-/* ═══════════════════ RECIPE GRID ═══════════════════ */
-const tagMap={
-  'high-protein':{cls:'tag-protein',label:'High Protein'},
-  'keto':{cls:'tag-keto',label:'Keto'},
-  'vegan':{cls:'tag-vegan',label:'Vegan'},
-  'low-carb':{cls:'tag-low',label:'Low Carb'},
-  'bulking':{cls:'tag-bulk',label:'Bulking'},
-};
-
-function setDiet(d,el){
-  currentDiet=d;
-  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
-  el.classList.add('active');
-  filterRecipes();
+function formatActivityLabel(value) {
+  const match = ACTIVITY_OPTIONS.find((option) => option.value === value);
+  return match ? match.label : value;
 }
 
-function filterRecipes(){
-  const q=(document.getElementById('searchInput').value||'').toLowerCase();
-  const grid=document.getElementById('recipeGrid');
-  const filtered=RECIPES.filter(r=>{
-    const dm=currentDiet==='all'||r.diet.includes(currentDiet);
-    const sm=!q||r.title.toLowerCase().includes(q)||r.author.toLowerCase().includes(q)||r.diet.some(d=>d.includes(q));
-    return dm&&sm;
-  });
-  grid.innerHTML='';
-  if(!filtered.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:60px;color:var(--text3);font-family:var(--font-mono)">No recipes found. Try a different filter.</div>';return;}
-  filtered.forEach(r=>grid.appendChild(buildCard(r)));
+function formatGoalLabel(value) {
+  const match = GOAL_OPTIONS.find((option) => option.value === value);
+  return match ? match.label : value;
 }
 
-function buildCard(r){
-  const d=document.createElement('div');
-  d.className='recipe-card';
-  const dietTags=r.diet.map(t=>`<span class="tag ${tagMap[t]?.cls||''}">${tagMap[t]?.label||t}</span>`).join('');
-  d.innerHTML=`
-    <div class="card-img" style="background:#f9f6f0">
-      <div class="card-img-bg">${r.emoji}</div>
-      <span style="font-size:72px;position:relative;z-index:1">${r.emoji}</span>
-      <div class="card-country">🌍 ${r.country}</div>
-      <div class="card-verified">✓ VERIFIED</div>
-    </div>
-    <div class="card-body">
-      <div class="card-tags">${dietTags}</div>
-      <div class="card-title">${r.title}</div>
-      <div class="card-author" style="font-family:var(--font-mono)">@${r.author} · ${r.reviews} reviews</div>
-      <div class="macro-strip">
-        <div class="macro-box"><div class="macro-val">${r.cals}</div><div class="macro-lbl">Cal</div></div>
-        <div class="macro-box"><div class="macro-val">${r.protein}g</div><div class="macro-lbl">Protein</div></div>
-        <div class="macro-box"><div class="macro-val">${r.carbs}g</div><div class="macro-lbl">Carbs</div></div>
-        <div class="macro-box"><div class="macro-val">${r.fat}g</div><div class="macro-lbl">Fat</div></div>
-      </div>
-      <div class="card-footer">
-        <div class="rating-row">★ ${r.rating} <span class="rating-count">(${r.reviews})</span></div>
-        <div class="card-btns">
-          <button class="card-btn" onclick="event.stopPropagation();goLocalise(${r.id})">🌍 Localise</button>
-          <button class="card-btn shop" onclick="event.stopPropagation();goShop(${r.id})">🛒 Order</button>
-        </div>
-      </div>
-    </div>`;
-  d.onclick=()=>openDetail(r);
-  return d;
-}
-
-function openDetail(r){
-  currentRecipe=r;
-  if(!tempComments[r.id])tempComments[r.id]=[...r.comments];
-  document.getElementById('detailEmoji').textContent=r.emoji;
-  const dietTags=r.diet.map(t=>`<span class="tag ${tagMap[t]?.cls||''}">${tagMap[t]?.label||t}</span>`).join('');
-  document.getElementById('detailTags').innerHTML=dietTags;
-  document.getElementById('detailTitle').textContent=r.title;
-  document.getElementById('detailAvatarText').textContent=r.author.slice(0,2).toUpperCase();
-  document.getElementById('detailAuthorName').textContent='@'+r.author;
-  document.getElementById('detailAuthorStats').textContent=r.reviews+' reviews · ★ '+r.rating;
-  document.getElementById('detailMacros').innerHTML=`
-    <div class="detail-macro-card"><div class="detail-macro-num">${r.cals}</div><div class="detail-macro-lbl">Calories / serving</div></div>
-    <div class="detail-macro-card"><div class="detail-macro-num">${r.protein}g</div><div class="detail-macro-lbl">Protein</div></div>
-    <div class="detail-macro-card"><div class="detail-macro-num">${r.carbs}g</div><div class="detail-macro-lbl">Carbs</div></div>
-    <div class="detail-macro-card"><div class="detail-macro-num">${r.fat}g</div><div class="detail-macro-lbl">Fat</div></div>`;
-  document.getElementById('detailIngredients').innerHTML=`<div class="ingredients-list">${r.ingredients.map(i=>`<div class="ingredient-row"><div class="ing-name">${i.name}</div><div class="ing-amount">${i.amount}</div><span class="ing-brand">◈ ${i.brand}</span></div>`).join('')}</div>`;
-  document.getElementById('detailMethod').innerHTML=`<div style="white-space:pre-line;font-size:15px;line-height:1.8;color:var(--text2)">${r.method}</div>`;
-  renderDetailComments(r.id);
-  document.querySelectorAll('.detail-tab').forEach((t,i)=>{t.className='detail-tab'+(i===0?' active':'')});
-  document.getElementById('detailIngredients').style.display='block';
-  document.getElementById('detailMethod').style.display='none';
-  document.getElementById('detailComments').style.display='none';
-  showView('detail');
-}
-
-function switchDetailTab(tab,el){
-  document.querySelectorAll('.detail-tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('detailIngredients').style.display=tab==='ingredients'?'block':'none';
-  document.getElementById('detailMethod').style.display=tab==='method'?'block':'none';
-  document.getElementById('detailComments').style.display=tab==='comments'?'block':'none';
-}
-
-function renderDetailComments(id){
-  const c=tempComments[id]||[];
-  document.getElementById('detailComments').innerHTML=`
-    <div class="comments-title">${c.length} Comment${c.length!==1?'s':''}</div>
-    ${c.map(cm=>`<div class="comment-card"><div class="comment-av" style="background:${cm.col}18;color:${cm.col}">${cm.user}</div><div class="comment-content"><div class="comment-header"><div class="comment-name">${cm.name}</div><div class="comment-time">${cm.time}</div></div><div class="comment-text">${cm.text}</div><div class="comment-actions"><button class="comment-action-btn" onclick="this.textContent=this.textContent.includes('♥')?'♡ '+parseInt(this.dataset.l):'♥ '+(parseInt(this.dataset.l)+1)" data-l="${cm.likes}">♡ ${cm.likes}</button><button class="comment-action-btn">Reply</button></div></div></div>`).join('')}
-    <div class="comment-input-box">
-      <textarea class="comment-textarea" id="commentBox" placeholder="Add a comment..." rows="2"></textarea>
-      <button class="btn-post" onclick="postComment(${id})">Post</button>
-    </div>`;
-}
-
-function postComment(id){
-  const box=document.getElementById('commentBox');
-  const txt=box.value.trim();
-  if(!txt)return;
-  if(!tempComments[id])tempComments[id]=[];
-  tempComments[id].push({user:"JD",name:"You",col:"#b8922a",text:txt,time:"just now",likes:0});
-  renderDetailComments(id);
-  switchDetailTab('comments',document.querySelectorAll('.detail-tab')[2]);
-}
-
-function goToShopRecipe(){if(currentRecipe)goShop(currentRecipe.id);}
-function goLocalise(id){showView('localiser');}
-function goShop(id){showView('shopping');}
-
-/* ═══════════════════ FEED ═══════════════════ */
-function renderFeed(){
-  document.getElementById('feedPosts').innerHTML=FEED.map((p,i)=>`
-    <div class="feed-post">
-      <div class="feed-post-header">
-        <div class="feed-av" style="background:${p.col}18;color:${p.col}">${p.user}</div>
-        <div style="flex:1">
-          <div class="feed-post-name">${p.name}</div>
-          <div class="feed-post-meta">made <span style="color:var(--gold)">${p.recipe}</span> · ${p.time}</div>
-        </div>
-        <button class="btn-follow ${followState['f'+i]?'following':''}" onclick="toggleFollow('f'+i,this)">${followState['f'+i]?'Following':'Follow'}</button>
-      </div>
-      <div class="feed-post-img" style="background:${p.bg}">${p.emoji}</div>
-      <div class="feed-post-actions">
-        <div class="star-rating" id="fstars${i}">${[1,2,3,4,5].map(s=>`<span class="star ${s<=p.rating?'lit':''}" onclick="rateFeedPost(${i},${s})">★</span>`).join('')}</div>
-        <button class="action-btn" onclick="this.textContent=this.textContent==='🤍'?'❤️':'🤍'">🤍</button>
-        <button class="action-btn">💬</button>
-        <button class="action-btn">🔗</button>
-      </div>
-      <div class="feed-post-body">
-        <div class="feed-recipe-tag">// ${p.recipe}</div>
-        <div class="feed-caption">${p.caption}</div>
-      </div>
-    </div>`).join('');
-  document.getElementById('suggestedChefs').innerHTML=SUGGESTED.map(u=>`
-    <div class="follow-item">
-      <div class="follow-av" style="background:${u.col}18;color:${u.col}">${u.user}</div>
-      <div><div class="follow-name">@${u.name}</div><div class="follow-sub">${u.recipes} recipes · ${u.followers}</div></div>
-      <button class="btn-follow ${followState[u.name]?'following':''}" onclick="toggleFollow('${u.name}',this)">${followState[u.name]?'✓':'Follow'}</button>
-    </div>`).join('');
-}
-
-function toggleFollow(k,btn){
-  followState[k]=!followState[k];
-  btn.textContent=followState[k]?'Following':'Follow';
-  btn.className='btn-follow'+(followState[k]?' following':'');
-  if(followState[k])showToast('Now following!');
-}
-
-function rateFeedPost(i,r){
-  document.querySelectorAll(`#fstars${i} .star`).forEach((s,idx)=>{s.className='star'+(idx<r?' lit':'')});
-  showToast('Rating saved ★'.repeat(r));
-}
-
-/* ═══════════════════ LOCALISER ═══════════════════ */
-function renderCountryGrid(){
-  document.getElementById('countryGrid').innerHTML=COUNTRIES.map(c=>`
-    <div class="country-card ${c.code===currentCountry?'active':''}" onclick="selectCountry('${c.code}',this)">
-      <div class="country-flag">${c.flag}</div>
-      <div class="country-name">${c.name}</div>
-    </div>`).join('');
-}
-
-function selectCountry(code,el){
-  currentCountry=code;
-  document.querySelectorAll('.country-card').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active');
-  const c=COUNTRIES.find(x=>x.code===code);
-  document.getElementById('locCountryLabel').textContent=c?c.name:code;
-  renderSwapRows();
-}
-
-function renderSwapRows(){
-  const data=LOCALISER[currentCountry]||LOCALISER.AU;
-  document.getElementById('swapRows').innerHTML=data.map(d=>`
-    <div class="swap-row">
-      <div class="swap-td"><div class="swap-ingredient">${d.ing}</div></div>
-      <div class="swap-td"><div class="brand-us">${d.us}</div></div>
-      <div class="swap-td"><div class="brand-local">${d.local}</div></div>
-      <div class="swap-td"><span class="match-chip ${d.match==='exact'?'match-exact':d.match==='good'?'match-good':'match-ok'}">${d.match==='exact'?'✓ Exact':'≈ Close'}</span></div>
-      <div class="swap-td"><span class="diff-text" style="color:${d.diff==='0%'?'var(--forest)':'var(--gold)'}">${d.diff==='0%'?'±0':d.diff}</span></div>
-    </div>`).join('');
-}
-
-/* ═══════════════════ SHOPPING ═══════════════════ */
-function refreshShopList(){
-  const region=document.getElementById('shopRegion').value;
-  const data=SHOPS[region]||SHOPS["Sydney, NSW, Australia"];
-  const avail=data.items.filter(i=>i.avail).length;
-  const total=data.items.length;
-  const circ=264;
-  document.getElementById('ringNum').textContent=avail+'/'+total;
-  document.getElementById('ringFill').setAttribute('stroke-dasharray',Math.round(avail/total*circ)+' '+circ);
-  document.getElementById('nearbyStores').innerHTML=data.stores.map(s=>`
-    <div class="store-item">
-      <div><div class="store-name">${s.name}</div><div class="store-dist">${s.dist} away · ${s.items} items</div></div>
-      <div class="store-items">${s.items} items</div>
-    </div>`).join('');
-  if(!qtyState[region])qtyState[region]={};
-  const rows=document.getElementById('shopListRows');
-  rows.innerHTML=data.items.map((item,i)=>{
-    if(!qtyState[region][i])qtyState[region][i]=1;
-    const key=region+'_'+i;
-    return `<div class="shop-item-row" id="shoprow${i}">
-      <div class="shop-check ${checkState[key]?'ticked':''}" onclick="toggleCheck('${key}',${i})" id="chk${i}">${checkState[key]?'✓':''}</div>
-      <div class="shop-item-info">
-        <div class="shop-item-name ${checkState[key]?'done':''}" id="shopname${i}">${item.name} · ${item.amount}</div>
-        <div class="shop-item-meta">
-          <span class="shop-brand-tag">${item.brand}</span>
-          <span class="shop-store-tag">${item.store}</span>
-          <span style="font-size:11px;color:${item.avail?'var(--forest)':'var(--rust)'};font-family:var(--font-mono);font-weight:600">${item.avail?'● In stock':'✗ Unavailable'}</span>
-        </div>
-        ${item.sub?`<div class="shop-unavail">⚠ ${item.sub}</div>`:''}
-      </div>
-      <div class="shop-item-qty">
-        <button class="qty-btn" onclick="changeQty('${region}',${i},-1)">−</button>
-        <span class="qty-num" id="qty${i}">${qtyState[region][i]}</span>
-        <button class="qty-btn" onclick="changeQty('${region}',${i},1)">+</button>
-      </div>
-      <div class="shop-item-price">$${(item.price*qtyState[region][i]).toFixed(2)}</div>
-    </div>`;}).join('');
-  updateCheckedCount();
-  updateCartBadge();
-}
-
-function toggleCheck(key,i){
-  checkState[key]=!checkState[key];
-  const chk=document.getElementById('chk'+i);
-  const nm=document.getElementById('shopname'+i);
-  chk.className='shop-check'+(checkState[key]?' ticked':'');
-  chk.textContent=checkState[key]?'✓':'';
-  if(nm){nm.className='shop-item-name'+(checkState[key]?' done':'');}
-  updateCheckedCount();
-}
-
-function changeQty(region,i,delta){
-  if(!qtyState[region])qtyState[region]={};
-  qtyState[region][i]=Math.max(1,(qtyState[region][i]||1)+delta);
-  const qEl=document.getElementById('qty'+i);
-  if(qEl)qEl.textContent=qtyState[region][i];
-  const data=SHOPS[region];
-  if(data){
-    const priceEl=document.querySelector(`#shoprow${i} .shop-item-price`);
-    if(priceEl)priceEl.textContent='$'+(data.items[i].price*qtyState[region][i]).toFixed(2);
+function validateWizardStep(step) {
+  const onboarding = state.onboarding;
+  if (step === 0 && (!onboarding.displayName.trim() || !onboarding.username.trim())) {
+    return "Add your name and username to continue.";
   }
-  updateCartBadge();
+  if (step === 1) {
+    if (!Number(onboarding.age) || Number(onboarding.age) < 18) {
+      return "This calculator is currently set up for adults 18 and over.";
+    }
+    if (!["male", "female"].includes(onboarding.sex)) {
+      return "Select the sex used for the calorie estimate.";
+    }
+  }
+  if (step === 2 && (!Number(onboarding.heightCm) || !Number(onboarding.weightKg))) {
+    return "Add your height and weight to continue.";
+  }
+  if (step === 3 && (!onboarding.activityLevel || !onboarding.goal)) {
+    return "Pick an activity level and a goal.";
+  }
+  if (step === 4) {
+    if (!String(onboarding.email).includes("@")) {
+      return "Enter a valid email address.";
+    }
+    if (String(onboarding.password).length < 6) {
+      return "Choose a password with at least 6 characters.";
+    }
+  }
+  if (step === 6) {
+    if (!state.pendingVerificationUserId) {
+      return "Create the account first so we can issue a verification code.";
+    }
+    if (!onboarding.verificationCode.trim()) {
+      return "Enter the 6-digit code from the terminal.";
+    }
+  }
+  return "";
 }
 
-function updateCheckedCount(){
-  const checked=Object.values(checkState).filter(Boolean).length;
-  const el=document.getElementById('checkedCount');
-  if(el)el.textContent=checked+' checked';
+function dateKeyFromDate(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return year + "-" + month + "-" + day;
 }
 
-function updateCartBadge(){
-  const region=document.getElementById('shopRegion')?document.getElementById('shopRegion').value:"Sydney, NSW, Australia";
-  const data=SHOPS[region];
-  let count=0;
-  if(data&&qtyState[region])data.items.forEach((_,i)=>count+=qtyState[region][i]||1);
-  document.getElementById('cartBadge').textContent=count||0;
+function readStoredUser() {
+  try {
+    return JSON.parse(localStorage.getItem(CURRENT_USER_STORAGE_KEY) || "null");
+  } catch (error) {
+    return null;
+  }
 }
 
-/* ═══════════════════ ORDER PANEL ═══════════════════ */
-function openOrderPanel(){
-  orderPlaced=false;
-  buildOrderPanel();
-  document.getElementById('orderPanel').classList.add('open');
-  document.getElementById('overlay').classList.add('open');
+function storeCurrentUser(user) {
+  state.currentUser = user;
+  if (user) {
+    localStorage.setItem(CURRENT_USER_STORAGE_KEY, JSON.stringify(user));
+  } else {
+    localStorage.removeItem(CURRENT_USER_STORAGE_KEY);
+  }
 }
 
-function closeOrderPanel(){
-  document.getElementById('orderPanel').classList.remove('open');
-  document.getElementById('overlay').classList.remove('open');
-}
+async function api(path, options) {
+  const config = options || {};
+  const headers = Object.assign({}, config.headers || {});
+  if (state.currentUser && state.currentUser.id) {
+    headers["x-user-id"] = state.currentUser.id;
+  }
+  if (config.body && !headers["Content-Type"]) {
+    headers["Content-Type"] = "application/json";
+  }
 
-function buildOrderPanel(){
-  const region=document.getElementById('shopRegion')?document.getElementById('shopRegion').value:"Sydney, NSW, Australia";
-  const data=SHOPS[region]||SHOPS["Sydney, NSW, Australia"];
-  const qty=qtyState[region]||{};
-  let subtotal=0;
-  const avItems=data.items.filter((it,i)=>it.avail);
-  avItems.forEach((it,i)=>{
-    const origIdx=data.items.indexOf(it);
-    subtotal+=(it.price*(qty[origIdx]||1));
+  const response = await fetch(path, {
+    method: config.method || "GET",
+    headers,
+    body: config.body ? JSON.stringify(config.body) : undefined
   });
-  const delivery=deliveryOpt==='express'?9.99:deliveryOpt==='scheduled'?4.99:0;
-  const service=parseFloat((subtotal*0.05).toFixed(2));
-  const total=(subtotal+delivery+service).toFixed(2);
-  document.getElementById('orderTotalBtn').textContent=total;
 
-  document.getElementById('orderPanelBody').innerHTML=`
-    <div class="order-section-title">Order Summary</div>
-    ${avItems.map((it,i)=>{const origIdx=data.items.indexOf(it);const q=qty[origIdx]||1;return`<div class="order-item"><div class="order-item-left"><div class="order-item-name">${it.name}</div><div class="order-item-brand">${it.brand}</div><div class="order-item-qty">Qty: ${q} × $${it.price.toFixed(2)}</div></div><div class="order-item-price">$${(it.price*q).toFixed(2)}</div></div>`}).join('')}
-    ${data.items.filter(it=>!it.avail).length?`<div style="background:#c24b2a0a;border:1px solid #c24b2a30;border-radius:var(--radius-sm);padding:12px;margin-top:12px;font-size:12px;color:var(--rust)">⚠ ${data.items.filter(it=>!it.avail).length} unavailable item(s) excluded from order. Substitutes noted above.</div>`:''}
-    <div class="order-section-title">Delivery</div>
-    <div class="delivery-options">
-      <div class="delivery-opt ${deliveryOpt==='express'?'selected':''}" onclick="selectDelivery('express',this)">
-        <div class="delivery-opt-radio"><div class="delivery-dot"></div></div>
-        <div><div class="delivery-opt-name">Express (2–4h)</div><div class="delivery-opt-detail">Today · Direct from store</div></div>
-        <div class="delivery-opt-price">$9.99</div>
-      </div>
-      <div class="delivery-opt ${deliveryOpt==='scheduled'?'selected':''}" onclick="selectDelivery('scheduled',this)">
-        <div class="delivery-opt-radio"><div class="delivery-dot"></div></div>
-        <div><div class="delivery-opt-name">Scheduled Delivery</div><div class="delivery-opt-detail">Choose a 2h window</div></div>
-        <div class="delivery-opt-price">$4.99</div>
-      </div>
-      <div class="delivery-opt ${deliveryOpt==='pickup'?'selected':''}" onclick="selectDelivery('pickup',this)">
-        <div class="delivery-opt-radio"><div class="delivery-dot"></div></div>
-        <div><div class="delivery-opt-name">Click & Collect</div><div class="delivery-opt-detail">Ready in 1h at nearest store</div></div>
-        <div class="delivery-opt-price">Free</div>
-      </div>
-    </div>
-    <div class="order-section-title">Deliver To</div>
-    <div class="address-input-group">
-      <input class="addr-input" placeholder="Street address" value="42 Bondi Road">
-      <input class="addr-input" placeholder="Suburb / City" value="Bondi, NSW 2026">
-      <input class="addr-input" placeholder="Delivery note (optional)" placeholder="Leave at door, ring bell, etc.">
-    </div>
-    <div class="order-section-title">Payment</div>
-    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;display:flex;justify-content:space-between;align-items:center">
-      <div style="font-size:14px;font-weight:500">💳 Visa ending 4242</div>
-      <div style="font-size:12px;color:var(--gold);cursor:pointer;font-family:var(--font-mono)">Change</div>
-    </div>
-    <hr class="order-divider">
-    <div class="order-row"><span>Subtotal</span><span>$${subtotal.toFixed(2)}</span></div>
-    <div class="order-row"><span>Delivery</span><span>${delivery===0?'Free':'$'+delivery.toFixed(2)}</span></div>
-    <div class="order-row"><span>Service fee</span><span>$${service.toFixed(2)}</span></div>
-    <div class="order-total"><span>Total</span><span>$${total}</span></div>`;
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const error = new Error(payload.error || "Request failed");
+    error.payload = payload;
+    throw error;
+  }
+  return payload;
 }
 
-function selectDelivery(opt,el){
-  deliveryOpt=opt;
-  document.querySelectorAll('.delivery-opt').forEach(d=>{
-    d.classList.remove('selected');
-    d.querySelector('.delivery-opt-radio .delivery-dot').style.display='none';
+async function loadAppData() {
+  const data = await api("/api/app-data");
+  if (state.currentUser && !data.currentUser) {
+    storeCurrentUser(null);
+  } else if (data.currentUser) {
+    storeCurrentUser(data.currentUser);
+  }
+  state.recipes = (data.recipes || []).slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  state.posts = (data.posts || []).slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  state.logs = (data.logs || []).slice().sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  state.dailyTarget = Number(data.dailyTarget) || DEFAULT_TARGET;
+}
+
+function showToast(message) {
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+  toast.classList.add("show");
+  window.clearTimeout(showToast.timer);
+  showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2600);
+}
+
+function setActiveScreen(screen) {
+  state.activeScreen = screen;
+  document.querySelectorAll(".screen").forEach((element) => {
+    element.classList.toggle("active", element.dataset.screen === screen);
   });
-  el.classList.add('selected');
-  el.querySelector('.delivery-dot').style.display='block';
-  buildOrderPanel();
+  document.querySelectorAll(".nav-button").forEach((button) => {
+    button.classList.toggle("active", button.dataset.screenTarget === screen);
+  });
 }
 
-function placeOrder(){
-  const btn=document.getElementById('placeOrderBtn');
-  btn.disabled=true;
-  btn.textContent='Processing...';
-  setTimeout(()=>{
-    document.getElementById('orderPanelBody').innerHTML=`
-      <div class="order-success">
-        <div class="success-icon">✅</div>
-        <div class="success-title">Order Placed!</div>
-        <div class="success-sub">Your groceries are being picked. You'll receive an SMS when the shopper is on the way.</div>
-        <div class="tracking-card">
-          <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;margin-bottom:12px">Live Tracking</div>
-          <div class="tracking-steps">
-            <div class="tracking-step"><div class="track-dot track-active"></div><span class="track-label active">Order confirmed</span></div>
-            <div class="tracking-step"><div class="track-dot track-active"></div><span class="track-label active">Shopper assigned — Jake at Woolworths</span></div>
-            <div class="tracking-step"><div class="track-dot track-pending"></div><span class="track-label pending">Picking items...</span></div>
-            <div class="tracking-step"><div class="track-dot track-pending"></div><span class="track-label pending">Out for delivery</span></div>
-            <div class="tracking-step"><div class="track-dot track-pending"></div><span class="track-label pending">Delivered</span></div>
-          </div>
-        </div>
-        <div style="margin-top:20px;font-size:13px;color:var(--text3);font-family:var(--font-mono)">Est. arrival: 2:45 PM · Order #MC-8821</div>
-      </div>`;
-    document.getElementById('orderPanelFooter').innerHTML=`<button onclick="closeOrderPanel();showView('home')" style="width:100%;padding:14px;background:var(--ink);border:none;border-radius:var(--radius);color:var(--paper);font-family:var(--font-body);font-size:14px;font-weight:600;cursor:pointer">Back to Recipes</button>`;
-    showToast('Order #MC-8821 confirmed 🎉');
-    document.getElementById('cartBadge').textContent='0';
-  },2000);
+function formatDietLabel(value) {
+  if (value === "high-protein") return "High protein";
+  if (value === "low-carb") return "Low carb";
+  return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
-/* ═══════════════════ UPLOAD ═══════════════════ */
-function addIngRow(){
-  const list=document.getElementById('uploadIngredients');
-  const row=document.createElement('div');
-  row.className='ingredient-entry';
-  row.innerHTML=`<input class="form-input" placeholder="Ingredient name"><input class="form-input" placeholder="Amount"><input class="form-input" placeholder="Brand name" oninput="checkBrand(this)"><span></span>`;
-  list.appendChild(row);
+function formatRelativeTime(iso) {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const diffHours = Math.max(1, Math.floor(diffMs / 3600000));
+  if (diffHours < 24) return diffHours + "h ago";
+  return Math.floor(diffHours / 24) + "d ago";
 }
 
-function checkBrand(inp){
-  const parent=inp.parentElement;
-  const existing=parent.querySelector('.brand-verify');
-  if(inp.value.length>2){
-    if(!existing){const s=document.createElement('span');s.className='brand-verify';s.textContent='✓ Verified';parent.appendChild(s);}
-  }else{if(existing)existing.remove();}
+function formatLongDate(value) {
+  const date = new Date(value + "T12:00:00");
+  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(date);
 }
 
-function simUpload(dz){
-  dz.innerHTML=`<div class="drop-icon">✅</div><div class="drop-text" style="color:var(--forest)">Photo uploaded</div><div class="drop-sub">recipe_photo.jpg · 3.2MB</div>`;
+function initialsFor(name) {
+  return String(name)
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 }
 
-function submitRecipe(){
-  const name=document.getElementById('upName').value.trim();
-  const st=document.getElementById('uploadStatus');
-  if(!name){st.innerHTML='<span style="color:var(--rust)">Please enter a recipe name</span>';return;}
-  st.innerHTML='<span style="color:var(--text2)">⏳ Verifying macros via brand database...</span>';
-  setTimeout(()=>{st.innerHTML='<span class="detail-verified" style="font-size:13px">✓ Macros verified · Recipe live!</span>';},2000);
+function toneFromSeed(seed) {
+  const tones = ["tone-a", "tone-b", "tone-c", "tone-d", "tone-e"];
+  let total = 0;
+  for (const char of seed) total += char.charCodeAt(0);
+  return tones[total % tones.length];
 }
 
-/* ═══════════════════ TOAST ═══════════════════ */
-function showToast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg;
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),3000);
+function getRecipeById(recipeId) {
+  return state.recipes.find((recipe) => recipe.id === recipeId);
 }
 
-/* ═══════════════════ INIT ═══════════════════ */
-filterRecipes();
-renderFeed();
-renderCountryGrid();
-renderSwapRows();
-refreshShopList();
+function recipeMatches(recipe, search, filter) {
+  const normalized = search.trim().toLowerCase();
+  const haystack = [
+    recipe.title,
+    recipe.authorName,
+    recipe.authorHandle,
+    (recipe.diets || []).join(" "),
+    (recipe.ingredients || []).map((item) => item.name).join(" ")
+  ].join(" ").toLowerCase();
+  const matchesSearch = !normalized || haystack.includes(normalized);
+  const matchesFilter = filter === "all" || (recipe.diets || []).includes(filter);
+  return matchesSearch && matchesFilter;
+}
+
+function postMatches(post, recipe, search, filter) {
+  const normalized = search.trim().toLowerCase();
+  const haystack = [
+    post.authorName,
+    post.authorHandle,
+    post.caption,
+    recipe ? recipe.title : ""
+  ].join(" ").toLowerCase();
+  const matchesSearch = !normalized || haystack.includes(normalized);
+  const matchesFilter = filter === "all" || (recipe && recipe.diets && recipe.diets.includes(filter));
+  return matchesSearch && matchesFilter;
+}
+
+function trackerEntriesForSelectedDay() {
+  return state.logs.filter((log) => log.dateKey === state.selectedDate);
+}
+
+function renderHeroStats() {
+  const stats = [
+    { value: state.recipes.length, label: "recipes" },
+    { value: state.posts.length, label: "posts" },
+    { value: trackerEntriesForSelectedDay().length, label: "meals today" }
+  ];
+  document.getElementById("heroStats").innerHTML = stats.map((stat) => (
+    '<div class="hero-stat"><strong>' + stat.value + '</strong><span>' + stat.label + "</span></div>"
+  )).join("");
+}
+
+function renderFilterRows() {
+  document.getElementById("recipeFilterRow").innerHTML = DIETS.map((diet) => (
+    '<button class="chip' + (state.recipeFilter === diet.value ? " active" : "") + '" data-filter-type="recipe" data-filter-value="' + diet.value + '" type="button">' + diet.label + "</button>"
+  )).join("");
+
+  document.getElementById("communityFilterRow").innerHTML = DIETS.map((diet) => (
+    '<button class="chip' + (state.communityFilter === diet.value ? " active" : "") + '" data-filter-type="community" data-filter-value="' + diet.value + '" type="button">' + diet.label + "</button>"
+  )).join("");
+}
+
+function renderRecipeList() {
+  const filtered = state.recipes.filter((recipe) => recipeMatches(recipe, state.recipeSearch, state.recipeFilter));
+  document.getElementById("recipeCountNote").textContent = filtered.length + " recipes";
+
+  const list = document.getElementById("recipeList");
+  if (!filtered.length) {
+    list.innerHTML = '<div class="empty-state">No recipes matched that filter. Try another goal or a broader search.</div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map((recipe) => {
+    const dietMarkup = (recipe.diets || []).map((diet) => '<span class="mini-tag">' + formatDietLabel(diet) + "</span>").join("");
+    return (
+      '<article class="recipe-card">' +
+        '<div class="recipe-top">' +
+          '<div class="recipe-visual ' + recipe.tone + '">' + initialsFor(recipe.title) + "</div>" +
+          '<div class="stack">' +
+            '<div class="title-row"><h3>' + recipe.title + '</h3><span class="label">' + recipe.prepTime + " min</span>" + (recipe.createdByUser ? '<span class="label">Yours</span>' : "") + "</div>" +
+            '<div class="subtle">' + recipe.authorName + " " + recipe.authorHandle + "</div>" +
+            '<div class="tag-row">' + dietMarkup + "</div>" +
+          "</div>" +
+        "</div>" +
+        '<div class="macro-grid">' +
+          '<div class="macro-cell"><strong>' + recipe.calories + '</strong><span>Calories</span></div>' +
+          '<div class="macro-cell"><strong>' + recipe.protein + 'g</strong><span>Protein</span></div>' +
+          '<div class="macro-cell"><strong>' + recipe.carbs + 'g</strong><span>Carbs</span></div>' +
+          '<div class="macro-cell"><strong>' + recipe.fat + 'g</strong><span>Fat</span></div>' +
+        '</div>' +
+        '<div class="action-row">' +
+          '<button class="ghost-button flex" data-action="open-recipe" data-recipe-id="' + recipe.id + '" type="button">Open recipe</button>' +
+          '<button class="button flex" data-action="log-recipe" data-recipe-id="' + recipe.id + '" type="button">Log meal</button>' +
+        '</div>' +
+      '</article>'
+    );
+  }).join("");
+}
+
+function renderCommunity() {
+  const filtered = state.posts.filter((post) => {
+    const recipe = getRecipeById(post.recipeId);
+    return postMatches(post, recipe, state.communitySearch, state.communityFilter);
+  });
+
+  const list = document.getElementById("communityList");
+  if (!filtered.length) {
+    list.innerHTML = '<div class="empty-state">No community posts matched. Try a broader search or different filter.</div>';
+  } else {
+    list.innerHTML = filtered.map((post) => {
+      const recipe = getRecipeById(post.recipeId);
+      const dietMarkup = recipe ? (recipe.diets || []).map((diet) => '<span class="mini-tag">' + formatDietLabel(diet) + "</span>").join("") : "";
+      const macroSummary = recipe ? recipe.calories + " cal | " + recipe.protein + "p | " + recipe.carbs + "c | " + recipe.fat + "f" : "Recipe unavailable";
+      return (
+        '<article class="post-card">' +
+          '<div class="post-top">' +
+            '<div class="post-author">' +
+              '<div class="avatar">' + initialsFor(post.authorName) + "</div>" +
+              '<div class="author-meta"><strong>' + post.authorName + '</strong><span>' + post.authorHandle + " | " + formatRelativeTime(post.createdAt) + "</span></div>" +
+            '</div>' +
+            '<div class="post-visual ' + (recipe ? recipe.tone : "tone-a") + '">' + initialsFor(recipe ? recipe.title : "Recipe") + "</div>" +
+          '</div>' +
+          '<div class="title-row"><h3>' + (recipe ? recipe.title : "Recipe unavailable") + '</h3><span class="label">' + post.likes + " likes</span></div>" +
+          '<div class="tag-row">' + dietMarkup + "</div>" +
+          '<p class="post-copy">' + post.caption + "</p>" +
+          '<div class="stats-inline"><span>' + macroSummary + "</span></div>" +
+          '<div class="action-row">' +
+            '<button class="ghost-button flex" data-action="open-recipe" data-recipe-id="' + post.recipeId + '" type="button">View recipe</button>' +
+            '<button class="button flex" data-action="log-recipe" data-recipe-id="' + post.recipeId + '" type="button">Log this meal</button>' +
+          '</div>' +
+        '</article>'
+      );
+    }).join("");
+  }
+
+  const authorCount = new Set(state.posts.map((post) => post.authorHandle)).size;
+  const todayPosts = state.posts.filter((post) => String(post.createdAt).slice(0, 10) === state.selectedDate).length;
+  const totalLikes = state.posts.reduce((sum, post) => sum + Number(post.likes || 0), 0);
+  const metrics = [
+    { value: authorCount, label: "active authors" },
+    { value: state.posts.length, label: "stored posts" },
+    { value: todayPosts, label: "posts on selected day" },
+    { value: totalLikes, label: "total likes" }
+  ];
+  document.getElementById("communityMetrics").innerHTML = metrics.map((metric) => (
+    '<article class="metric-card"><strong>' + metric.value + '</strong><span>' + metric.label + "</span></article>"
+  )).join("");
+}
+
+function renderCreateDietSelector() {
+  document.getElementById("createDietSelector").innerHTML = DIETS.filter((diet) => diet.value !== "all").map((diet) => (
+    '<button class="diet-toggle' + (state.createDiets.has(diet.value) ? " active" : "") + '" data-create-diet="' + diet.value + '" type="button">' + diet.label + "</button>"
+  )).join("");
+}
+
+function renderAccountPanel() {
+  const container = document.getElementById("accountPanel");
+  if (state.currentUser) {
+    const mine = state.recipes.filter((recipe) => recipe.authorHandle === "@" + state.currentUser.username);
+    const profile = state.currentUser.profile || {};
+    container.innerHTML =
+      '<div class="auth-card-title"><div class="section-note">Account</div><h3>Signed in</h3><p class="subtle">Your recipes, profile, and calorie targets are stored against your local PostgreSQL account.</p></div>' +
+      '<div class="account-summary">' +
+        '<div class="account-stat"><strong>' + state.currentUser.displayName + '</strong><div class="subtle">' + "@" + state.currentUser.username + " | " + state.currentUser.email + '</div><div class="subtle">' + (state.currentUser.isEmailVerified ? "Email verified" : "Email not verified") + "</div></div>" +
+        '<div class="account-stat"><strong>' + mine.length + '</strong><div class="subtle">recipes published by this account</div></div>' +
+        (profile.recommendedCalories ? '<div class="account-stat"><strong>' + profile.recommendedCalories + '</strong><div class="subtle">recommended daily calories</div></div>' : "") +
+        (profile.proteinGrams ? '<div class="account-stat"><strong>' + profile.proteinGrams + "p / " + profile.carbsGrams + "c / " + profile.fatGrams + 'f</strong><div class="subtle">recommended grams per day</div></div>' : "") +
+        (profile.age ? '<div class="account-stat"><strong>' + profile.age + " yrs | " + profile.heightCm + " cm | " + profile.weightKg + ' kg</strong><div class="subtle">' + formatGoalLabel(profile.goal) + " | " + formatActivityLabel(profile.activityLevel) + "</div></div>" : "") +
+      '</div>' +
+      '<div class="button-row"><button class="ghost-button flex" id="logoutButton" type="button">Log out</button></div>';
+  } else {
+    const summary = calculateNutritionEstimate(state.onboarding);
+    const slides = [
+      '<section class="wizard-step"><div class="auth-card-title"><div class="section-note">Step 1</div><h3>Start with identity</h3><p>We use this to label your account and future meal posts.</p></div><div class="field-group"><label class="field-label">Name</label><input data-onboarding-field="displayName" type="text" placeholder="Your full name" value="' + escapeHtml(state.onboarding.displayName) + '"></div><div class="field-group"><label class="field-label">Username</label><input data-onboarding-field="username" type="text" placeholder="username" value="' + escapeHtml(state.onboarding.username) + '"></div></section>',
+      '<section class="wizard-step"><div class="auth-card-title"><div class="section-note">Step 2</div><h3>Age and sex</h3><p>We use the adult Mifflin-St Jeor estimate for resting calories, so this step asks for age and the sex used in that equation.</p></div><div class="split"><div class="field-group"><label class="field-label">Age</label><input data-onboarding-field="age" type="number" min="18" placeholder="28" value="' + escapeHtml(state.onboarding.age) + '"></div><div class="field-group"><label class="field-label">Sex for estimate</label><select data-onboarding-field="sex"><option value="">Select</option><option value="male"' + (state.onboarding.sex === "male" ? " selected" : "") + '>Male</option><option value="female"' + (state.onboarding.sex === "female" ? " selected" : "") + '>Female</option></select></div></div></section>',
+      '<section class="wizard-step"><div class="auth-card-title"><div class="section-note">Step 3</div><h3>Body measurements</h3><p>Height and weight let us estimate maintenance calories and then adjust for your goal.</p></div><div class="split"><div class="field-group"><label class="field-label">Height (cm)</label><input data-onboarding-field="heightCm" type="number" min="120" placeholder="175" value="' + escapeHtml(state.onboarding.heightCm) + '"></div><div class="field-group"><label class="field-label">Weight (kg)</label><input data-onboarding-field="weightKg" type="number" min="35" placeholder="72" value="' + escapeHtml(state.onboarding.weightKg) + '"></div></div></section>',
+      '<section class="wizard-step"><div class="auth-card-title"><div class="section-note">Step 4</div><h3>Goal and activity</h3><p>Choose the target you care about and how active your routine usually is.</p></div><div class="field-group"><label class="field-label">Activity level</label><div class="option-grid">' + ACTIVITY_OPTIONS.map((option) => '<button class="option-card' + (state.onboarding.activityLevel === option.value ? " active" : "") + '" data-onboarding-select="activityLevel" data-onboarding-value="' + option.value + '" type="button"><strong>' + option.label + '</strong><span>' + option.detail + '</span></button>').join("") + '</div></div><div class="field-group"><label class="field-label">Goal</label><div class="option-grid">' + GOAL_OPTIONS.map((option) => '<button class="option-card' + (state.onboarding.goal === option.value ? " active" : "") + '" data-onboarding-select="goal" data-onboarding-value="' + option.value + '" type="button"><strong>' + option.label + '</strong><span>' + option.detail + '</span></button>').join("") + '</div></div></section>',
+      '<section class="wizard-step"><div class="auth-card-title"><div class="section-note">Step 5</div><h3>Email and password</h3><p>We will print a 6-digit verification code to the server terminal for now. Later this can be swapped to SMTP without changing the flow.</p></div><div class="field-group"><label class="field-label">Email</label><input data-onboarding-field="email" type="email" placeholder="you@example.com" value="' + escapeHtml(state.onboarding.email) + '"></div><div class="field-group"><label class="field-label">Password</label><input data-onboarding-field="password" type="password" placeholder="At least 6 characters" value="' + escapeHtml(state.onboarding.password) + '"></div></section>',
+      '<section class="wizard-step"><div class="auth-card-title"><div class="section-note">Step 6</div><h3>Your calorie plan</h3><p>This is an adult estimate based on the Mifflin-St Jeor resting calorie equation, a standard activity multiplier, and goal-based macro splits that stay within adult AMDR ranges.</p></div>' + (summary ? '<div class="summary-grid"><div class="summary-card"><strong>' + summary.recommendedCalories + '</strong><span>recommended calories</span></div><div class="summary-card"><strong>' + summary.maintenanceCalories + '</strong><span>maintenance estimate</span></div><div class="summary-card"><strong>' + summary.proteinGrams + 'g</strong><span>protein</span></div><div class="summary-card"><strong>' + summary.carbsGrams + 'g</strong><span>carbs</span></div><div class="summary-card"><strong>' + summary.fatGrams + 'g</strong><span>fat</span></div><div class="summary-card"><strong>' + summary.restingCalories + '</strong><span>resting estimate</span></div></div><div class="helper-callout"><p><strong>' + formatGoalLabel(state.onboarding.goal) + '</strong> with a ' + formatActivityLabel(state.onboarding.activityLevel) + ' routine. We’ll store these recommendations in your user profile and use calories as your starting tracker target.</p></div>' : '<div class="empty-state">Complete the previous steps to generate your calorie and macro summary.</div>') + '</section>',
+      '<section class="wizard-step"><div class="auth-card-title"><div class="section-note">Step 7</div><h3>Verify your email</h3><p>For now, the verification code is printed in the backend terminal. Paste that 6-digit code here to finish creating the account.</p></div><div class="field-group"><label class="field-label">Verification code</label><input data-onboarding-field="verificationCode" type="text" inputmode="numeric" maxlength="6" placeholder="123456" value="' + escapeHtml(state.onboarding.verificationCode) + '"></div><div class="helper-callout"><p>We are using a terminal-based verification fallback right now. When SMTP is configured later, this exact step can send a real email instead.</p></div></section>'
+    ];
+    const isVerifyStep = state.wizardStep === 6;
+    const primaryLabel = state.wizardStep < 5 ? "Next" : state.wizardStep === 5 ? "Create account & send code" : "Verify email";
+    container.innerHTML =
+      '<div class="auth-card-title"><div class="section-note">Create user</div><h3>Slide through your profile setup</h3><p class="subtle">Each step stores the details we need for your local account, calorie estimate, macros, and future tracking.</p></div>' +
+      '<div class="wizard-shell">' +
+        '<div class="wizard-progress">' + Array.from({ length: WIZARD_STEP_COUNT }).map((_, index) => '<div class="wizard-dot' + (index <= state.wizardStep ? " active" : "") + '"></div>').join("") + '</div>' +
+        '<div class="wizard-viewport"><div class="wizard-track" style="transform:translateX(-' + (state.wizardStep * 100) + '%)">' + slides.join("") + '</div></div>' +
+        '<div class="wizard-note' + (state.onboardingNoteTone ? " " + state.onboardingNoteTone : "") + '">' + (state.onboardingNote || " ") + '</div>' +
+        '<div class="wizard-nav">' +
+          (state.wizardStep > 0 ? '<button class="ghost-button flex" data-wizard-action="back" type="button">Back</button>' : '<div class="ghost-button flex" style="opacity:0;pointer-events:none">Back</div>') +
+          (isVerifyStep ? '<button class="ghost-button flex" id="resendCodeButton" type="button">Resend code</button>' : '') +
+          '<button class="button flex" data-wizard-action="primary" type="button">' + primaryLabel + '</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="auth-divider"></div>' +
+      '<div class="auth-card-title"><div class="section-note">Already registered?</div><p class="subtle">Log in with your verified email and password.</p></div>' +
+      '<div class="account-form"><input id="loginEmail" type="email" placeholder="Email"><input id="loginPassword" type="password" placeholder="Password"><button class="ghost-button" id="loginButton" type="button">Log in</button></div>';
+  }
+}
+
+function renderRecentCreated() {
+  const container = document.getElementById("recentCreatedList");
+  if (!state.currentUser) {
+    container.innerHTML = '<div class="empty-state">Sign in and your recently published recipes will appear here.</div>';
+    return;
+  }
+
+  const mine = state.recipes.filter((recipe) => recipe.authorHandle === "@" + state.currentUser.username).slice(0, 4);
+  if (!mine.length) {
+    container.innerHTML = '<div class="empty-state">No recipes posted from this account yet.</div>';
+    return;
+  }
+
+  container.innerHTML = mine.map((recipe) => (
+    '<div class="quick-item"><div><strong>' + recipe.title + '</strong><span>' + recipe.calories + " cal | " + recipe.protein + "g protein</span></div><button class=\"ghost-button\" data-action=\"open-recipe\" data-recipe-id=\"" + recipe.id + '" type="button">Open</button></div>'
+  )).join("");
+}
+
+function renderTracker() {
+  const entries = trackerEntriesForSelectedDay();
+  const consumed = entries.reduce((sum, entry) => sum + Number(entry.calories || 0), 0);
+  const protein = entries.reduce((sum, entry) => sum + Number(entry.protein || 0), 0);
+  const carbs = entries.reduce((sum, entry) => sum + Number(entry.carbs || 0), 0);
+  const fat = entries.reduce((sum, entry) => sum + Number(entry.fat || 0), 0);
+  const remaining = Math.max(0, state.dailyTarget - consumed);
+  const circumference = 2 * Math.PI * 58;
+  const ratio = state.dailyTarget > 0 ? Math.min(consumed / state.dailyTarget, 1) : 0;
+  const profile = state.currentUser && state.currentUser.profile ? state.currentUser.profile : null;
+  const macroTargets = profile ? {
+    protein: profile.proteinGrams,
+    carbs: profile.carbsGrams,
+    fat: profile.fatGrams
+  } : {
+    protein: Math.round(state.dailyTarget * 0.12 / 4) || 160,
+    carbs: Math.round(state.dailyTarget * 0.5 / 4) || 220,
+    fat: Math.round(state.dailyTarget * 0.3 / 9) || 70
+  };
+
+  document.getElementById("trackerLogSubtitle").textContent = (state.currentUser ? entries.length + " entries for " + formatLongDate(state.selectedDate) : "Sign in to save daily logs");
+  document.getElementById("consumedCalories").textContent = consumed;
+  document.getElementById("remainingCalories").textContent = remaining + " remaining";
+  document.getElementById("progressStroke").setAttribute("stroke-dasharray", ((ratio * circumference).toFixed(2)) + " " + circumference.toFixed(2));
+
+  const bars = [
+    { label: "Protein", value: protein, target: macroTargets.protein },
+    { label: "Carbs", value: carbs, target: macroTargets.carbs },
+    { label: "Fat", value: fat, target: macroTargets.fat }
+  ];
+
+  document.getElementById("trackerMacroBars").innerHTML = bars.map((bar) => (
+    '<div class="macro-bar-row"><div class="macro-bar-header"><span>' + bar.label + '</span><span>' + bar.value + " / " + bar.target + "g</span></div><div class=\"bar\"><span style=\"width:" + Math.min((bar.value / bar.target) * 100, 100).toFixed(1) + "%\"></span></div></div>"
+  )).join("");
+
+  document.getElementById("trackerRecipeSelect").innerHTML = state.recipes.slice().sort((a, b) => a.title.localeCompare(b.title)).map((recipe) => (
+    '<option value="' + recipe.id + '">' + recipe.title + " | " + recipe.calories + " cal</option>"
+  )).join("");
+
+  document.getElementById("trackerQuickList").innerHTML = state.recipes.slice(0, 4).map((recipe) => (
+    '<div class="quick-item"><div><strong>' + recipe.title + '</strong><span>' + recipe.calories + " cal | " + recipe.protein + "g protein</span></div><button class=\"tiny-button\" data-action=\"log-recipe\" data-recipe-id=\"" + recipe.id + '" type="button">Add</button></div>'
+  )).join("");
+
+  const logList = document.getElementById("trackerLogList");
+  if (!state.currentUser) {
+    logList.innerHTML = '<div class="empty-state">Sign up or log in from the Create tab to store calorie logs, targets, and meal history.</div>';
+  } else if (!entries.length) {
+    logList.innerHTML = '<div class="empty-state">Nothing logged for this day yet. Add a recipe or create a custom meal below.</div>';
+  } else {
+    logList.innerHTML = entries.map((entry) => (
+      '<article class="log-card"><div class="log-top"><div class="stack"><div class="title-row"><h3>' + entry.title + '</h3><span class="label">' + entry.mealType + '</span></div><div class="subtle">' + entry.calories + " cal | " + entry.protein + "p | " + entry.carbs + "c | " + entry.fat + 'f</div></div></div><div class="log-actions"><span class="subtle">' + new Date(entry.createdAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) + '</span><button class="muted-button" data-action="delete-log" data-log-id="' + entry.id + '" type="button">Remove</button></div></article>'
+    )).join("");
+  }
+}
+
+function renderTopbarMeta() {
+  document.getElementById("todayStamp").textContent = formatLongDate(dateKeyFromDate(new Date()));
+  document.getElementById("userSessionChip").innerHTML = state.currentUser
+    ? 'Session <strong>@' + state.currentUser.username + '</strong>'
+    : 'Session <strong>Guest</strong>';
+}
+
+function renderAll() {
+  renderTopbarMeta();
+  renderHeroStats();
+  renderFilterRows();
+  renderRecipeList();
+  renderCommunity();
+  renderCreateDietSelector();
+  renderAccountPanel();
+  renderRecentCreated();
+  renderTracker();
+  document.getElementById("dailyTargetInput").value = state.dailyTarget;
+  document.getElementById("trackerDateInput").value = state.selectedDate;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
+function addIngredientRow(values) {
+  const data = values || { name: "", amount: "", brand: "" };
+  const row = document.createElement("div");
+  row.className = "ingredient-row";
+  row.innerHTML =
+    '<input data-role="ingredient-name" type="text" placeholder="Ingredient" value="' + escapeHtml(data.name) + '">' +
+    '<input data-role="ingredient-amount" type="text" placeholder="Amount" value="' + escapeHtml(data.amount) + '">' +
+    '<input data-role="ingredient-brand" type="text" placeholder="Brand" value="' + escapeHtml(data.brand) + '">' +
+    '<button class="icon-button" data-action="remove-ingredient" type="button">X</button>';
+  document.getElementById("ingredientRows").appendChild(row);
+}
+
+function readIngredientRows() {
+  return Array.from(document.querySelectorAll("#ingredientRows .ingredient-row")).map((row) => ({
+    name: row.querySelector('[data-role="ingredient-name"]').value.trim(),
+    amount: row.querySelector('[data-role="ingredient-amount"]').value.trim(),
+    brand: row.querySelector('[data-role="ingredient-brand"]').value.trim()
+  })).filter((ingredient) => ingredient.name);
+}
+
+function clearCreateForm() {
+  document.getElementById("recipeTitleInput").value = "";
+  document.getElementById("recipeCaptionInput").value = "";
+  document.getElementById("prepTimeInput").value = "";
+  document.getElementById("servingsInput").value = "";
+  document.getElementById("caloriesInput").value = "";
+  document.getElementById("proteinInput").value = "";
+  document.getElementById("carbsInput").value = "";
+  document.getElementById("fatInput").value = "";
+  document.getElementById("methodInput").value = "";
+  document.getElementById("createStatus").textContent = "";
+  document.getElementById("createStatus").className = "status-line";
+  document.getElementById("ingredientRows").innerHTML = "";
+  state.createDiets = new Set(["high-protein"]);
+  renderCreateDietSelector();
+  addIngredientRow();
+  addIngredientRow();
+}
+
+function resetOnboardingFlow() {
+  state.wizardStep = 0;
+  state.onboarding = createDefaultOnboardingState();
+  state.onboardingNote = "";
+  state.onboardingNoteTone = "";
+  state.pendingVerificationUserId = null;
+}
+
+function setOnboardingNote(message, tone) {
+  state.onboardingNote = message || "";
+  state.onboardingNoteTone = tone || "";
+}
+
+function nextWizardStep() {
+  const validationError = validateWizardStep(state.wizardStep);
+  if (validationError) {
+    setOnboardingNote(validationError, "error");
+    renderAccountPanel();
+    return;
+  }
+  state.wizardStep = Math.min(state.wizardStep + 1, 5);
+  setOnboardingNote("", "");
+  renderAccountPanel();
+}
+
+function previousWizardStep() {
+  state.wizardStep = Math.max(0, state.wizardStep - 1);
+  setOnboardingNote("", "");
+  renderAccountPanel();
+}
+
+function requireUser(message) {
+  if (state.currentUser) {
+    return true;
+  }
+  showToast(message || "Sign in first");
+  setActiveScreen("create");
+  return false;
+}
+
+async function submitRecipe() {
+  if (!requireUser("Sign in to publish a recipe")) {
+    return;
+  }
+
+  const title = document.getElementById("recipeTitleInput").value.trim();
+  const caption = document.getElementById("recipeCaptionInput").value.trim();
+  const prepTime = Number(document.getElementById("prepTimeInput").value);
+  const servings = Number(document.getElementById("servingsInput").value);
+  const calories = Number(document.getElementById("caloriesInput").value);
+  const protein = Number(document.getElementById("proteinInput").value);
+  const carbs = Number(document.getElementById("carbsInput").value);
+  const fat = Number(document.getElementById("fatInput").value);
+  const method = document.getElementById("methodInput").value.trim();
+  const ingredients = readIngredientRows();
+  const status = document.getElementById("createStatus");
+
+  if (!title || !caption || !method || !ingredients.length || !calories) {
+    status.className = "status-line error";
+    status.textContent = "Title, caption, method, calories, and at least one ingredient are required.";
+    return;
+  }
+
+  try {
+    await api("/api/recipes", {
+      method: "POST",
+      body: {
+        title,
+        caption,
+        diets: Array.from(state.createDiets),
+        calories,
+        protein: protein || 0,
+        carbs: carbs || 0,
+        fat: fat || 0,
+        prepTime: prepTime || 0,
+        servings: servings || 1,
+        method,
+        tone: toneFromSeed(title),
+        ingredients
+      }
+    });
+
+    await loadAppData();
+    renderAll();
+    clearCreateForm();
+    status.className = "status-line success";
+    status.textContent = "Recipe published and stored in PostgreSQL.";
+    setActiveScreen("community");
+    showToast("Recipe stored");
+  } catch (error) {
+    status.className = "status-line error";
+    status.textContent = error.message;
+  }
+}
+
+async function submitOnboardingAccount() {
+  const validationError = validateWizardStep(4);
+  if (validationError) {
+    setOnboardingNote(validationError, "error");
+    renderAccountPanel();
+    return;
+  }
+
+  try {
+    const result = await api("/api/auth/signup", {
+      method: "POST",
+      body: {
+        displayName: state.onboarding.displayName.trim(),
+        username: state.onboarding.username.trim(),
+        age: Number(state.onboarding.age),
+        sex: state.onboarding.sex,
+        heightCm: Number(state.onboarding.heightCm),
+        weightKg: Number(state.onboarding.weightKg),
+        activityLevel: state.onboarding.activityLevel,
+        goal: state.onboarding.goal,
+        email: state.onboarding.email.trim(),
+        password: state.onboarding.password
+      }
+    });
+    state.pendingVerificationUserId = result.pendingUserId;
+    state.wizardStep = 6;
+    setOnboardingNote("Verification code printed to the server terminal for " + result.verificationSentTo + ".", "success");
+    renderAccountPanel();
+    showToast("Account created. Enter the terminal code.");
+  } catch (error) {
+    setOnboardingNote(error.message, "error");
+    renderAccountPanel();
+  }
+}
+
+async function verifyOnboardingEmail() {
+  const validationError = validateWizardStep(6);
+  if (validationError) {
+    setOnboardingNote(validationError, "error");
+    renderAccountPanel();
+    return;
+  }
+
+  try {
+    const result = await api("/api/auth/verify-email", {
+      method: "POST",
+      body: {
+        userId: state.pendingVerificationUserId,
+        code: state.onboarding.verificationCode.trim()
+      }
+    });
+    storeCurrentUser(result.user);
+    await loadAppData();
+    resetOnboardingFlow();
+    renderAll();
+    showToast("Email verified and account ready");
+  } catch (error) {
+    setOnboardingNote(error.message, "error");
+    renderAccountPanel();
+  }
+}
+
+async function resendVerificationCode() {
+  if (!state.pendingVerificationUserId) {
+    setOnboardingNote("Create the account first so we know where to send the code.", "error");
+    renderAccountPanel();
+    return;
+  }
+
+  try {
+    await api("/api/auth/resend-code", {
+      method: "POST",
+      body: {
+        userId: state.pendingVerificationUserId
+      }
+    });
+    setOnboardingNote("A fresh verification code was printed to the server terminal.", "success");
+    renderAccountPanel();
+    showToast("Verification code resent");
+  } catch (error) {
+    setOnboardingNote(error.message, "error");
+    renderAccountPanel();
+  }
+}
+
+async function logIn() {
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+  try {
+    const result = await api("/api/auth/login", {
+      method: "POST",
+      body: { email, password }
+    });
+    storeCurrentUser(result.user);
+    await loadAppData();
+    resetOnboardingFlow();
+    renderAll();
+    showToast("Logged in");
+  } catch (error) {
+    if (error.payload && error.payload.pendingUserId) {
+      state.pendingVerificationUserId = error.payload.pendingUserId;
+      state.onboarding.email = email;
+      state.wizardStep = 6;
+      setOnboardingNote("That account still needs email verification. Check the terminal or resend the code.", "error");
+      renderAccountPanel();
+    }
+    showToast(error.message);
+  }
+}
+
+function logOut() {
+  storeCurrentUser(null);
+  resetOnboardingFlow();
+  loadAppData().then(() => {
+    renderAll();
+    showToast("Logged out");
+  }).catch((error) => {
+    console.error(error);
+  });
+}
+
+async function saveDailyTarget() {
+  if (!requireUser("Sign in to save your target")) {
+    return;
+  }
+  const dailyTarget = Number(document.getElementById("dailyTargetInput").value);
+  if (!dailyTarget) {
+    showToast("Enter a calorie target first");
+    return;
+  }
+  try {
+    await api("/api/settings/target", {
+      method: "PUT",
+      body: { dailyTarget }
+    });
+    await loadAppData();
+    renderAll();
+    showToast("Daily target updated");
+  } catch (error) {
+    showToast(error.message);
+  }
+}
+
+async function logRecipeToTracker(recipeId, overrideMealType) {
+  if (!requireUser("Sign in to save calorie logs")) {
+    return;
+  }
+  const recipe = getRecipeById(recipeId);
+  if (!recipe) {
+    return;
+  }
+  const mealType = overrideMealType || document.getElementById("mealTypeSelect").value;
+
+  try {
+    await api("/api/logs", {
+      method: "POST",
+      body: {
+        recipeId: recipe.id,
+        dateKey: state.selectedDate,
+        mealType,
+        title: recipe.title,
+        calories: recipe.calories,
+        protein: recipe.protein,
+        carbs: recipe.carbs,
+        fat: recipe.fat
+      }
+    });
+    await loadAppData();
+    renderAll();
+    closeRecipeModal();
+    setActiveScreen("tracker");
+    showToast("Meal logged");
+  } catch (error) {
+    showToast(error.message);
+  }
+}
+
+async function addCustomMeal() {
+  if (!requireUser("Sign in to save custom meals")) {
+    return;
+  }
+  const title = document.getElementById("customMealTitleInput").value.trim();
+  const calories = Number(document.getElementById("customMealCaloriesInput").value);
+  const protein = Number(document.getElementById("customMealProteinInput").value) || 0;
+  const carbs = Number(document.getElementById("customMealCarbsInput").value) || 0;
+  const fat = Number(document.getElementById("customMealFatInput").value) || 0;
+  const mealType = document.getElementById("customMealTypeSelect").value;
+
+  if (!title || !calories) {
+    showToast("Custom meals need a title and calories");
+    return;
+  }
+
+  try {
+    await api("/api/logs", {
+      method: "POST",
+      body: {
+        recipeId: null,
+        dateKey: state.selectedDate,
+        mealType,
+        title,
+        calories,
+        protein,
+        carbs,
+        fat
+      }
+    });
+    document.getElementById("customMealTitleInput").value = "";
+    document.getElementById("customMealCaloriesInput").value = "";
+    document.getElementById("customMealProteinInput").value = "";
+    document.getElementById("customMealCarbsInput").value = "";
+    document.getElementById("customMealFatInput").value = "";
+    await loadAppData();
+    renderAll();
+    showToast("Custom meal added");
+  } catch (error) {
+    showToast(error.message);
+  }
+}
+
+async function deleteLog(logId) {
+  if (!requireUser("Sign in to edit your logs")) {
+    return;
+  }
+  try {
+    await api("/api/logs/" + logId, { method: "DELETE" });
+    await loadAppData();
+    renderAll();
+    showToast("Meal removed");
+  } catch (error) {
+    showToast(error.message);
+  }
+}
+
+function openRecipeModal(recipeId) {
+  const recipe = getRecipeById(recipeId);
+  if (!recipe) {
+    return;
+  }
+  const dietMarkup = (recipe.diets || []).map((diet) => '<span class="mini-tag">' + formatDietLabel(diet) + "</span>").join("");
+  document.getElementById("recipeModalContent").innerHTML =
+    '<div class="modal-top">' +
+      '<div class="modal-title">' +
+        '<div class="title-row"><h3>' + recipe.title + '</h3><span class="label">' + recipe.prepTime + " min</span></div>" +
+        '<div class="subtle">' + recipe.authorName + " " + recipe.authorHandle + "</div>" +
+        '<div class="tag-row">' + dietMarkup + "</div>" +
+      '</div>' +
+      '<button class="icon-button" id="closeRecipeModalButton" type="button">X</button>' +
+    '</div>' +
+    '<div class="macro-grid">' +
+      '<div class="macro-cell"><strong>' + recipe.calories + '</strong><span>Calories</span></div>' +
+      '<div class="macro-cell"><strong>' + recipe.protein + 'g</strong><span>Protein</span></div>' +
+      '<div class="macro-cell"><strong>' + recipe.carbs + 'g</strong><span>Carbs</span></div>' +
+      '<div class="macro-cell"><strong>' + recipe.fat + 'g</strong><span>Fat</span></div>' +
+    '</div>' +
+    '<div class="ingredient-detail">' +
+      (recipe.ingredients || []).map((ingredient) => (
+        '<div><span>' + ingredient.name + '</span><span>' + (ingredient.amount || "") + (ingredient.brand ? " | " + ingredient.brand : "") + "</span></div>"
+      )).join("") +
+    '</div>' +
+    '<div class="method-block">' + recipe.method + "</div>" +
+    '<div class="action-row"><button class="button flex" data-action="log-recipe" data-recipe-id="' + recipe.id + '" type="button">Log this meal</button><button class="ghost-button flex" id="closeRecipeModalButtonBottom" type="button">Close</button></div>';
+  document.getElementById("recipeModal").classList.add("open");
+}
+
+function closeRecipeModal() {
+  document.getElementById("recipeModal").classList.remove("open");
+}
+
+function attachStaticEvents() {
+  document.getElementById("bottomNav").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-screen-target]");
+    if (!button) return;
+    setActiveScreen(button.dataset.screenTarget);
+  });
+
+  document.getElementById("recipeSearch").addEventListener("input", (event) => {
+    state.recipeSearch = event.target.value;
+    renderRecipeList();
+  });
+
+  document.getElementById("communitySearch").addEventListener("input", (event) => {
+    state.communitySearch = event.target.value;
+    renderCommunity();
+  });
+
+  document.getElementById("trackerDateInput").addEventListener("change", (event) => {
+    state.selectedDate = event.target.value || dateKeyFromDate(new Date());
+    renderHeroStats();
+    renderCommunity();
+    renderTracker();
+  });
+
+  document.getElementById("addIngredientButton").addEventListener("click", () => addIngredientRow());
+  document.getElementById("submitRecipeButton").addEventListener("click", submitRecipe);
+  document.getElementById("saveTargetButton").addEventListener("click", saveDailyTarget);
+  document.getElementById("quickLogButton").addEventListener("click", () => {
+    const recipeId = document.getElementById("trackerRecipeSelect").value;
+    logRecipeToTracker(recipeId);
+  });
+  document.getElementById("customLogButton").addEventListener("click", addCustomMeal);
+
+  document.addEventListener("input", (event) => {
+    const field = event.target.dataset.onboardingField;
+    if (!field) {
+      return;
+    }
+    state.onboarding[field] = event.target.value;
+    if (state.wizardStep === 5) {
+      renderAccountPanel();
+    }
+  });
+
+  document.addEventListener("change", (event) => {
+    const field = event.target.dataset.onboardingField;
+    if (!field) {
+      return;
+    }
+    state.onboarding[field] = event.target.value;
+    if (state.wizardStep === 5) {
+      renderAccountPanel();
+    }
+  });
+
+  document.addEventListener("click", async (event) => {
+    const filter = event.target.closest("[data-filter-type]");
+    if (filter) {
+      if (filter.dataset.filterType === "recipe") {
+        state.recipeFilter = filter.dataset.filterValue;
+        renderFilterRows();
+        renderRecipeList();
+      } else {
+        state.communityFilter = filter.dataset.filterValue;
+        renderFilterRows();
+        renderCommunity();
+      }
+      return;
+    }
+
+    const dietToggle = event.target.closest("[data-create-diet]");
+    if (dietToggle) {
+      const value = dietToggle.dataset.createDiet;
+      if (state.createDiets.has(value)) {
+        state.createDiets.delete(value);
+      } else {
+        state.createDiets.add(value);
+      }
+      if (!state.createDiets.size) {
+        state.createDiets.add("high-protein");
+      }
+      renderCreateDietSelector();
+      return;
+    }
+
+    const action = event.target.closest("[data-action]");
+    if (action) {
+      if (action.dataset.action === "open-recipe") {
+        openRecipeModal(action.dataset.recipeId);
+      } else if (action.dataset.action === "log-recipe") {
+        await logRecipeToTracker(action.dataset.recipeId);
+      } else if (action.dataset.action === "remove-ingredient") {
+        const row = action.closest(".ingredient-row");
+        if (row && document.querySelectorAll("#ingredientRows .ingredient-row").length > 1) {
+          row.remove();
+        }
+      } else if (action.dataset.action === "delete-log") {
+        await deleteLog(action.dataset.logId);
+      }
+      return;
+    }
+
+    const onboardingSelect = event.target.closest("[data-onboarding-select]");
+    if (onboardingSelect) {
+      state.onboarding[onboardingSelect.dataset.onboardingSelect] = onboardingSelect.dataset.onboardingValue;
+      if (state.wizardStep === 3 || state.wizardStep === 5) {
+        renderAccountPanel();
+      } else {
+        renderAccountPanel();
+      }
+      return;
+    }
+
+    const wizardAction = event.target.closest("[data-wizard-action]");
+    if (wizardAction) {
+      if (wizardAction.dataset.wizardAction === "back") {
+        previousWizardStep();
+      } else if (wizardAction.dataset.wizardAction === "primary") {
+        if (state.wizardStep < 5) {
+          nextWizardStep();
+        } else if (state.wizardStep === 5) {
+          await submitOnboardingAccount();
+        } else {
+          await verifyOnboardingEmail();
+        }
+      }
+      return;
+    }
+
+    if (event.target.id === "loginButton") {
+      logIn();
+      return;
+    }
+    if (event.target.id === "resendCodeButton") {
+      await resendVerificationCode();
+      return;
+    }
+    if (event.target.id === "logoutButton") {
+      logOut();
+      return;
+    }
+    if (event.target.id === "closeRecipeModalButton" || event.target.id === "closeRecipeModalButtonBottom") {
+      closeRecipeModal();
+    }
+  });
+
+  document.getElementById("recipeModal").addEventListener("click", (event) => {
+    if (event.target.id === "recipeModal") {
+      closeRecipeModal();
+    }
+  });
+}
+
+async function initializeApp() {
+  attachStaticEvents();
+  clearCreateForm();
+  await loadAppData();
+  renderAll();
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  initializeApp().catch((error) => {
+    console.error(error);
+    showToast("Failed to load MacroChef");
+  });
+});
 </script>
 </body>
 </html>
