@@ -135,6 +135,8 @@
         <div class="detail-action-row">
           <button class="btn-order" onclick="goToShopRecipe()">🛒 Order Ingredients</button>
           <button class="btn-secondary" onclick="showView('localiser')">🌍 Localise Recipe</button>
+          <button class="btn-secondary" onclick="openEditRecipe()">✏️ Edit</button>
+          <button class="btn-secondary" style="color:red;border-color:red" onclick="deleteCurrentRecipe()">🗑 Delete</button>
         </div>
       </div>
     </div>
@@ -342,7 +344,38 @@
     <button class="btn-place-order" id="placeOrderBtn" onclick="placeOrder()">Place Order · $<span id="orderTotalBtn">0.00</span></button>
   </div>
 </div>
+<div class="overlay" id="editOverlay" onclick="closeEditModal()"></div>
 
-<script src="script.js"></script>
+<div class="order-panel" id="editPanel">
+  <div class="order-panel-header">
+    <div class="order-panel-title">Edit Recipe</div>
+    <button class="panel-close" onclick="closeEditModal()">×</button>
+  </div>
+
+  <div class="order-panel-body">
+    <label class="form-label">Title</label>
+    <input class="form-input" id="editTitle">
+
+    <label class="form-label">Method</label>
+    <textarea class="form-textarea" id="editMethod" rows="5"></textarea>
+
+    <label class="form-label">Calories</label>
+    <input class="form-input" id="editCalories" type="number">
+
+    <label class="form-label">Protein</label>
+    <input class="form-input" id="editProtein" type="number">
+
+    <label class="form-label">Carbs</label>
+    <input class="form-input" id="editCarbs" type="number">
+
+    <label class="form-label">Fat</label>
+    <input class="form-input" id="editFat" type="number">
+  </div>
+
+  <div class="order-panel-footer">
+    <button class="btn-place-order" onclick="saveEditRecipe()">Save Changes</button>
+  </div>
+</div>
+<script type="module" src="./script.js"></script>
 </body>
 </html>
