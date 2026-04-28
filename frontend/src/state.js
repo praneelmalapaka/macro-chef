@@ -1,5 +1,6 @@
 export const state = {
   backendRecipes: [],
+  savedRecipeIds: [],
   currentDiet: "all",
   currentCountry: "AU",
   currentRecipe: null,
