@@ -3,12 +3,15 @@ const pool = require("../db");
 
 const router = express.Router();
 
+const authMiddleware = require("../middleware/authMiddleware");
+
 router.get("/", async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT
         r.id,
         r.title,
+        r.user_id,
         r.description,
         r.method,
         r.prep_time_minutes,
@@ -57,7 +60,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
+router.post("/", authMiddleware, async (req, res) => {
   const client = await pool.connect();
 
   try {
@@ -94,6 +97,7 @@ router.post("/", async (req, res) => {
     const recipeResult = await client.query(
       `
       INSERT INTO recipes (
+        user_id,
         title,
         description,
         method,
@@ -106,10 +110,11 @@ router.post("/", async (req, res) => {
         fat_g,
         image_url
       )
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
       RETURNING id
       `,
       [
+        req.user.id,
         title,
         description || null,
         method,
@@ -121,7 +126,7 @@ router.post("/", async (req, res) => {
         carbsG ?? carbs_g ?? null,
         fatG ?? fat_g ?? null,
         imageUrl ?? image_url ?? null,
-      ]
+     ]
     );
 
     const recipeId = recipeResult.rows[0].id;
@@ -185,7 +190,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     const {
@@ -229,7 +234,7 @@ router.put("/:id", async (req, res) => {
         carbs_g = $9,
         fat_g = $10,
         image_url = $11
-      WHERE id = $12
+      WHERE id = $12 AND user_id = $13
       RETURNING id
       `,
       [
@@ -245,6 +250,7 @@ router.put("/:id", async (req, res) => {
         fatG ?? fat_g ?? null,
         imageUrl ?? image_url ?? null,
         id,
+        req.user.id,
      ]
     );
 
@@ -262,13 +268,23 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authMiddleware, async (req, res) => {
   const client = await pool.connect();
 
   try {
     const { id } = req.params;
 
     await client.query("BEGIN");
+
+    const ownerCheck = await client.query(
+      "SELECT id FROM recipes WHERE id = $1 AND user_id = $2",
+      [id, req.user.id]
+    );
+
+    if (ownerCheck.rows.length === 0) {
+      await client.query("ROLLBACK");
+      return res.status(403).json({ error: "You can only delete your own recipes" });
+    }
 
     await client.query("DELETE FROM recipe_tags WHERE recipe_id = $1", [id]);
     await client.query("DELETE FROM recipe_ingredients WHERE recipe_id = $1", [id]);
@@ -277,11 +293,6 @@ router.delete("/:id", async (req, res) => {
       "DELETE FROM recipes WHERE id = $1 RETURNING id",
       [id]
     );
-
-    if (result.rows.length === 0) {
-      await client.query("ROLLBACK");
-      return res.status(404).json({ error: "Recipe not found" });
-    }
 
     await client.query("COMMIT");
 

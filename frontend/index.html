@@ -21,6 +21,10 @@
       <button class="nav-link" id="nav-shopping" onclick="showView('shopping')">Shop</button>
     </div>
     <div class="nav-actions">
+      <button class="cart-btn" onclick="setDiet('saved', this); showView('home')">
+        ⭐ Saved
+        <span class="cart-badge" id="navSavedBadge">0</span>
+      </button>
       <button class="cart-btn" onclick="openOrderPanel()">
         🛒 Order
         <span class="cart-badge" id="cartBadge">0</span>
@@ -88,7 +92,9 @@
         <button class="pill" onclick="setDiet('vegan',this)">Vegan</button>
         <button class="pill" onclick="setDiet('low-carb',this)">Low Carb</button>
         <button class="pill" onclick="setDiet('bulking',this)">Bulking</button>
-        <button class="pill" onclick="setDiet('saved',this)">Saved</button>
+        <button class="pill" onclick="setDiet('saved',this)">
+          Saved <span id="savedCount">0</span>
+        </button>
       </div>
     </div>
     <div class="recipe-grid" id="recipeGrid"></div>
@@ -376,6 +382,30 @@
 
   <div class="order-panel-footer">
     <button class="btn-place-order" onclick="saveEditRecipe()">Save Changes</button>
+  </div>
+</div>
+
+<div class="overlay" id="authOverlay" onclick="closeAuthModal()"></div>
+
+<div class="order-panel" id="authPanel">
+  <div class="order-panel-header">
+    <div class="order-panel-title" id="authTitle">Login</div>
+    <button class="panel-close" onclick="closeAuthModal()">×</button>
+  </div>
+
+  <div class="order-panel-body">
+    <input class="form-input" id="authUsername" placeholder="Username">
+    <input class="form-input" id="authEmail" placeholder="Email">
+    <input class="form-input" id="authPassword" type="password" placeholder="Password">
+
+    <button class="btn-place-order" onclick="submitAuthForm()">Continue</button>
+
+    <p style="margin-top:16px;font-size:13px;color:var(--text2)">
+      <span id="authSwitchText">Don't have an account?</span>
+      <button onclick="toggleAuthMode()" style="border:none;background:none;color:var(--gold);cursor:pointer">
+        <span id="authSwitchBtn">Sign up</span>
+      </button>
+    </p>
   </div>
 </div>
 <script type="module" src="./script.js"></script>
