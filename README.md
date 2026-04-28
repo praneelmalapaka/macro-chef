@@ -1,73 +1,63 @@
-# MacroChef
+## Tech Stack
 
-`index.html` remains in the repo as the original website reference.
+- Frontend: HTML, CSS, JavaScript modules
+- Backend: Node.js, Express
+- Database: PostgreSQL
+- Auth: JWT + bcrypt
+- Storage: PostgreSQL for recipes, users, saved recipes
 
-The Android app now lives in `android-app/` as a native Jetpack Compose project with bundled sample data. It no longer depends on loading the website in a `WebView`.
+---
 
-## Run locally
+## Setup Guide
 
-### Prerequisites
-
-- Android Studio with the Android SDK installed
-- Java 17+ available to Gradle, or use the JBR bundled with Android Studio
-- An emulator or physical Android device
-
-### Android Studio
-
-1. Open [android-app](/home/vedantt_21/crucible/macro-chef/android-app) as the project root.
-2. Let Gradle sync finish.
-3. Make sure the run configuration is `app`, not `app.main`.
-4. If Android Studio cannot find your SDK, create `android-app/local.properties` with:
-
-```properties
-sdk.dir=/path/to/Android/Sdk
-```
-
-5. Choose an emulator or connected device.
-6. Press Run.
-
-### Command line build
-
-From the repo root:
+### 1. Clone the repo
 
 ```bash
-cd android-app
-./gradlew assembleDebug
-```
+git clone <repo-url>
+cd MacroChef
 
-The generated APK will be:
+### 2. Backend setup
+#### 2.1 Install dependencies
+cd backend
+npm install
 
-```text
-app/build/outputs/apk/debug/app-debug.apk
-```
+#### 2.2 Set up environment
+PORT=5000
+DATABASE_URL=postgresql://postgres:<your_password>@localhost:5432/macrochef
+JWT_SECRET=dev_secret
 
-### Install on a device
+#### 2.3 Create DB (pgAdmin or psql)
+CREATE DATABASE macrochef
 
-If `adb` can see your device:
+#### 2.4 Start database
+node server.js
 
-```bash
-cd android-app
-./gradlew installDebug
-```
+#### 2.5 Test
+http://localhost:5000/api/recipes
 
-Or install the APK manually:
+### 3 Frontend setup
 
-```bash
-adb install -r app/build/outputs/apk/debug/app-debug.apk
-adb shell am start -n com.macrochef.app/.MainActivity
-```
+cd ../frontend
+npx serve .
 
-### Wireless device setup
+#### 3.1 Open:
 
-For a real phone without a data cable:
+http://localhost:3000
 
-1. Enable `Developer options`.
-2. Enable `Wireless debugging`.
-3. Pair the phone from Android Studio `Device Manager > Pair Devices Using Wi-Fi`, or use `adb pair`.
-4. Confirm the device appears in `adb devices`.
+### 4. Login/Register
 
-## Notes
+#### 4.1 Use the avatar on the top right, or run these in console if bugging
 
-- The Android app is self-contained and does not require the HTML file or network access at runtime.
-- The app recreates the existing product flow in Compose: discover, detail, feed, upload, localiser, shopping, and ordering.
-- Open `android-app/`, not the repo root, in Android Studio.
+PORT=5000
+DATABASE_URL=postgresql://postgres:<your_password>@localhost:5432/macrochef
+JWT_SECRET=dev_secret
+
+### 5. What works:-
+# localStorage.removeItem("mc_token");
+# localStorage.removeItem("mc_user");
+# location.reload();
+
+### 6. Important
+# Backend must run on :5000
+# Frontend must run on :3000
+# Only owners can edit/delete recipes
