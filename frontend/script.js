@@ -7,6 +7,7 @@ import { addIngRow, checkBrand, simUpload, submitRecipe } from "./src/upload.js"
 import { renderFeed, toggleFollow, rateFeedPost } from "./src/feed.js";
 import { renderCountryGrid, selectCountry, renderSwapRows } from "./src/localiser.js";
 import { refreshShopList, toggleCheck, changeQty, openOrderPanel, closeOrderPanel, selectDelivery, placeOrder, setShopMode } from "./src/shopping.js";
+import { isRecipeSaved, toggleSavedRecipe } from "./src/favourites.js";
 
 /* ═══════════════════ API ═══════════════════ */
 async function loadRecipes() {
@@ -189,6 +190,20 @@ async function saveEditRecipe() {
   }
 }
 
+function toggleCurrentRecipeSaved() {
+  if (!state.currentRecipe) return;
+
+  const nowSaved = toggleSavedRecipe(state.currentRecipe.id);
+  const btn = document.getElementById("detailSaveBtn");
+
+  if (btn) {
+    btn.textContent = nowSaved ? "⭐ Saved" : "☆ Save";
+  }
+
+  filterRecipes();
+  showToast(nowSaved ? "Recipe saved" : "Recipe removed from saved");
+}
+
 /* ═══════════════════ TOAST ═══════════════════ */
 function showToast(msg){
   const t=document.getElementById('toast');
@@ -237,3 +252,4 @@ window.deleteCurrentRecipe = deleteCurrentRecipe;
 window.openEditRecipe = openEditRecipe;
 window.closeEditModal = closeEditModal;
 window.saveEditRecipe = saveEditRecipe;
+window.toggleCurrentRecipeSaved = toggleCurrentRecipeSaved;

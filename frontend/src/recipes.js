@@ -1,5 +1,6 @@
 import { state } from "./state.js";
 import { showView } from "./navigation.js";
+import { isRecipeSaved, toggleSavedRecipe } from "./favourites.js";
 
 export const tagMap = {
   "high-protein": { cls: "tag-protein", label: "High Protein" },
@@ -19,11 +20,14 @@ export function filterRecipes() {
   const q = (document.getElementById("searchInput")?.value || "").toLowerCase();
   const grid = document.getElementById("recipeGrid");
   if (!grid) return;
-
   const filtered = state.backendRecipes.filter((r) => {
     const tags = (r.tags || []).map((t) => t.slug);
+
     const matchesDiet =
-      state.currentDiet === "all" || tags.includes(state.currentDiet);
+      state.currentDiet === "all" ||
+      (state.currentDiet === "saved" && isRecipeSaved(r.id)) ||
+      tags.includes(state.currentDiet);
+
     const matchesSearch =
       !q ||
       r.title.toLowerCase().includes(q) ||
@@ -61,6 +65,7 @@ function buildBackendCard(r) {
     ? `<img src="${r.image_url}" alt="${r.title}" style="width:100%;height:100%;object-fit:cover;">`
     : `<span style="font-size:72px;position:relative;z-index:1">🍽️</span>`;
 
+  const saved = isRecipeSaved(r.id);
   d.innerHTML = `
     <div class="card-img" style="background:#f9f6f0">
       ${imageContent}
@@ -79,6 +84,9 @@ function buildBackendCard(r) {
       <div class="card-footer">
         <div class="rating-row">★ New <span class="rating-count">(community)</span></div>
         <div class="card-btns">
+          <button class="card-btn" data-save-id="${r.id}">
+            ${saved ? "⭐ Saved" : "☆ Save"}
+          </button>
           <button class="card-btn" data-localise-id="${r.id}">🌍 Localise</button>
           <button class="card-btn shop" data-shop-id="${r.id}">🛒 Order</button>
         </div>
@@ -97,6 +105,12 @@ function buildBackendCard(r) {
     window.goShopByRecipeId(r.id);
   };
 
+  d.querySelector("[data-save-id]").onclick = (e) => {
+    e.stopPropagation();
+    const nowSaved = toggleSavedRecipe(r.id);
+    e.currentTarget.textContent = nowSaved ? "⭐ Saved" : "☆ Save";
+  };
+
   return d;
 }
 
@@ -107,6 +121,11 @@ export function openBackendDetail(r){
     detailEmoji.innerHTML=r.image_url
       ? `<img src="${r.image_url}" alt="${r.title}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">`
       : '🍽️';
+  }
+
+  const detailSaveBtn = document.getElementById("detailSaveBtn");
+  if (detailSaveBtn) {
+    detailSaveBtn.textContent = isRecipeSaved(r.id) ? "⭐ Saved" : "☆ Save";
   }
 
   const dietTags=(r.tags||[]).map(t=>`<span class="tag ${tagMap[t.slug]?.cls||''}">${tagMap[t.slug]?.label||t.name}</span>`).join('');

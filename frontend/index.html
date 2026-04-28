@@ -88,6 +88,7 @@
         <button class="pill" onclick="setDiet('vegan',this)">Vegan</button>
         <button class="pill" onclick="setDiet('low-carb',this)">Low Carb</button>
         <button class="pill" onclick="setDiet('bulking',this)">Bulking</button>
+        <button class="pill" onclick="setDiet('saved',this)">Saved</button>
       </div>
     </div>
     <div class="recipe-grid" id="recipeGrid"></div>
@@ -137,6 +138,7 @@
           <button class="btn-secondary" onclick="showView('localiser')">🌍 Localise Recipe</button>
           <button class="btn-secondary" onclick="openEditRecipe()">✏️ Edit</button>
           <button class="btn-secondary" style="color:red;border-color:red" onclick="deleteCurrentRecipe()">🗑 Delete</button>
+          <button class="btn-secondary" id="detailSaveBtn" onclick="toggleCurrentRecipeSaved()">☆ Save</button>
         </div>
       </div>
     </div>
