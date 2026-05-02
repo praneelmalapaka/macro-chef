@@ -7,7 +7,11 @@ const { Pool } = require("pg");
 loadEnvFile();
 
 const PORT = Number(process.env.PORT || 5000);
-const DATABASE_URL = process.env.DATABASE_URL || "postgresql:///macrochef";
+const DATABASE_URL = process.env.DATABASE_URL;
+if (!DATABASE_URL) {
+  throw new Error("DATABASE_URL is required. Copy .env.example to .env and set a Postgres connection string.");
+}
+const DATABASE_SCHEMA = normalizeDatabaseSchema(process.env.DATABASE_SCHEMA || "");
 const parsedDatabaseUrl = new URL(DATABASE_URL);
 const databaseUser = decodeURIComponent(parsedDatabaseUrl.username || process.env.PGUSER || process.env.USER || "postgres");
 const databasePassword = decodeURIComponent(parsedDatabaseUrl.password || process.env.PGPASSWORD || "");
@@ -39,7 +43,8 @@ const pool = new Pool({
   password: databasePassword,
   host: databaseHost,
   port: databasePort,
-  database: databaseName
+  database: databaseName,
+  options: DATABASE_SCHEMA ? "-c search_path=" + DATABASE_SCHEMA : undefined
 });
 
 const app = express();
@@ -555,6 +560,9 @@ async function start() {
 }
 
 async function initializeDatabase() {
+  if (DATABASE_SCHEMA) {
+    await pool.query("CREATE SCHEMA IF NOT EXISTS " + quoteIdentifier(DATABASE_SCHEMA));
+  }
   const schema = fs.readFileSync(path.join(__dirname, "schema.sql"), "utf8");
   await pool.query(schema);
 }
@@ -937,6 +945,21 @@ function verifyPassword(password, storedValue) {
 
 function DEFAULT_TARGET_FROM_SETTINGS() {
   return 2200;
+}
+
+function normalizeDatabaseSchema(value) {
+  const schema = String(value || "").trim().toLowerCase();
+  if (!schema) {
+    return "";
+  }
+  if (!/^[a-z_][a-z0-9_]*$/.test(schema)) {
+    throw new Error("DATABASE_SCHEMA must use only letters, numbers, and underscores, and cannot start with a number.");
+  }
+  return schema;
+}
+
+function quoteIdentifier(value) {
+  return '"' + String(value).replaceAll('"', '""') + '"';
 }
 
 function loadEnvFile() {
