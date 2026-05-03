@@ -26,12 +26,15 @@ describeWithDb("MacroChef MVP API", () => {
     const { createApp } = await import("../src/app");
     app = createApp();
 
-    const migration = fs.readFileSync(path.join(__dirname, "../migrations/001_init.sql"), "utf8");
+    const migrationsDir = path.join(__dirname, "../migrations");
+    const migrations = fs.readdirSync(migrationsDir).filter((file) => file.endsWith(".sql")).sort();
     await pool.query("CREATE SCHEMA IF NOT EXISTS macrochef_test");
     await pool.query("SET search_path TO macrochef_test, public");
-    await pool.query(migration);
+    for (const file of migrations) {
+      await pool.query(fs.readFileSync(path.join(migrationsDir, file), "utf8"));
+    }
     await pool.query(
-      "TRUNCATE food_logs, friendships, friend_requests, email_verification_tokens, users RESTART IDENTITY CASCADE"
+      "TRUNCATE recipe_comments, recipe_likes, recipe_saves, recipes, food_logs, friendships, friend_requests, email_verification_tokens, users RESTART IDENTITY CASCADE"
     );
   });
 
@@ -120,6 +123,53 @@ describeWithDb("MacroChef MVP API", () => {
       .delete(`/logs/${ownLog.body.log.id}`)
       .set("Authorization", `Bearer ${alice.token}`)
       .expect(200);
+
+    const recipe = await request(app)
+      .post("/recipes")
+      .set("Authorization", `Bearer ${alice.token}`)
+      .send({
+        title: "Protein yoghurt bowl",
+        description: "Fast breakfast with berries.",
+        imageUrl: "https://example.com/yoghurt.jpg",
+        ingredients: ["Greek yoghurt", "Blueberries", "Granola"],
+        instructions: ["Spoon yoghurt into a bowl", "Top with berries and granola"],
+        calories: 360,
+        tags: ["high protein", "breakfast"],
+        visibility: "public"
+      })
+      .expect(201);
+
+    expect(recipe.body.recipe.tags).toContain("high-protein");
+
+    const feed = await request(app)
+      .get("/recipes?filter=public")
+      .set("Authorization", `Bearer ${bob.token}`)
+      .expect(200);
+    expect(feed.body.recipes.some((item: { id: string }) => item.id === recipe.body.recipe.id)).toBe(true);
+
+    const liked = await request(app)
+      .post(`/recipes/${recipe.body.recipe.id}/like`)
+      .set("Authorization", `Bearer ${bob.token}`)
+      .expect(200);
+    expect(liked.body.recipe.likedByMe).toBe(true);
+
+    const saved = await request(app)
+      .post(`/recipes/${recipe.body.recipe.id}/save`)
+      .set("Authorization", `Bearer ${bob.token}`)
+      .expect(200);
+    expect(saved.body.recipe.savedByMe).toBe(true);
+
+    await request(app)
+      .post(`/recipes/${recipe.body.recipe.id}/comments`)
+      .set("Authorization", `Bearer ${bob.token}`)
+      .send({ body: "Making this tomorrow." })
+      .expect(201);
+
+    const comments = await request(app)
+      .get(`/recipes/${recipe.body.recipe.id}/comments`)
+      .set("Authorization", `Bearer ${alice.token}`)
+      .expect(200);
+    expect(comments.body.comments).toHaveLength(1);
   });
 
   async function signupAndVerify(prefix: string) {

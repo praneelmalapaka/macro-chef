@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MacroChef</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section id="authView" class="view">
+        <div class="logo" aria-hidden="true">&#127860;</div>
+        <h1>MacroChef</h1>
+        <p class="muted">Track food, hit macros, and keep it social.</p>
+
+        <form id="authForm" class="stack">
+          <div id="signupFields" class="stack hidden">
+            <label>
+              <span>Username</span>
+              <input id="username" autocomplete="username" placeholder="macrochef_user">
+            </label>
+            <label>
+              <span>Display name</span>
+              <input id="displayName" autocomplete="name" placeholder="Your name">
+            </label>
+          </div>
+
+          <label>
+            <span>Email</span>
+            <input id="email" autocomplete="email" type="email" required placeholder="you@example.com">
+          </label>
+          <label>
+            <span>Password</span>
+            <input id="password" autocomplete="current-password" type="password" required placeholder="At least 8 characters">
+          </label>
+
+          <p id="authError" class="error hidden"></p>
+          <button id="authSubmit" class="primary" type="submit">Log in</button>
+        </form>
+
+        <button id="toggleAuth" class="text-button" type="button">New here? Create account</button>
+        <button id="forgotPassword" class="text-button" type="button">Forgot password?</button>
+      </section>
+
+      <section id="verifyView" class="view hidden">
+        <div class="top-row">
+          <div>
+            <p class="eyebrow">Verification</p>
+            <h1>Check your inbox</h1>
+          </div>
+          <button id="verifyLogout" class="icon-button" type="button" title="Log out">X</button>
+        </div>
+        <p id="verifyCopy" class="muted">Enter the 6-digit code sent to your email.</p>
+        <form id="verifyForm" class="stack">
+          <label>
+            <span>Verification code</span>
+            <input id="verificationCode" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" required placeholder="123456">
+          </label>
+          <p id="verifyError" class="error hidden"></p>
+          <button class="primary" type="submit">Verify</button>
+        </form>
+        <button id="resendCode" class="text-button" type="button">Resend code</button>
+      </section>
+
+      <section id="appView" class="view hidden">
+        <div class="top-row">
+          <div>
+            <p class="eyebrow">Today</p>
+            <h1 id="welcome">MacroChef</h1>
+          </div>
+          <button id="logout" class="icon-button" type="button" title="Log out">X</button>
+        </div>
+
+        <div class="metric-card">
+          <div>
+            <span class="muted">Calories</span>
+            <strong id="totalCalories">0</strong>
+            <span id="goalText" class="muted">2200 goal</span>
+          </div>
+          <div>
+            <span class="muted">Remaining</span>
+            <strong id="remainingCalories">2200</strong>
+            <span class="muted">cal</span>
+          </div>
+        </div>
+
+        <div class="macro-row">
+          <div><strong id="protein">0g</strong><span>Protein</span></div>
+          <div><strong id="carbs">0g</strong><span>Carbs</span></div>
+          <div><strong id="fat">0g</strong><span>Fat</span></div>
+        </div>
+
+        <form id="logForm" class="card stack">
+          <h2>Add food</h2>
+          <label>
+            <span>Food name</span>
+            <input id="foodName" required placeholder="Chicken bowl">
+          </label>
+          <div class="grid">
+            <label>
+              <span>Calories</span>
+              <input id="foodCalories" type="number" min="0" required placeholder="520">
+            </label>
+            <label>
+              <span>Meal</span>
+              <select id="mealType">
+                <option value="breakfast">Breakfast</option>
+                <option value="lunch">Lunch</option>
+                <option value="dinner">Dinner</option>
+                <option value="snack">Snack</option>
+                <option value="other">Other</option>
+              </select>
+            </label>
+          </div>
+          <div class="grid-3">
+            <label><span>Protein</span><input id="foodProtein" type="number" min="0" value="0"></label>
+            <label><span>Carbs</span><input id="foodCarbs" type="number" min="0" value="0"></label>
+            <label><span>Fat</span><input id="foodFat" type="number" min="0" value="0"></label>
+          </div>
+          <p id="logError" class="error hidden"></p>
+          <button class="primary" type="submit">Save food</button>
+        </form>
+
+        <div class="section-head">
+          <h2>Food logs</h2>
+          <button id="refresh" class="text-button" type="button">Refresh</button>
+        </div>
+        <div id="logs" class="logs"></div>
+      </section>
+    </main>
+    <script src="/app.js" defer></script>
+  </body>
+</html>

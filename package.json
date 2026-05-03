@@ -3,11 +3,13 @@
   "version": "1.0.0",
   "private": true,
   "description": "MacroChef local PostgreSQL prototype",
-  "main": "server.js",
+  "main": "scripts/dev-web.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js",
-    "check": "node --check server.js"
+    "start": "node scripts/dev-web.js",
+    "dev": "node scripts/dev-web.js",
+    "check": "node --check scripts/dev-web.js && node --check scripts/serve-flutter-web.js",
+    "web:build": "./scripts/build-flutter-web.sh",
+    "web:serve": "node scripts/serve-flutter-web.js"
   },
   "dependencies": {
     "express": "^5.1.0",

@@ -1,0 +1,280 @@
+:root {
+  color-scheme: dark;
+  --bg: #0f1217;
+  --card: #171b22;
+  --field: #202631;
+  --line: #303846;
+  --text: #f2f5f8;
+  --muted: #9ca7b5;
+  --gold: #f5c45e;
+  --green: #66d19e;
+  --red: #ff7a7a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.shell {
+  width: min(100%, 760px);
+  margin: 0 auto;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.view {
+  min-height: 100vh;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.logo {
+  width: 100%;
+  height: 96px;
+  display: grid;
+  place-items: center;
+  margin: 28px 0 24px;
+  border: 1px solid var(--gold);
+  border-radius: 24px;
+  background: var(--card);
+  color: var(--gold);
+  font-size: 34px;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: clamp(34px, 6vw, 46px);
+  line-height: 1;
+  font-weight: 900;
+}
+
+h2 {
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+#authView > .muted {
+  margin-top: 12px;
+  margin-bottom: 34px;
+  font-size: 18px;
+}
+
+.stack {
+  display: grid;
+  gap: 14px;
+}
+
+label {
+  display: grid;
+  gap: 8px;
+}
+
+label span,
+.eyebrow {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+input,
+select {
+  width: 100%;
+  min-height: 58px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  outline: none;
+  padding: 0 18px;
+  background: var(--field);
+  color: var(--text);
+}
+
+input:focus,
+select:focus {
+  border-color: var(--gold);
+}
+
+.primary {
+  width: 100%;
+  min-height: 56px;
+  border: 0;
+  border-radius: 16px;
+  margin-top: 14px;
+  background: var(--gold);
+  color: var(--bg);
+  font-weight: 800;
+}
+
+.primary:disabled {
+  opacity: 0.62;
+}
+
+.text-button,
+.icon-button {
+  border: 0;
+  background: transparent;
+  color: var(--gold);
+}
+
+.text-button {
+  width: 100%;
+  padding: 12px 8px;
+  font-weight: 700;
+}
+
+.icon-button {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--card);
+  font-size: 20px;
+}
+
+.error {
+  color: var(--red);
+  font-weight: 700;
+}
+
+.top-row {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 0 24px;
+}
+
+.metric-card,
+.card {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--card);
+}
+
+.metric-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 20px;
+}
+
+.metric-card div,
+.macro-row div {
+  display: grid;
+  gap: 4px;
+}
+
+.metric-card strong {
+  font-size: 38px;
+  line-height: 1;
+}
+
+.macro-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.macro-row div {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--field);
+}
+
+.macro-row span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.card {
+  padding: 18px;
+  margin: 14px 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 24px 0 10px;
+}
+
+.logs {
+  display: grid;
+  gap: 10px;
+  padding-bottom: 32px;
+}
+
+.log {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--card);
+}
+
+.log strong:last-child {
+  color: var(--gold);
+}
+
+.empty {
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  color: var(--muted);
+  background: var(--card);
+}
+
+@media (max-width: 560px) {
+  .shell {
+    padding: 18px;
+  }
+
+  .grid,
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+}

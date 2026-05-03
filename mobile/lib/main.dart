@@ -6,6 +6,8 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+part 'social.dart';
+
 const apiBaseUrl = String.fromEnvironment(
   'API_BASE_URL',
   defaultValue: 'https://YOUR-RENDER-SERVICE.onrender.com',
@@ -35,6 +37,12 @@ class MacroChefApp extends StatelessWidget {
           surface: AppColors.card,
         ),
         useMaterial3: true,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: AppColors.bg,
+          foregroundColor: AppColors.text,
+          elevation: 0,
+          centerTitle: false,
+        ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: AppColors.field,
@@ -71,14 +79,16 @@ class MacroChefApp extends StatelessWidget {
 }
 
 class AppColors {
-  static const bg = Color(0xFF0F1217);
-  static const card = Color(0xFF171B22);
-  static const field = Color(0xFF202631);
-  static const line = Color(0xFF303846);
-  static const text = Color(0xFFF2F5F8);
-  static const muted = Color(0xFF9CA7B5);
-  static const gold = Color(0xFFF5C45E);
+  static const bg = Color(0xFF0B1117);
+  static const menu = Color(0xFF101821);
+  static const card = Color(0xFF121A22);
+  static const field = Color(0xFF18232E);
+  static const line = Color(0xFF253241);
+  static const text = Color(0xFFE7EDF2);
+  static const muted = Color(0xFF8C99A6);
+  static const gold = Color(0xFF75D7A4);
   static const green = Color(0xFF66D19E);
+  static const blue = Color(0xFF7AA7D9);
   static const red = Color(0xFFFF7A7A);
 }
 
@@ -278,6 +288,22 @@ class AppState extends ChangeNotifier {
   List<UserProfile> friends = [];
   List<FriendRequest> incoming = [];
   List<FriendRequest> outgoing = [];
+  List<RecipePost> feedRecipes = [];
+  List<RecipePost> savedRecipes = [];
+  List<RecipePost> likedRecipes = [];
+  List<RecipePost> profileRecipes = [];
+  List<RecipePost> recipeSearchResults = [];
+  List<RecipeComment> activeComments = [];
+  String feedFilter = 'all';
+  String feedSort = 'recent';
+  String? selectedTag;
+  bool feedHighProtein = false;
+  bool feedLowCalorie = false;
+  int? feedNextOffset = 0;
+  bool recipesLoading = false;
+  String? recipeError;
+
+  void refreshUi() => notifyListeners();
 
   String get dateKey => DateFormat('yyyy-MM-dd').format(selectedDate);
   int get remainingCalories =>
@@ -347,6 +373,18 @@ class AppState extends ChangeNotifier {
     user = null;
     logs = [];
     summary = const DailySummary();
+    feedRecipes = [];
+    savedRecipes = [];
+    likedRecipes = [];
+    profileRecipes = [];
+    recipeSearchResults = [];
+    activeComments = [];
+    feedFilter = 'all';
+    feedSort = 'recent';
+    selectedTag = null;
+    feedHighProtein = false;
+    feedLowCalorie = false;
+    feedNextOffset = 0;
     notifyListeners();
   }
 
@@ -709,40 +747,86 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   int index = 0;
+  bool menuOpen = false;
 
   @override
   Widget build(BuildContext context) {
-    final pages = [
-      const HomeScreen(),
-      const SearchScreen(),
-      const FriendsScreen(),
-      const ProfileScreen(),
+    const pages = [
+      PremiumHomeScreen(),
+      SearchDiscoverScreen(),
+      FriendsNetworkScreen(),
+      PremiumProfileScreen(),
     ];
     return Scaffold(
-      body: pages[index],
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: index,
-        onDestinationSelected: (value) {
-          setState(() => index = value);
-          if (value == 2) context.read<AppState>().loadFriends(silent: true);
-        },
-        destinations: const [
-          NavigationDestination(
-              icon: Icon(Icons.home_outlined),
-              selectedIcon: Icon(Icons.home),
-              label: 'Home'),
-          NavigationDestination(icon: Icon(Icons.search), label: 'Search'),
-          NavigationDestination(
-              icon: Icon(Icons.people_outline),
-              selectedIcon: Icon(Icons.people),
-              label: 'Friends'),
-          NavigationDestination(
-              icon: Icon(Icons.person_outline),
-              selectedIcon: Icon(Icons.person),
-              label: 'Profile'),
-        ],
+      backgroundColor: AppColors.bg,
+      body: SafeArea(
+        bottom: false,
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                TopNavBar(
+                  onAdd: () => showCreateRecipeSheet(context),
+                  onMenu: () => setState(() => menuOpen = true),
+                  onSearch: () => setState(() => index = 1),
+                ),
+                Expanded(
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 240),
+                    child: KeyedSubtree(
+                      key: ValueKey(index),
+                      child: pages[index],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SlideOutMenu(
+              open: menuOpen,
+              onClose: () => setState(() => menuOpen = false),
+              onSelect: handleMenuSelection,
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  void handleMenuSelection(String selection) {
+    setState(() => menuOpen = false);
+    if (selection == 'signout') {
+      context.read<AppState>().logout();
+      return;
+    }
+    if (selection == 'home' ||
+        selection == 'recipes' ||
+        selection == 'reviews' ||
+        selection == 'lists' ||
+        selection == 'tags') {
+      setState(() => index = selection == 'tags' ? 1 : 0);
+      return;
+    }
+    if (selection == 'profile') {
+      setState(() => index = 3);
+      return;
+    }
+    if (selection == 'network' || selection == 'friends') {
+      setState(() => index = 2);
+      return;
+    }
+
+    final routes = <String, Widget>{
+      'diary': const CalorieTrackerScreen(),
+      'calories': const CalorieTrackerScreen(),
+      'saved': const SavedRecipesScreen(),
+      'likes': const LikesScreen(),
+      'settings': const SettingsPrivacyScreen(),
+      'subscriptions': const SettingsPrivacyScreen(),
+    };
+    final route = routes[selection];
+    if (route != null) {
+      Navigator.push(context, MaterialPageRoute(builder: (_) => route));
+    }
   }
 }
 
@@ -1500,8 +1584,8 @@ class AppCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.card,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.line),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: cardShadow,
       ),
       child: child,
     );
@@ -1530,6 +1614,8 @@ class AppField extends StatelessWidget {
         controller: controller,
         obscureText: obscure,
         keyboardType: keyboardType,
+        minLines: keyboardType == TextInputType.multiline ? 3 : 1,
+        maxLines: keyboardType == TextInputType.multiline ? null : 1,
         decoration: InputDecoration(labelText: label),
       ),
     );
