@@ -957,7 +957,7 @@ class _FoodLogFormState extends State<FoodLogForm> {
               Expanded(child: AppField(controller: fat, label: 'Fat')),
             ]),
             DropdownButtonFormField<String>(
-              initialValue: mealType,
+              value: mealType,
               decoration: const InputDecoration(labelText: 'Meal'),
               items: const ['breakfast', 'lunch', 'dinner', 'snack', 'other']
                   .map((value) {
