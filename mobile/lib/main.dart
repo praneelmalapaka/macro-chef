@@ -5,6 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 const apiBaseUrl = String.fromEnvironment(
   'API_BASE_URL',
@@ -261,6 +262,29 @@ class ApiClient {
     }
     return payload is Map<String, dynamic> ? payload : <String, dynamic>{};
   }
+
+  Future<List<dynamic>> requestList(String path) async {
+    final uri = Uri.parse('$_base$path');
+    final headers = <String, String>{'Content-Type': 'application/json'};
+    if (token != null) headers['Authorization'] = 'Bearer $token';
+
+    final response = await http.Client().send(
+      http.Request('GET', uri)..headers.addAll(headers),
+    );
+
+    final text = await response.stream.bytesToString();
+    final payload = text.isEmpty ? [] : jsonDecode(text);
+
+    if (response.statusCode >= 400) {
+      throw ApiException(
+        payload is Map<String, dynamic>
+            ? payload['error'] ?? 'Request failed'
+            : 'Request failed',
+      );
+    }
+
+    return payload is List ? payload : [];
+  }
 }
 
 class AppState extends ChangeNotifier {
@@ -315,12 +339,19 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> login(String email, String password) async {
-    final payload = await api.request('/auth/login', method: 'POST', body: {
-      'email': email,
-      'password': password,
+    await _run(() async {
+      final payload = await api.request('/auth/login', method: 'POST', body: {
+        'email': email.trim(),
+        'password': password,
+      });
+
+      await api.saveToken(payload['token']);
+      user = UserProfile.fromJson(payload['user']);
+
+      if (user!.emailVerified) {
+        await loadDashboard(silent: true);
+      }
     });
-    await api.saveToken(payload['token']);
-    user = UserProfile.fromJson(payload['user']);
   }
 
   Future<void> verifyEmail(String code) async {
@@ -723,7 +754,7 @@ class _MainShellState extends State<MainShell> {
   Widget build(BuildContext context) {
     final pages = [
       const HomeScreen(),
-      const SearchScreen(),
+      const RecipesScreen(),
       const FriendsScreen(),
       const ProfileScreen(),
     ];
@@ -1009,6 +1040,161 @@ class _FoodLogFormState extends State<FoodLogForm> {
                 child: const Text('Delete log',
                     style: TextStyle(color: AppColors.red)),
               ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class RecipesScreen extends StatefulWidget {
+  const RecipesScreen({super.key});
+
+  @override
+  State<RecipesScreen> createState() => _RecipesScreenState();
+}
+
+class _RecipesScreenState extends State<RecipesScreen> {
+  List recipes = [];
+  bool loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchRecipes();
+  }
+
+  Future<void> fetchRecipes() async {
+    try {
+      final state = context.read<AppState>();
+      final res = await state.api.requestList('/recipes');
+
+      setState(() {
+        recipes = res;
+        loading = false;
+      });
+    } catch (e) {
+      debugPrint('Failed to load recipes: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (recipes.isEmpty) {
+      return const Center(child: Text('No recipes yet'));
+    }
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Recipes')),
+      body: ListView.builder(
+        itemCount: recipes.length,
+        itemBuilder: (context, index) {
+          final r = recipes[index];
+
+          return Card(
+            margin: const EdgeInsets.all(12),
+            child: ListTile(
+              title: Text(r['title']),
+              subtitle: Text(
+                '${r['calories']} kcal • ${r['protein_g']}g protein',
+              ),
+            ),
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const CreateRecipeScreen(),
+            ),
+          );
+
+          fetchRecipes(); // 🔄 refresh after returning
+        },
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+
+class RecipeWebScreen extends StatefulWidget {
+  const RecipeWebScreen({super.key});
+
+  @override
+  State<RecipeWebScreen> createState() => _RecipeWebScreenState();
+}
+
+class _RecipeWebScreenState extends State<RecipeWebScreen> {
+  late final WebViewController controller;
+
+  @override
+  void initState() {
+    super.initState();
+
+    controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..loadRequest(Uri.parse('http://127.0.0.1:5000'));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: WebViewWidget(controller: controller),
+    );
+  }
+}
+
+class CreateRecipeScreen extends StatefulWidget {
+  const CreateRecipeScreen({super.key});
+
+  @override
+  State<CreateRecipeScreen> createState() => _CreateRecipeScreenState();
+}
+
+class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
+  final title = TextEditingController();
+  final calories = TextEditingController();
+  final protein = TextEditingController();
+
+  Future<void> submit() async {
+    final state = context.read<AppState>();
+
+    await state.api.request(
+      '/recipes',
+      method: 'POST',
+      body: {
+        'title': title.text,
+        'description': '',
+        'calories': int.parse(calories.text),
+        'protein': int.parse(protein.text),
+        'carbs': 0,
+        'fat': 0,
+      },
+    );
+
+    if (!mounted) return;
+    Navigator.pop(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Create Recipe')),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            TextField(controller: title, decoration: const InputDecoration(labelText: 'Title')),
+            TextField(controller: calories, decoration: const InputDecoration(labelText: 'Calories')),
+            TextField(controller: protein, decoration: const InputDecoration(labelText: 'Protein')),
+            const SizedBox(height: 20),
+            ElevatedButton(onPressed: submit, child: const Text('Create')),
           ],
         ),
       ),
