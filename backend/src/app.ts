@@ -9,6 +9,7 @@ import { authRouter } from "./routes/auth";
 import { friendsRouter } from "./routes/friends";
 import { logsRouter } from "./routes/logs";
 import { profileRouter } from "./routes/profile";
+import recipeRouter from "./routes/recipe.routes";
 import { usersRouter } from "./routes/users";
 
 export function createApp() {
@@ -33,6 +34,7 @@ export function createApp() {
   app.use("/users", usersRouter);
   app.use("/friends", friendsRouter);
   app.use("/logs", logsRouter);
+  app.use("/recipes", recipeRouter);
 
   app.use(errorHandler);
   return app;
