@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 
 const apiBaseUrl = String.fromEnvironment(
   'API_BASE_URL',
-  defaultValue: 'https://YOUR-RENDER-SERVICE.onrender.com',
+  defaultValue: 'http://127.0.0.1:5000',
 );
 
 void main() {
@@ -315,15 +315,12 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> login(String email, String password) async {
-    await _run(() async {
-      final payload = await api.request('/auth/login', method: 'POST', body: {
-        'email': email,
-        'password': password,
-      });
-      await api.saveToken(payload['token']);
-      user = UserProfile.fromJson(payload['user']);
-      if (user!.emailVerified) await loadDashboard(silent: true);
+    final payload = await api.request('/auth/login', method: 'POST', body: {
+      'email': email,
+      'password': password,
     });
+    await api.saveToken(payload['token']);
+    user = UserProfile.fromJson(payload['user']);
   }
 
   Future<void> verifyEmail(String code) async {
@@ -603,12 +600,24 @@ class _AuthScreenState extends State<AuthScreen> {
               onPressed: () async {
                 try {
                   if (signup) {
-                    await state.signup(username.text, displayName.text,
-                        email.text, password.text);
+                    await state.signup(
+                      username.text,
+                      displayName.text,
+                      email.text,
+                      password.text,
+                    );
                   } else {
                     await state.login(email.text, password.text);
                   }
-                } catch (_) {}
+                } catch (e) {
+                  debugPrint('Auth failed: $e');
+
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(e.toString())),
+                    );
+                  }
+                }
               },
             ),
             TextButton(
