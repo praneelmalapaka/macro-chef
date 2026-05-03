@@ -5,9 +5,9 @@ import { requireAuth } from "../middleware/auth";
 const router = Router();
 
 function getAuthenticatedUserId(req: Request, res: Response): number | null {
-  const userId = req.user?.id;
+  const userId = Number(req.user?.id);
 
-  if (typeof userId !== "number" || !Number.isInteger(userId) || userId <= 0) {
+  if (!Number.isInteger(userId) || userId <= 0) {
     res.status(401).json({ error: "Authentication required" });
     return null;
   }
