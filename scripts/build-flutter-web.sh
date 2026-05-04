@@ -4,7 +4,11 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 if [ -z "${API_BASE_URL:-}" ]; then
-  echo "API_BASE_URL is required. Example: API_BASE_URL=https://macrochef-api.onrender.com ./scripts/build-flutter-web.sh" >&2
+  echo "API_BASE_URL is required." >&2
+  echo "Example: API_BASE_URL=https://macrochef-api.onrender.com ./scripts/build-flutter-web.sh" >&2
+  if [ -n "${VERCEL:-}" ]; then
+    echo "On Vercel, add API_BASE_URL in Project Settings > Environment Variables for Production and Preview." >&2
+  fi
   exit 1
 fi
 

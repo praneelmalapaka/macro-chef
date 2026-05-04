@@ -48,6 +48,18 @@ npm run web:serve
 
 The static output is generated in `mobile/build/web` and can be deployed to any static host. The included `render.yaml` defines a `macrochef-web` static site; set its `API_BASE_URL` environment variable in Render to the deployed API URL, for example `https://macrochef-api.onrender.com`.
 
+## Vercel Deployment
+
+This repo is configured to deploy the Flutter web app to Vercel as a static site. The TypeScript API in `backend/` is still a normal Node web service, so deploy that backend first on Render/Neon or another Node host, then point the Vercel web app at it.
+
+In Vercel:
+
+1. Import the repo with the repo root as the project root.
+2. Add `API_BASE_URL` in Project Settings > Environment Variables for Production and Preview, for example `https://macrochef-api.onrender.com`.
+3. Deploy. Vercel will use [vercel.json](vercel.json) to run `npm run vercel-build` and publish `mobile/build/web`.
+
+If the Vercel build says `API_BASE_URL is required`, the environment variable is missing from that deployment environment. Deploying the API itself on Vercel would require converting `backend/src/app.ts` into Vercel serverless functions first.
+
 ## Backend Local Setup
 
 ```bash

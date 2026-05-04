@@ -8,6 +8,7 @@
     "start": "node scripts/dev-web.js",
     "dev": "node scripts/dev-web.js",
     "check": "node --check scripts/dev-web.js && node --check scripts/serve-flutter-web.js",
+    "vercel-build": "npm run web:build",
     "web:build": "./scripts/build-flutter-web.sh",
     "web:serve": "node scripts/serve-flutter-web.js"
   },
