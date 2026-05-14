@@ -1,6 +1,7 @@
 import { Router } from "express";
 import rateLimit from "express-rate-limit";
 import { z } from "zod";
+import { config } from "../config";
 import { pool } from "../db";
 import { AppError, asyncHandler } from "../errors";
 import { requireAuth } from "../middleware/auth";
@@ -83,6 +84,41 @@ authRouter.post("/login", authLimiter, validateBody(loginSchema), asyncHandler(a
       username: user.username,
       email: user.email || "",
       emailVerified: Boolean(user.emailVerified)
+    }),
+    user
+  });
+}));
+
+authRouter.post("/dev-login", asyncHandler(async (_req, res) => {
+  if (!config.devLogin.enabled) {
+    throw new AppError(404, "Not found.");
+  }
+
+  const { username, displayName, email } = config.devLogin;
+  if (!username || !displayName || !email) {
+    throw new AppError(500, "DEV_LOGIN_USERNAME, DEV_LOGIN_DISPLAY_NAME, and DEV_LOGIN_EMAIL are required when dev login is enabled.");
+  }
+
+  const passwordHash = await hashPassword(`${Date.now()}-${Math.random()}`);
+  const result = await pool.query(
+    `INSERT INTO users (username, display_name, email, password_hash, email_verified, bio)
+     VALUES ($1, $2, $3, $4, TRUE, 'Local development account')
+     ON CONFLICT (email)
+     DO UPDATE SET
+       display_name = EXCLUDED.display_name,
+       email_verified = TRUE,
+       updated_at = NOW()
+     RETURNING *`,
+    [username.toLowerCase(), displayName, email.toLowerCase(), passwordHash]
+  );
+
+  const user = mapUser(result.rows[0], true);
+  res.json({
+    token: signAccessToken({
+      id: user.id,
+      username: user.username,
+      email: user.email || "",
+      emailVerified: true
     }),
     user
   });

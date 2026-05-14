@@ -20,6 +20,25 @@ flutter pub get
 flutter run --dart-define=API_BASE_URL=https://your-render-service.onrender.com
 ```
 
+## Website Build
+
+From the repo root:
+
+```bash
+API_BASE_URL=https://your-render-service.onrender.com npm run web:build
+npm run web:serve
+```
+
+Deploy `mobile/build/web` as a static website. On Render, the root `render.yaml` includes a `macrochef-web` static site; set `API_BASE_URL` for that service to your deployed MacroChef API URL.
+
+For local website dev from the repo root, run:
+
+```bash
+npm run dev
+```
+
+That starts the backend if needed and serves the built Flutter website at `http://127.0.0.1:5103`. Use `FORCE_WEB_BUILD=true npm run dev` when you want it to rebuild the Flutter web output first.
+
 ## Release Signing
 
 Generate an upload keystore:

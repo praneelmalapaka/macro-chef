@@ -24,6 +24,8 @@ Required environment variables:
 - `SMTP_PASS`: Gmail app password.
 - `SMTP_FROM`: Gmail address.
 - `SMTP_SKIP_SEND`: `false` in production.
+- `DEV_LOGIN_ENABLED`: `true` only for local development.
+- `DEV_LOGIN_USERNAME`, `DEV_LOGIN_DISPLAY_NAME`, `DEV_LOGIN_EMAIL`: local dev account identity.
 
 ## Render Deployment
 
@@ -41,10 +43,20 @@ Set env vars in Render. Do not commit `.env`.
 - `GET /health`
 - `POST /auth/signup`
 - `POST /auth/login`
+- `POST /auth/dev-login` (development only)
 - `GET /auth/me`
 - `POST /auth/send-verification`
 - `POST /auth/verify-email`
 - `POST /auth/forgot-password`
+- `GET /recipes`
+- `POST /recipes`
+- `GET /recipes/:id`
+- `PATCH /recipes/:id`
+- `DELETE /recipes/:id`
+- `POST /recipes/:id/like`
+- `POST /recipes/:id/save`
+- `GET /recipes/:id/comments`
+- `POST /recipes/:id/comments`
 - `GET /profile`
 - `PATCH /profile`
 - `GET /users/search?q=`
