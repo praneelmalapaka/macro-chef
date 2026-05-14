@@ -1435,6 +1435,29 @@ class RecipeDetailScreen extends StatelessWidget {
                     if (context.mounted) showSnack(context, 'Recipe logged');
                   },
                 ),
+                PrimaryButton(
+                  label: 'Replicate recipe',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => IngredientLocaliserScreen(recipe: current),
+                      ),
+                    );
+                  },
+                ),
+                PrimaryButton(
+                  label: 'Replicate recipe',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => IngredientLocaliserScreen(recipe: current),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 10),
                 const SizedBox(height: 26),
                 const SectionHeader(title: 'INGREDIENTS'),
                 ...current.ingredients.map((item) => DetailLine(text: item)),
@@ -1446,6 +1469,209 @@ class RecipeDetailScreen extends StatelessWidget {
                       text: '${index + 1}. ${current.instructions[index]}'),
                 ),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class IngredientLocaliserScreen extends StatefulWidget {
+  const IngredientLocaliserScreen({super.key, required this.recipe});
+
+  final RecipePost recipe;
+
+  @override
+  State<IngredientLocaliserScreen> createState() =>
+      _IngredientLocaliserScreenState();
+}
+
+class _IngredientLocaliserScreenState extends State<IngredientLocaliserScreen> {
+  String countryCode = 'AU';
+  bool loading = false;
+  String? error;
+  List<LocalisedIngredient> results = [];
+
+  @override
+  void initState() {
+    super.initState();
+    localiseIngredients();
+  }
+
+  Future<void> localiseIngredients() async {
+    setState(() {
+      loading = true;
+      error = null;
+    });
+
+    try {
+      final payload = await context.read<AppState>().api.request(
+        '/ingredients/localise',
+        method: 'POST',
+        body: {
+          'ingredients': widget.recipe.ingredients,
+          'countryCode': countryCode,
+        },
+      );
+
+      final rawResults = payload['results'] as List? ?? [];
+
+      setState(() {
+        results = rawResults
+            .map((item) => LocalisedIngredient.fromJson(item))
+            .toList();
+      });
+    } catch (e) {
+      setState(() => error = e.toString());
+    } finally {
+      setState(() => loading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.bg,
+      appBar: AppBar(title: const Text('Replicate Recipe')),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          AppCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.recipe.title,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w900,
+                    color: AppColors.ink,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Localise this recipe into ingredients you can actually find near you.',
+                  style: TextStyle(color: AppColors.muted),
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  value: countryCode,
+                  decoration: const InputDecoration(labelText: 'Country'),
+                  items: const [
+                    DropdownMenuItem(value: 'AU', child: Text('Australia')),
+                    DropdownMenuItem(value: 'UK', child: Text('United Kingdom')),
+                    DropdownMenuItem(value: 'US', child: Text('United States')),
+                  ],
+                  onChanged: (value) {
+                    if (value == null) return;
+                    setState(() => countryCode = value);
+                    localiseIngredients();
+                  },
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 18),
+          if (loading)
+            const Center(child: CircularProgressIndicator())
+          else if (error != null)
+            ErrorText(error!)
+          else if (results.isEmpty)
+            const EmptyState(
+              title: 'No ingredients found',
+              message: 'This recipe does not have ingredients to localise yet.',
+            )
+          else
+            ...results.map((item) => LocalisedIngredientCard(item: item)),
+        ],
+      ),
+    );
+  }
+}
+
+class LocalisedIngredient {
+  const LocalisedIngredient({
+    required this.original,
+    required this.local,
+    required this.matched,
+    required this.confidence,
+    this.brandSuggestion,
+    this.storeHint,
+    this.notes,
+  });
+
+  final String original;
+  final String local;
+  final bool matched;
+  final double confidence;
+  final String? brandSuggestion;
+  final String? storeHint;
+  final String? notes;
+
+  factory LocalisedIngredient.fromJson(Map<String, dynamic> json) {
+    return LocalisedIngredient(
+      original: json['original'] ?? '',
+      local: json['local'] ?? '',
+      matched: json['matched'] == true,
+      confidence: (json['confidence'] ?? 0).toDouble(),
+      brandSuggestion: json['brandSuggestion'],
+      storeHint: json['storeHint'],
+      notes: json['notes'],
+    );
+  }
+}
+
+class LocalisedIngredientCard extends StatelessWidget {
+  const LocalisedIngredientCard({super.key, required this.item});
+
+  final LocalisedIngredient item;
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            item.original,
+            style: const TextStyle(
+              color: AppColors.faint,
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            item.local,
+            style: const TextStyle(
+              color: AppColors.ink,
+              fontSize: 20,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 10),
+          if (item.brandSuggestion != null)
+            Text('Brand: ${item.brandSuggestion}'),
+          if (item.storeHint != null)
+            Text('Where: ${item.storeHint}'),
+          if (item.notes != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                item.notes!,
+                style: const TextStyle(color: AppColors.muted),
+              ),
+            ),
+          const SizedBox(height: 10),
+          Text(
+            item.matched
+                ? 'Match confidence: ${(item.confidence * 100).round()}%'
+                : 'No match yet',
+            style: TextStyle(
+              color: item.matched ? AppColors.gold : AppColors.rust,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ],
