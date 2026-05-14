@@ -791,7 +791,7 @@ class _MainShellState extends State<MainShell> {
   @override
   Widget build(BuildContext context) {
     final pages = [
-      const HomeScreen(),
+      const PremiumHomeScreen(),
       const SearchScreen(),
       const FriendsScreen(),
       const ProfileScreen(),
@@ -1202,33 +1202,6 @@ class _RecipesScreenState extends State<RecipesScreen> {
         },
         child: const Icon(Icons.add),
       ),
-    );
-  }
-}
-
-class RecipeWebScreen extends StatefulWidget {
-  const RecipeWebScreen({super.key});
-
-  @override
-  State<RecipeWebScreen> createState() => _RecipeWebScreenState();
-}
-
-class _RecipeWebScreenState extends State<RecipeWebScreen> {
-  late final WebViewController controller;
-
-  @override
-  void initState() {
-    super.initState();
-
-    controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..loadRequest(Uri.parse('http://127.0.0.1:5000'));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: WebViewWidget(controller: controller),
     );
   }
 }

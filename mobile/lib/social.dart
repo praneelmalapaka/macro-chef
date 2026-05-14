@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 part of 'main.dart';
 
 class RecipePost {
@@ -106,16 +108,19 @@ extension RecipeActions on AppState {
     bool? lowCalorie,
   }) async {
     if (refresh) feedNextOffset = 0;
+
     final effectiveFilter = filter ?? feedFilter;
     final effectiveSort = sort ?? feedSort;
     final effectiveTag = tag == null ? selectedTag : (tag.isEmpty ? null : tag);
     final effectiveHighProtein = highProtein ?? feedHighProtein;
     final effectiveLowCalorie = lowCalorie ?? feedLowCalorie;
+
     feedFilter = effectiveFilter;
     feedSort = effectiveSort;
     selectedTag = effectiveTag;
     feedHighProtein = effectiveHighProtein;
     feedLowCalorie = effectiveLowCalorie;
+
     recipesLoading = true;
     recipeError = null;
     refreshUi();
@@ -127,21 +132,38 @@ extension RecipeActions on AppState {
         'limit': '20',
         'offset': '${feedNextOffset ?? 0}',
       };
+
       if (effectiveTag != null && effectiveTag.isNotEmpty) {
         params['tag'] = effectiveTag;
       }
-      if (query != null && query.trim().isNotEmpty) params['q'] = query.trim();
+      if (query != null && query.trim().isNotEmpty) {
+        params['q'] = query.trim();
+      }
       if (effectiveHighProtein) params['highProtein'] = 'true';
       if (effectiveLowCalorie) params['lowCalorie'] = 'true';
+
       final payload =
           await api.request('/recipes?${Uri(queryParameters: params).query}');
-      final loaded = (payload['recipes'] as List? ?? [])
+
+      var loaded = (payload['recipes'] as List? ?? [])
           .map((item) => RecipePost.fromJson(item))
           .toList();
+
       feedNextOffset = payload['nextOffset'] as int?;
+
+      if  (loaded.isEmpty && refresh && user != null) {
+        loaded = demoRecipes(user!);
+        feedNextOffset = null;
+      }
+
       feedRecipes = refresh ? loaded : mergeRecipes(feedRecipes, loaded);
     } catch (e) {
-      recipeError = e.toString();
+      if (refresh && user != null) {
+        feedRecipes = demoRecipes(user!);
+        feedNextOffset = null;
+      } else {
+        recipeError = e.toString();
+      }
     } finally {
       recipesLoading = false;
       refreshUi();
@@ -276,6 +298,28 @@ extension RecipeActions on AppState {
         ? replaceOrAddRecipe(likedRecipes, recipe)
         : likedRecipes.where((item) => item.id != recipe.id).toList();
     refreshUi();
+  }
+
+  List<RecipePost> demoRecipes(UserProfile user) {
+    return [
+      RecipePost(
+        id: 'demo-chicken-bowl',
+        title: 'High Protein Chicken Bowl',
+        description: 'A lean post-workout bowl with chicken, rice, avocado, and greens.',
+        imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=900',
+        ingredients: ['200g chicken breast', '1 cup cooked rice', '1/2 avocado'],
+        instructions: ['Grill chicken.', 'Cook rice.', 'Assemble bowl.'],
+        calories: 620,
+        tags: ['high-protein', 'meal-prep'],
+        visibility: 'public',
+        author: user,
+        likeCount: 24,
+        commentCount: 4,
+        saveCount: 12,
+        likedByMe: false,
+        savedByMe: false,
+      ),
+    ];
   }
 }
 
@@ -1298,7 +1342,22 @@ class _CreateRecipeFormState extends State<CreateRecipeForm> {
   final instructions = TextEditingController();
   final calories = TextEditingController();
   final tags = TextEditingController(text: 'high-protein');
+  XFile? selectedImage;
+  final picker = ImagePicker();
   String visibility = 'public';
+
+  Future<void> pickImage() async {
+    final image = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+    );
+
+    if (image != null) {
+      setState(() {
+        selectedImage = image;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -1341,7 +1400,38 @@ class _CreateRecipeFormState extends State<CreateRecipeForm> {
             const SizedBox(height: 10),
             AppField(controller: title, label: 'Recipe title'),
             AppField(controller: description, label: 'Description'),
-            AppField(controller: imageUrl, label: 'Image URL optional'),
+            const SizedBox(height: 8),
+g
+            GestureDetector(
+              onTap: pickImage,
+              child: Container(
+                height: 180,
+                decoration: BoxDecoration(
+                  color: AppColors.field,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.line),
+                ),
+                child: selectedImage == null
+                    ? const Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.add_a_photo, size: 42),
+                            SizedBox(height: 8),
+                            Text('Select recipe image'),
+                          ],
+                        ),
+                      )
+                    : ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: Image.file(
+                          File(selectedImage!.path),
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                        ),
+                      ),
+              ),
+            ),
             AppField(
                 controller: ingredients,
                 label: 'Ingredients, one per line',
@@ -1356,7 +1446,7 @@ class _CreateRecipeFormState extends State<CreateRecipeForm> {
                 keyboardType: TextInputType.number),
             AppField(controller: tags, label: 'Tags, comma separated'),
             DropdownButtonFormField<String>(
-              initialValue: visibility,
+              value: visibility,
               decoration: const InputDecoration(labelText: 'Visibility'),
               items: const ['public', 'friends', 'private']
                   .map((value) =>
