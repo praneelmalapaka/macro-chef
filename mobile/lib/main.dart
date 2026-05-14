@@ -7,7 +7,14 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-part 'social.dart';
+part 'social/social_models.dart';
+part 'social/recipe_actions.dart';
+part 'social/recipe_feed.dart';
+part 'social/recipe_detail.dart';
+part 'social/ingredient_localiser.dart';
+part 'social/create_recipe_form.dart';
+part 'social/social_screens.dart';
+part 'social/social_widgets.dart';
 
 const apiBaseUrl = String.fromEnvironment(
   'API_BASE_URL',

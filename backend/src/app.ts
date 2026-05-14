@@ -11,6 +11,7 @@ import { logsRouter } from "./routes/logs";
 import { profileRouter } from "./routes/profile";
 import { recipesRouter } from "./routes/recipes";
 import { usersRouter } from "./routes/users";
+import localiserRouter from './routes/localiser';
 
 export function createApp() {
   const app = express();
@@ -19,6 +20,7 @@ export function createApp() {
   app.use(cors({ origin: config.corsOrigin === "*" ? true : config.corsOrigin.split(",") }));
   app.use(express.json({ limit: "1mb" }));
   app.use(rateLimit({ windowMs: 15 * 60 * 1000, limit: 300 }));
+  app.use("/", localiserRouter);
 
   app.get("/", (_req, res) => {
     res.type("html").send(`<!doctype html>
@@ -73,7 +75,7 @@ export function createApp() {
   app.use("/users", usersRouter);
   app.use("/friends", friendsRouter);
   app.use("/logs", logsRouter);
-  app.use("/recipes", recipeRouter);
+  app.use("/recipes", recipesRouter);
 
   app.use(errorHandler);
   return app;
