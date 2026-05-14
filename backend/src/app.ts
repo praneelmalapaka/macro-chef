@@ -73,6 +73,7 @@ export function createApp() {
   app.use("/users", usersRouter);
   app.use("/friends", friendsRouter);
   app.use("/logs", logsRouter);
+  app.use("/recipes", recipeRouter);
 
   app.use(errorHandler);
   return app;

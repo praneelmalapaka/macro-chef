@@ -1,5 +1,6 @@
 import 'dart:convert';
-
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
@@ -10,7 +11,7 @@ part 'social.dart';
 
 const apiBaseUrl = String.fromEnvironment(
   'API_BASE_URL',
-  defaultValue: 'https://YOUR-RENDER-SERVICE.onrender.com',
+  defaultValue: 'http://127.0.0.1:5000',
 );
 
 void main() {
@@ -29,33 +30,35 @@ class MacroChefApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'MacroChef',
       theme: ThemeData(
-        brightness: Brightness.dark,
+        brightness: Brightness.light,
         scaffoldBackgroundColor: AppColors.bg,
-        colorScheme: const ColorScheme.dark(
+        colorScheme: const ColorScheme.light(
           primary: AppColors.gold,
-          secondary: AppColors.green,
+          secondary: AppColors.forest,
           surface: AppColors.card,
+          error: AppColors.rust,
         ),
         useMaterial3: true,
         appBarTheme: const AppBarTheme(
           backgroundColor: AppColors.bg,
-          foregroundColor: AppColors.text,
+          foregroundColor: AppColors.ink,
           elevation: 0,
           centerTitle: false,
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: AppColors.field,
+          labelStyle: const TextStyle(color: AppColors.muted),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(10),
             borderSide: const BorderSide(color: AppColors.line),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(10),
             borderSide: const BorderSide(color: AppColors.line),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(10),
             borderSide: const BorderSide(color: AppColors.gold),
           ),
         ),
@@ -79,17 +82,34 @@ class MacroChefApp extends StatelessWidget {
 }
 
 class AppColors {
-  static const bg = Color(0xFF0B1117);
-  static const menu = Color(0xFF101821);
-  static const card = Color(0xFF121A22);
-  static const field = Color(0xFF18232E);
-  static const line = Color(0xFF253241);
-  static const text = Color(0xFFE7EDF2);
-  static const muted = Color(0xFF8C99A6);
-  static const gold = Color(0xFF75D7A4);
-  static const green = Color(0xFF66D19E);
-  static const blue = Color(0xFF7AA7D9);
-  static const red = Color(0xFFFF7A7A);
+  static const ink = Color(0xFF0A0A08);
+  static const paper = Color(0xFFF5F2EB);
+  static const cream = Color(0xFFEDE9DF);
+  static const warm = Color(0xFFE8E2D4);
+
+  static const gold = Color(0xFFB8922A);
+  static const goldLight = Color(0xFFD4A843);
+  static const goldDim = Color(0x26B8922A);
+
+  static const rust = Color(0xFFC24B2A);
+  static const forest = Color(0xFF2D5A3D);
+  static const slate = Color(0xFF3D4A5C);
+
+  static const text = Color(0xFF1A1A16);
+  static const muted = Color(0xFF5A5A50);
+  static const faint = Color(0xFF9A9A8A);
+
+  static const bg = paper;
+  static const card = Color(0xFFFFFFFF);
+  static const field = Color(0xFFF9F6F0);
+  static const line = Color(0xFFD8D2C4);
+  static const lineStrong = Color(0xFFC8C2B4);
+
+  static const red = rust;
+  static const green = forest;
+  static const blue = slate;
+  static const menu = card;
+  static const socialBg = Color(0x80F4F3EC);
 }
 
 class ApiException implements Exception {
@@ -271,6 +291,29 @@ class ApiClient {
     }
     return payload is Map<String, dynamic> ? payload : <String, dynamic>{};
   }
+
+  Future<List<dynamic>> requestList(String path) async {
+    final uri = Uri.parse('$_base$path');
+    final headers = <String, String>{'Content-Type': 'application/json'};
+    if (token != null) headers['Authorization'] = 'Bearer $token';
+
+    final response = await http.Client().send(
+      http.Request('GET', uri)..headers.addAll(headers),
+    );
+
+    final text = await response.stream.bytesToString();
+    final payload = text.isEmpty ? [] : jsonDecode(text);
+
+    if (response.statusCode >= 400) {
+      throw ApiException(
+        payload is Map<String, dynamic>
+            ? payload['error'] ?? 'Request failed'
+            : 'Request failed',
+      );
+    }
+
+    return payload is List ? payload : [];
+  }
 }
 
 class AppState extends ChangeNotifier {
@@ -343,12 +386,16 @@ class AppState extends ChangeNotifier {
   Future<void> login(String email, String password) async {
     await _run(() async {
       final payload = await api.request('/auth/login', method: 'POST', body: {
-        'email': email,
+        'email': email.trim(),
         'password': password,
       });
+
       await api.saveToken(payload['token']);
       user = UserProfile.fromJson(payload['user']);
-      if (user!.emailVerified) await loadDashboard(silent: true);
+
+      if (user!.emailVerified) {
+        await loadDashboard(silent: true);
+      }
     });
   }
 
@@ -641,12 +688,24 @@ class _AuthScreenState extends State<AuthScreen> {
               onPressed: () async {
                 try {
                   if (signup) {
-                    await state.signup(username.text, displayName.text,
-                        email.text, password.text);
+                    await state.signup(
+                      username.text,
+                      displayName.text,
+                      email.text,
+                      password.text,
+                    );
                   } else {
                     await state.login(email.text, password.text);
                   }
-                } catch (_) {}
+                } catch (e) {
+                  debugPrint('Auth failed: $e');
+
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(e.toString())),
+                    );
+                  }
+                }
               },
             ),
             TextButton(
@@ -751,11 +810,11 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
-    const pages = [
-      PremiumHomeScreen(),
-      SearchDiscoverScreen(),
-      FriendsNetworkScreen(),
-      PremiumProfileScreen(),
+    final pages = [
+      const PremiumHomeScreen(),
+      const SearchScreen(),
+      const FriendsScreen(),
+      const ProfileScreen(),
     ];
     return Scaffold(
       backgroundColor: AppColors.bg,
@@ -1041,7 +1100,7 @@ class _FoodLogFormState extends State<FoodLogForm> {
               Expanded(child: AppField(controller: fat, label: 'Fat')),
             ]),
             DropdownButtonFormField<String>(
-              initialValue: mealType,
+              value: mealType,
               decoration: const InputDecoration(labelText: 'Meal'),
               items: const ['breakfast', 'lunch', 'dinner', 'snack', 'other']
                   .map((value) {
@@ -1084,6 +1143,134 @@ class _FoodLogFormState extends State<FoodLogForm> {
                 child: const Text('Delete log',
                     style: TextStyle(color: AppColors.red)),
               ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class RecipesScreen extends StatefulWidget {
+  const RecipesScreen({super.key});
+
+  @override
+  State<RecipesScreen> createState() => _RecipesScreenState();
+}
+
+class _RecipesScreenState extends State<RecipesScreen> {
+  List recipes = [];
+  bool loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchRecipes();
+  }
+
+  Future<void> fetchRecipes() async {
+    try {
+      final state = context.read<AppState>();
+      final res = await state.api.requestList('/recipes');
+
+      setState(() {
+        recipes = res;
+        loading = false;
+      });
+    } catch (e) {
+      debugPrint('Failed to load recipes: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (recipes.isEmpty) {
+      return const Center(child: Text('No recipes yet'));
+    }
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Recipes')),
+      body: ListView.builder(
+        itemCount: recipes.length,
+        itemBuilder: (context, index) {
+          final r = recipes[index];
+
+          return Card(
+            margin: const EdgeInsets.all(12),
+            child: ListTile(
+              title: Text(r['title']),
+              subtitle: Text(
+                '${r['calories']} kcal • ${r['protein_g']}g protein',
+              ),
+            ),
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const CreateRecipeScreen(),
+            ),
+          );
+
+          fetchRecipes(); // 🔄 refresh after returning
+        },
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+
+class CreateRecipeScreen extends StatefulWidget {
+  const CreateRecipeScreen({super.key});
+
+  @override
+  State<CreateRecipeScreen> createState() => _CreateRecipeScreenState();
+}
+
+class _CreateRecipeScreenState extends State<CreateRecipeScreen> {
+  final title = TextEditingController();
+  final calories = TextEditingController();
+  final protein = TextEditingController();
+
+  Future<void> submit() async {
+    final state = context.read<AppState>();
+
+    await state.api.request(
+      '/recipes',
+      method: 'POST',
+      body: {
+        'title': title.text,
+        'description': '',
+        'calories': int.parse(calories.text),
+        'protein': int.parse(protein.text),
+        'carbs': 0,
+        'fat': 0,
+      },
+    );
+
+    if (!mounted) return;
+    Navigator.pop(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Create Recipe')),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            TextField(controller: title, decoration: const InputDecoration(labelText: 'Title')),
+            TextField(controller: calories, decoration: const InputDecoration(labelText: 'Calories')),
+            TextField(controller: protein, decoration: const InputDecoration(labelText: 'Protein')),
+            const SizedBox(height: 20),
+            ElevatedButton(onPressed: submit, child: const Text('Create')),
           ],
         ),
       ),
@@ -1584,7 +1771,8 @@ class AppCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.card,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.line),
         boxShadow: cardShadow,
       ),
       child: child,
@@ -1638,9 +1826,9 @@ class PrimaryButton extends StatelessWidget {
       onPressed: loading ? null : onPressed,
       style: FilledButton.styleFrom(
         minimumSize: const Size.fromHeight(52),
-        backgroundColor: AppColors.gold,
-        foregroundColor: AppColors.bg,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        backgroundColor: AppColors.ink,
+        foregroundColor: AppColors.paper,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
       child: loading
           ? const SizedBox(

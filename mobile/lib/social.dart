@@ -106,16 +106,19 @@ extension RecipeActions on AppState {
     bool? lowCalorie,
   }) async {
     if (refresh) feedNextOffset = 0;
+
     final effectiveFilter = filter ?? feedFilter;
     final effectiveSort = sort ?? feedSort;
     final effectiveTag = tag == null ? selectedTag : (tag.isEmpty ? null : tag);
     final effectiveHighProtein = highProtein ?? feedHighProtein;
     final effectiveLowCalorie = lowCalorie ?? feedLowCalorie;
+
     feedFilter = effectiveFilter;
     feedSort = effectiveSort;
     selectedTag = effectiveTag;
     feedHighProtein = effectiveHighProtein;
     feedLowCalorie = effectiveLowCalorie;
+
     recipesLoading = true;
     recipeError = null;
     refreshUi();
@@ -127,21 +130,38 @@ extension RecipeActions on AppState {
         'limit': '20',
         'offset': '${feedNextOffset ?? 0}',
       };
+
       if (effectiveTag != null && effectiveTag.isNotEmpty) {
         params['tag'] = effectiveTag;
       }
-      if (query != null && query.trim().isNotEmpty) params['q'] = query.trim();
+      if (query != null && query.trim().isNotEmpty) {
+        params['q'] = query.trim();
+      }
       if (effectiveHighProtein) params['highProtein'] = 'true';
       if (effectiveLowCalorie) params['lowCalorie'] = 'true';
+
       final payload =
           await api.request('/recipes?${Uri(queryParameters: params).query}');
-      final loaded = (payload['recipes'] as List? ?? [])
+
+      var loaded = (payload['recipes'] as List? ?? [])
           .map((item) => RecipePost.fromJson(item))
           .toList();
+
       feedNextOffset = payload['nextOffset'] as int?;
+
+      if  (loaded.isEmpty && refresh && user != null) {
+        loaded = demoRecipes(user!);
+        feedNextOffset = null;
+      }
+
       feedRecipes = refresh ? loaded : mergeRecipes(feedRecipes, loaded);
     } catch (e) {
-      recipeError = e.toString();
+      if (refresh && user != null) {
+        feedRecipes = demoRecipes(user!);
+        feedNextOffset = null;
+      } else {
+        recipeError = e.toString();
+      }
     } finally {
       recipesLoading = false;
       refreshUi();
@@ -276,6 +296,28 @@ extension RecipeActions on AppState {
         ? replaceOrAddRecipe(likedRecipes, recipe)
         : likedRecipes.where((item) => item.id != recipe.id).toList();
     refreshUi();
+  }
+
+  List<RecipePost> demoRecipes(UserProfile user) {
+    return [
+      RecipePost(
+        id: 'demo-chicken-bowl',
+        title: 'High Protein Chicken Bowl',
+        description: 'A lean post-workout bowl with chicken, rice, avocado, and greens.',
+        imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=900',
+        ingredients: ['200g chicken breast', '1 cup cooked rice', '1/2 avocado'],
+        instructions: ['Grill chicken.', 'Cook rice.', 'Assemble bowl.'],
+        calories: 620,
+        tags: ['high-protein', 'meal-prep'],
+        visibility: 'public',
+        author: user,
+        likeCount: 24,
+        commentCount: 4,
+        saveCount: 12,
+        likedByMe: false,
+        savedByMe: false,
+      ),
+    ];
   }
 }
 
@@ -897,8 +939,8 @@ class RecipeGrid extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       sliver: SliverGrid(
         gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: 230,
-          childAspectRatio: 0.56,
+          maxCrossAxisExtent: 320,
+          childAspectRatio: 0.72,
           crossAxisSpacing: 13,
           mainAxisSpacing: 14,
         ),
@@ -936,6 +978,7 @@ class LoadingRecipeGrid extends StatelessWidget {
 
 class RecipeCard extends StatelessWidget {
   const RecipeCard({super.key, required this.recipe});
+
   final RecipePost recipe;
 
   @override
@@ -943,62 +986,173 @@ class RecipeCard extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
+        borderRadius: BorderRadius.circular(24),
         onTap: () => Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => RecipeDetailScreen(recipe: recipe)),
+          MaterialPageRoute(
+            builder: (_) => RecipeDetailScreen(recipe: recipe),
+          ),
         ),
-        borderRadius: BorderRadius.circular(16),
         child: Ink(
           decoration: BoxDecoration(
-            color: AppColors.card,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: cardShadow,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: ClipRRect(
-                  borderRadius:
-                      const BorderRadius.vertical(top: Radius.circular(16)),
-                  child: RecipeImage(recipe: recipe, compact: true),
-                ),
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.28),
+                blurRadius: 24,
+                offset: const Offset(0, 14),
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(11, 10, 11, 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(recipe.title,
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                RecipeImage(recipe: recipe, compact: true),
+
+                // dark overlay
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.black.withValues(alpha: 0.08),
+                        Colors.black.withValues(alpha: 0.18),
+                        Colors.black.withValues(alpha: 0.82),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // top chips
+                Positioned(
+                  top: 14,
+                  left: 14,
+                  right: 14,
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.gold.withValues(alpha: 0.22),
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(
+                            color: AppColors.gold.withValues(alpha: 0.5),
+                          ),
+                        ),
+                        child: Text(
+                          '${recipe.calories} cal',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                      const Spacer(),
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.35),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          recipe.savedByMe
+                              ? Icons.bookmark
+                              : Icons.bookmark_border,
+                          size: 18,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // bottom content
+                Positioned(
+                  left: 16,
+                  right: 16,
+                  bottom: 16,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        recipe.title,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.w800)),
-                    const SizedBox(height: 4),
-                    Text('@${recipe.author.username}',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            color: AppColors.muted, fontSize: 12)),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        PopularityDots(
-                            score: recipe.likeCount + recipe.commentCount),
-                        const Spacer(),
-                        Text('${recipe.calories} cal',
-                            style: const TextStyle(
-                                color: AppColors.muted, fontSize: 11)),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    TagRow(tags: recipe.tags.take(2).toList()),
-                    const SizedBox(height: 8),
-                    InteractionBar(recipe: recipe, compact: true),
-                  ],
+                          fontSize: 22,
+                          height: 1.05,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                        ),
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 12,
+                            backgroundColor:
+                                Colors.white.withValues(alpha: 0.18),
+                            child: Text(
+                              recipe.author.username[0].toUpperCase(),
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              '@${recipe.author.username}',
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.82),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      TagRow(tags: recipe.tags.take(2).toList()),
+
+                      const SizedBox(height: 14),
+
+                      Row(
+                        children: [
+                          _Metric(
+                            icon: Icons.favorite,
+                            value: '${recipe.likeCount}',
+                          ),
+                          const SizedBox(width: 14),
+                          _Metric(
+                            icon: Icons.mode_comment_outlined,
+                            value: '${recipe.commentCount}',
+                          ),
+                          const Spacer(),
+                          const Icon(
+                            Icons.arrow_forward,
+                            size: 18,
+                            color: Colors.white70,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -1006,23 +1160,63 @@ class RecipeCard extends StatelessWidget {
   }
 }
 
+class _Metric extends StatelessWidget {
+  const _Metric({
+    required this.icon,
+    required this.value,
+  });
+
+  final IconData icon;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: Colors.white70),
+        const SizedBox(width: 4),
+        Text(
+          value,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class RecipeImage extends StatelessWidget {
   const RecipeImage({super.key, required this.recipe, this.compact = false});
+
   final RecipePost recipe;
   final bool compact;
 
   @override
   Widget build(BuildContext context) {
     final url = recipe.imageUrl;
+
     if (url != null && url.isNotEmpty) {
-      return Image.network(
-        url,
+      if (url.startsWith('http')) {
+        return Image.network(
+          url,
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
+          errorBuilder: (_, __, ___) => RecipeImageFallback(recipe: recipe),
+        );
+      }
+
+      return Image.file(
+        File(url),
         fit: BoxFit.cover,
         width: double.infinity,
         height: double.infinity,
         errorBuilder: (_, __, ___) => RecipeImageFallback(recipe: recipe),
       );
     }
+
     return RecipeImageFallback(recipe: recipe);
   }
 }
@@ -1298,7 +1492,22 @@ class _CreateRecipeFormState extends State<CreateRecipeForm> {
   final instructions = TextEditingController();
   final calories = TextEditingController();
   final tags = TextEditingController(text: 'high-protein');
+  XFile? selectedImage;
+  final picker = ImagePicker();
   String visibility = 'public';
+
+  Future<void> pickImage() async {
+    final image = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+    );
+
+    if (image != null) {
+      setState(() {
+        selectedImage = image;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -1341,7 +1550,38 @@ class _CreateRecipeFormState extends State<CreateRecipeForm> {
             const SizedBox(height: 10),
             AppField(controller: title, label: 'Recipe title'),
             AppField(controller: description, label: 'Description'),
-            AppField(controller: imageUrl, label: 'Image URL optional'),
+            const SizedBox(height: 8),
+
+            GestureDetector(
+              onTap: pickImage,
+              child: Container(
+                height: 180,
+                decoration: BoxDecoration(
+                  color: AppColors.field,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.line),
+                ),
+                child: selectedImage == null
+                    ? const Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.add_a_photo, size: 42),
+                            SizedBox(height: 8),
+                            Text('Select recipe image'),
+                          ],
+                        ),
+                      )
+                    : ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: Image.file(
+                          File(selectedImage!.path),
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                        ),
+                      ),
+              ),
+            ),
             AppField(
                 controller: ingredients,
                 label: 'Ingredients, one per line',
@@ -1356,7 +1596,7 @@ class _CreateRecipeFormState extends State<CreateRecipeForm> {
                 keyboardType: TextInputType.number),
             AppField(controller: tags, label: 'Tags, comma separated'),
             DropdownButtonFormField<String>(
-              initialValue: visibility,
+              value: visibility,
               decoration: const InputDecoration(labelText: 'Visibility'),
               items: const ['public', 'friends', 'private']
                   .map((value) =>
@@ -1383,7 +1623,7 @@ class _CreateRecipeFormState extends State<CreateRecipeForm> {
                   await context.read<AppState>().createRecipe(
                         title: title.text,
                         description: description.text,
-                        imageUrl: imageUrl.text,
+                        imageUrl: selectedImage?.path ?? imageUrl.text,
                         ingredients: ingredientLines,
                         instructions: instructionLines,
                         calories: int.tryParse(calories.text) ?? 0,
@@ -1586,8 +1826,8 @@ class _SearchDiscoverScreenState extends State<SearchDiscoverScreen> {
             physics: const NeverScrollableScrollPhysics(),
             itemCount: state.recipeSearchResults.length,
             gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: 230,
-              childAspectRatio: 0.56,
+              maxCrossAxisExtent: 320,
+              childAspectRatio: 0.72,
               crossAxisSpacing: 13,
               mainAxisSpacing: 14,
             ),
@@ -2056,8 +2296,16 @@ Widget skeletonLine({required double width}) {
 
 const cardShadow = [
   BoxShadow(
-    color: Color(0x33000000),
-    blurRadius: 18,
-    offset: Offset(0, 10),
+    color: Color(0x0F000000),
+    blurRadius: 20,
+    offset: Offset(0, 2),
+  ),
+];
+
+const cardShadowLg = [
+  BoxShadow(
+    color: Color(0x1F000000),
+    blurRadius: 48,
+    offset: Offset(0, 8),
   ),
 ];
