@@ -1,5 +1,6 @@
 import 'dart:convert';
-
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
@@ -29,33 +30,35 @@ class MacroChefApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'MacroChef',
       theme: ThemeData(
-        brightness: Brightness.dark,
+        brightness: Brightness.light,
         scaffoldBackgroundColor: AppColors.bg,
-        colorScheme: const ColorScheme.dark(
+        colorScheme: const ColorScheme.light(
           primary: AppColors.gold,
-          secondary: AppColors.green,
+          secondary: AppColors.forest,
           surface: AppColors.card,
+          error: AppColors.rust,
         ),
         useMaterial3: true,
         appBarTheme: const AppBarTheme(
           backgroundColor: AppColors.bg,
-          foregroundColor: AppColors.text,
+          foregroundColor: AppColors.ink,
           elevation: 0,
           centerTitle: false,
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: AppColors.field,
+          labelStyle: const TextStyle(color: AppColors.muted),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(10),
             borderSide: const BorderSide(color: AppColors.line),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(10),
             borderSide: const BorderSide(color: AppColors.line),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(10),
             borderSide: const BorderSide(color: AppColors.gold),
           ),
         ),
@@ -79,17 +82,34 @@ class MacroChefApp extends StatelessWidget {
 }
 
 class AppColors {
-  static const bg = Color(0xFF0B1117);
-  static const menu = Color(0xFF101821);
-  static const card = Color(0xFF121A22);
-  static const field = Color(0xFF18232E);
-  static const line = Color(0xFF253241);
-  static const text = Color(0xFFE7EDF2);
-  static const muted = Color(0xFF8C99A6);
-  static const gold = Color(0xFF75D7A4);
-  static const green = Color(0xFF66D19E);
-  static const blue = Color(0xFF7AA7D9);
-  static const red = Color(0xFFFF7A7A);
+  static const ink = Color(0xFF0A0A08);
+  static const paper = Color(0xFFF5F2EB);
+  static const cream = Color(0xFFEDE9DF);
+  static const warm = Color(0xFFE8E2D4);
+
+  static const gold = Color(0xFFB8922A);
+  static const goldLight = Color(0xFFD4A843);
+  static const goldDim = Color(0x26B8922A);
+
+  static const rust = Color(0xFFC24B2A);
+  static const forest = Color(0xFF2D5A3D);
+  static const slate = Color(0xFF3D4A5C);
+
+  static const text = Color(0xFF1A1A16);
+  static const muted = Color(0xFF5A5A50);
+  static const faint = Color(0xFF9A9A8A);
+
+  static const bg = paper;
+  static const card = Color(0xFFFFFFFF);
+  static const field = Color(0xFFF9F6F0);
+  static const line = Color(0xFFD8D2C4);
+  static const lineStrong = Color(0xFFC8C2B4);
+
+  static const red = rust;
+  static const green = forest;
+  static const blue = slate;
+  static const menu = card;
+  static const socialBg = Color(0x80F4F3EC);
 }
 
 class ApiException implements Exception {
@@ -1751,7 +1771,8 @@ class AppCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.card,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.line),
         boxShadow: cardShadow,
       ),
       child: child,
@@ -1805,9 +1826,9 @@ class PrimaryButton extends StatelessWidget {
       onPressed: loading ? null : onPressed,
       style: FilledButton.styleFrom(
         minimumSize: const Size.fromHeight(52),
-        backgroundColor: AppColors.gold,
-        foregroundColor: AppColors.bg,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        backgroundColor: AppColors.ink,
+        foregroundColor: AppColors.paper,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
       child: loading
           ? const SizedBox(

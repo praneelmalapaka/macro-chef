@@ -1,5 +1,3 @@
-import 'dart:io';
-import 'package:image_picker/image_picker.dart';
 part of 'main.dart';
 
 class RecipePost {
@@ -941,8 +939,8 @@ class RecipeGrid extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       sliver: SliverGrid(
         gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: 230,
-          childAspectRatio: 0.56,
+          maxCrossAxisExtent: 320,
+          childAspectRatio: 0.72,
           crossAxisSpacing: 13,
           mainAxisSpacing: 14,
         ),
@@ -980,6 +978,7 @@ class LoadingRecipeGrid extends StatelessWidget {
 
 class RecipeCard extends StatelessWidget {
   const RecipeCard({super.key, required this.recipe});
+
   final RecipePost recipe;
 
   @override
@@ -987,62 +986,173 @@ class RecipeCard extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
+        borderRadius: BorderRadius.circular(24),
         onTap: () => Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => RecipeDetailScreen(recipe: recipe)),
+          MaterialPageRoute(
+            builder: (_) => RecipeDetailScreen(recipe: recipe),
+          ),
         ),
-        borderRadius: BorderRadius.circular(16),
         child: Ink(
           decoration: BoxDecoration(
-            color: AppColors.card,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: cardShadow,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: ClipRRect(
-                  borderRadius:
-                      const BorderRadius.vertical(top: Radius.circular(16)),
-                  child: RecipeImage(recipe: recipe, compact: true),
-                ),
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.28),
+                blurRadius: 24,
+                offset: const Offset(0, 14),
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(11, 10, 11, 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(recipe.title,
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                RecipeImage(recipe: recipe, compact: true),
+
+                // dark overlay
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.black.withValues(alpha: 0.08),
+                        Colors.black.withValues(alpha: 0.18),
+                        Colors.black.withValues(alpha: 0.82),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // top chips
+                Positioned(
+                  top: 14,
+                  left: 14,
+                  right: 14,
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.gold.withValues(alpha: 0.22),
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(
+                            color: AppColors.gold.withValues(alpha: 0.5),
+                          ),
+                        ),
+                        child: Text(
+                          '${recipe.calories} cal',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                      const Spacer(),
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.35),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          recipe.savedByMe
+                              ? Icons.bookmark
+                              : Icons.bookmark_border,
+                          size: 18,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // bottom content
+                Positioned(
+                  left: 16,
+                  right: 16,
+                  bottom: 16,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        recipe.title,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.w800)),
-                    const SizedBox(height: 4),
-                    Text('@${recipe.author.username}',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            color: AppColors.muted, fontSize: 12)),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        PopularityDots(
-                            score: recipe.likeCount + recipe.commentCount),
-                        const Spacer(),
-                        Text('${recipe.calories} cal',
-                            style: const TextStyle(
-                                color: AppColors.muted, fontSize: 11)),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    TagRow(tags: recipe.tags.take(2).toList()),
-                    const SizedBox(height: 8),
-                    InteractionBar(recipe: recipe, compact: true),
-                  ],
+                          fontSize: 22,
+                          height: 1.05,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                        ),
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 12,
+                            backgroundColor:
+                                Colors.white.withValues(alpha: 0.18),
+                            child: Text(
+                              recipe.author.username[0].toUpperCase(),
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              '@${recipe.author.username}',
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.82),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      TagRow(tags: recipe.tags.take(2).toList()),
+
+                      const SizedBox(height: 14),
+
+                      Row(
+                        children: [
+                          _Metric(
+                            icon: Icons.favorite,
+                            value: '${recipe.likeCount}',
+                          ),
+                          const SizedBox(width: 14),
+                          _Metric(
+                            icon: Icons.mode_comment_outlined,
+                            value: '${recipe.commentCount}',
+                          ),
+                          const Spacer(),
+                          const Icon(
+                            Icons.arrow_forward,
+                            size: 18,
+                            color: Colors.white70,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -1050,23 +1160,63 @@ class RecipeCard extends StatelessWidget {
   }
 }
 
+class _Metric extends StatelessWidget {
+  const _Metric({
+    required this.icon,
+    required this.value,
+  });
+
+  final IconData icon;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: Colors.white70),
+        const SizedBox(width: 4),
+        Text(
+          value,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class RecipeImage extends StatelessWidget {
   const RecipeImage({super.key, required this.recipe, this.compact = false});
+
   final RecipePost recipe;
   final bool compact;
 
   @override
   Widget build(BuildContext context) {
     final url = recipe.imageUrl;
+
     if (url != null && url.isNotEmpty) {
-      return Image.network(
-        url,
+      if (url.startsWith('http')) {
+        return Image.network(
+          url,
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
+          errorBuilder: (_, __, ___) => RecipeImageFallback(recipe: recipe),
+        );
+      }
+
+      return Image.file(
+        File(url),
         fit: BoxFit.cover,
         width: double.infinity,
         height: double.infinity,
         errorBuilder: (_, __, ___) => RecipeImageFallback(recipe: recipe),
       );
     }
+
     return RecipeImageFallback(recipe: recipe);
   }
 }
@@ -1401,7 +1551,7 @@ class _CreateRecipeFormState extends State<CreateRecipeForm> {
             AppField(controller: title, label: 'Recipe title'),
             AppField(controller: description, label: 'Description'),
             const SizedBox(height: 8),
-g
+
             GestureDetector(
               onTap: pickImage,
               child: Container(
@@ -1473,7 +1623,7 @@ g
                   await context.read<AppState>().createRecipe(
                         title: title.text,
                         description: description.text,
-                        imageUrl: imageUrl.text,
+                        imageUrl: selectedImage?.path ?? imageUrl.text,
                         ingredients: ingredientLines,
                         instructions: instructionLines,
                         calories: int.tryParse(calories.text) ?? 0,
@@ -1676,8 +1826,8 @@ class _SearchDiscoverScreenState extends State<SearchDiscoverScreen> {
             physics: const NeverScrollableScrollPhysics(),
             itemCount: state.recipeSearchResults.length,
             gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: 230,
-              childAspectRatio: 0.56,
+              maxCrossAxisExtent: 320,
+              childAspectRatio: 0.72,
               crossAxisSpacing: 13,
               mainAxisSpacing: 14,
             ),
@@ -2146,8 +2296,16 @@ Widget skeletonLine({required double width}) {
 
 const cardShadow = [
   BoxShadow(
-    color: Color(0x33000000),
-    blurRadius: 18,
-    offset: Offset(0, 10),
+    color: Color(0x0F000000),
+    blurRadius: 20,
+    offset: Offset(0, 2),
+  ),
+];
+
+const cardShadowLg = [
+  BoxShadow(
+    color: Color(0x1F000000),
+    blurRadius: 48,
+    offset: Offset(0, 8),
   ),
 ];
