@@ -18,6 +18,7 @@ class _IngredientLocaliserScreenState extends State<IngredientLocaliserScreen> {
   bool loading = false;
   String? error;
   List<LocalisedIngredient> results = [];
+  final checked = <String>{};
 
   @override
   void initState() {
@@ -29,6 +30,7 @@ class _IngredientLocaliserScreenState extends State<IngredientLocaliserScreen> {
     setState(() {
       loading = true;
       error = null;
+      checked.clear();
     });
 
     try {
@@ -69,6 +71,46 @@ class _IngredientLocaliserScreenState extends State<IngredientLocaliserScreen> {
     return 'https://www.google.com/search?q=$query';
   }
 
+  Future<void> openStoreLink(String ingredient, String store) async {
+    final url = Uri.parse(searchUrl(ingredient, store));
+
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      if (mounted) showSnack(context, 'Could not open store link');
+    }
+  }
+
+  String shoppingListText() {
+    final buffer = StringBuffer();
+
+    buffer.writeln('MacroChef shopping list');
+    buffer.writeln(widget.recipe.title);
+    buffer.writeln('Country: $countryCode');
+    buffer.writeln('');
+
+    for (final item in results) {
+      final equivalent = item.local.isEmpty ? item.original : item.local;
+      buffer.writeln('- ${item.original} → $equivalent');
+
+      if (item.brandSuggestion != null && item.brandSuggestion!.trim().isNotEmpty) {
+        buffer.writeln('  Brand: ${item.brandSuggestion}');
+      }
+
+      if (item.storeHint != null && item.storeHint!.trim().isNotEmpty) {
+        buffer.writeln('  Where: ${item.storeHint}');
+      }
+    }
+
+    return buffer.toString();
+  }
+
+  Future<void> copyShoppingList() async {
+    await Clipboard.setData(ClipboardData(text: shoppingListText()));
+
+    if (mounted) {
+      showSnack(context, 'Shopping list copied');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -76,6 +118,13 @@ class _IngredientLocaliserScreenState extends State<IngredientLocaliserScreen> {
       appBar: AppBar(
         title: const Text('Replicate Recipe'),
         backgroundColor: AppColors.bg,
+        actions: [
+          if (results.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.copy),
+              onPressed: copyShoppingList,
+            ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -138,6 +187,28 @@ class _IngredientLocaliserScreenState extends State<IngredientLocaliserScreen> {
             ...results.map(
               (item) => LocalisedIngredientCard(
                 item: item,
+                checked: checked.contains(item.original),
+                onToggle: () {
+                  setState(() {
+                    if (checked.contains(item.original)) {
+                      checked.remove(item.original);
+                    } else {
+                      checked.add(item.original);
+                    }
+                  });
+                },
+                onOpenColes: () {
+                  final equivalent =
+                      item.local.isEmpty ? item.original : item.local;
+
+                  openStoreLink(equivalent, 'coles');
+                },
+                onOpenWoolies: () {
+                  final equivalent =
+                      item.local.isEmpty ? item.original : item.local;
+
+                  openStoreLink(equivalent, 'woolworths');
+                },
                 searchUrl: searchUrl,
               ),
             ),
@@ -152,11 +223,19 @@ class LocalisedIngredientCard extends StatelessWidget {
   const LocalisedIngredientCard({
     super.key,
     required this.item,
+    required this.checked,
+    required this.onToggle,
     required this.searchUrl,
+    required this.onOpenColes,
+    required this.onOpenWoolies,
   });
 
   final LocalisedIngredient item;
   final String Function(String ingredient, String store) searchUrl;
+  final bool checked;
+  final VoidCallback onToggle;
+  final VoidCallback onOpenColes;
+  final VoidCallback onOpenWoolies;
 
   @override
   Widget build(BuildContext context) {
@@ -170,10 +249,9 @@ class LocalisedIngredientCard extends StatelessWidget {
           Row(
             children: [
               Checkbox(
-                value: false,
-                onChanged: (_) {
-                  showSnack(context, 'Checklist persistence is coming next.');
-                },
+                value: checked,
+                activeColor: AppColors.gold,
+                onChanged: (_) => onToggle(),
               ),
               Expanded(
                 child: Column(
@@ -190,10 +268,11 @@ class LocalisedIngredientCard extends StatelessWidget {
                     const SizedBox(height: 3),
                     Text(
                       equivalent,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: AppColors.ink,
                         fontSize: 21,
                         fontWeight: FontWeight.w900,
+                        decoration: checked ? TextDecoration.lineThrough : TextDecoration.none,
                       ),
                     ),
                   ],
@@ -247,10 +326,7 @@ class LocalisedIngredientCard extends StatelessWidget {
               Expanded(
                 child: OutlinedButton(
                   onPressed: () {
-                    showSnack(
-                      context,
-                      'Open link manually for now: ${searchUrl(equivalent, 'coles')}',
-                    );
+                    onOpenColes();
                   },
                   child: const Text('Search Coles'),
                 ),
@@ -259,10 +335,7 @@ class LocalisedIngredientCard extends StatelessWidget {
               Expanded(
                 child: OutlinedButton(
                   onPressed: () {
-                    showSnack(
-                      context,
-                      'Open link manually for now: ${searchUrl(equivalent, 'woolworths')}',
-                    );
+                    onOpenWoolies();
                   },
                   child: const Text('Search Woolies'),
                 ),
