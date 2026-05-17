@@ -41,17 +41,35 @@ class MealPlanShoppingItem {
     required this.recipeId,
     required this.recipeTitle,
     required this.ingredient,
+    required this.localName,
+    required this.matched,
+    required this.confidence,
+    this.brandSuggestion,
+    this.storeHint,
+    this.notes,
   });
 
   final String recipeId;
   final String recipeTitle;
   final String ingredient;
+  final String localName;
+  final bool matched;
+  final double confidence;
+  final String? brandSuggestion;
+  final String? storeHint;
+  final String? notes;
 
   factory MealPlanShoppingItem.fromJson(Map<String, dynamic> json) {
     return MealPlanShoppingItem(
       recipeId: json['recipeId'].toString(),
       recipeTitle: json['recipeTitle'] ?? '',
       ingredient: json['ingredient'] ?? '',
+      localName: json['localName'] ?? json['ingredient'] ?? '',
+      matched: json['matched'] == true,
+      confidence: (json['confidence'] ?? 0).toDouble(),
+      brandSuggestion: json['brandSuggestion'],
+      storeHint: json['storeHint'],
+      notes: json['notes'],
     );
   }
 }
@@ -98,7 +116,7 @@ extension MealPlanActions on AppState {
     DateTime date,
   ) async {
     final key = DateFormat('yyyy-MM-dd').format(date);
-    final payload = await api.request('/meal-plans/$key/shopping-list');
+    final payload = await api.request('/meal-plans/$key/shopping-list?countryCode=AU');
 
     return (payload['items'] as List? ?? [])
         .map((item) => MealPlanShoppingItem.fromJson(item))
@@ -654,7 +672,15 @@ class _MealPlanShoppingListScreenState
     buffer.writeln('');
 
     for (final item in items) {
-      buffer.writeln('- ${item.ingredient} (${item.recipeTitle})');
+      buffer.writeln('- ${item.ingredient} → ${item.localName} (${item.recipeTitle})');
+
+      if (item.brandSuggestion != null && item.brandSuggestion!.trim().isNotEmpty) {
+        buffer.writeln('  Brand: ${item.brandSuggestion}');
+      }
+
+      if (item.storeHint != null && item.storeHint!.trim().isNotEmpty) {
+        buffer.writeln('  Where: ${item.storeHint}');
+      }
     }
 
     return buffer.toString();
@@ -764,14 +790,45 @@ class _MealPlanShoppingListScreenState
                             value: checked.contains(key),
                             activeColor: AppColors.gold,
                             contentPadding: EdgeInsets.zero,
-                            title: Text(
-                              item.ingredient,
-                              style: TextStyle(
-                                color: AppColors.text,
-                                decoration: checked.contains(key)
-                                    ? TextDecoration.lineThrough
-                                    : TextDecoration.none,
-                              ),
+                            title: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item.localName,
+                                  style: TextStyle(
+                                    color: AppColors.text,
+                                    fontWeight: FontWeight.w800,
+                                    decoration: checked.contains(key)
+                                        ? TextDecoration.lineThrough
+                                        : TextDecoration.none,
+                                  ),
+                                ),
+                                if (item.ingredient != item.localName)
+                                  Text(
+                                    'Original: ${item.ingredient}',
+                                    style: const TextStyle(
+                                      color: AppColors.muted,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                if (item.brandSuggestion != null &&
+                                    item.brandSuggestion!.trim().isNotEmpty)
+                                  Text(
+                                    'Brand: ${item.brandSuggestion}',
+                                    style: const TextStyle(
+                                      color: AppColors.muted,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                if (item.storeHint != null && item.storeHint!.trim().isNotEmpty)
+                                  Text(
+                                    'Where: ${item.storeHint}',
+                                    style: const TextStyle(
+                                      color: AppColors.muted,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                              ],
                             ),
                             onChanged: (_) {
                               setState(() {
