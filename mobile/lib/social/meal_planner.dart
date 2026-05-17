@@ -36,6 +36,44 @@ class MealPlanItem {
   }
 }
 
+class MealPlanShoppingItem {
+  const MealPlanShoppingItem({
+    required this.recipeId,
+    required this.recipeTitle,
+    required this.ingredient,
+    required this.localName,
+    required this.matched,
+    required this.confidence,
+    this.brandSuggestion,
+    this.storeHint,
+    this.notes,
+  });
+
+  final String recipeId;
+  final String recipeTitle;
+  final String ingredient;
+  final String localName;
+  final bool matched;
+  final double confidence;
+  final String? brandSuggestion;
+  final String? storeHint;
+  final String? notes;
+
+  factory MealPlanShoppingItem.fromJson(Map<String, dynamic> json) {
+    return MealPlanShoppingItem(
+      recipeId: json['recipeId'].toString(),
+      recipeTitle: json['recipeTitle'] ?? '',
+      ingredient: json['ingredient'] ?? '',
+      localName: json['localName'] ?? json['ingredient'] ?? '',
+      matched: json['matched'] == true,
+      confidence: (json['confidence'] ?? 0).toDouble(),
+      brandSuggestion: json['brandSuggestion'],
+      storeHint: json['storeHint'],
+      notes: json['notes'],
+    );
+  }
+}
+
 extension MealPlanActions on AppState {
   Future<void> loadMealPlans(DateTime date) async {
     await _run(() async {
@@ -72,6 +110,17 @@ extension MealPlanActions on AppState {
       await api.request('/meal-plans/$id', method: 'DELETE');
       await loadMealPlans(selectedDate);
     });
+  }
+
+  Future<List<MealPlanShoppingItem>> loadMealPlanShoppingList(
+    DateTime date,
+  ) async {
+    final key = DateFormat('yyyy-MM-dd').format(date);
+    final payload = await api.request('/meal-plans/$key/shopping-list?countryCode=AU');
+
+    return (payload['items'] as List? ?? [])
+        .map((item) => MealPlanShoppingItem.fromJson(item))
+        .toList();
   }
 
   List<MealPlanItem> mealPlansFor(String mealType) {
@@ -188,6 +237,18 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
                     borderRadius: BorderRadius.circular(99),
                     color: AppColors.gold,
                     backgroundColor: AppColors.field,
+                  ),
+                  const SizedBox(height: 14),
+                  PrimaryButton(
+                    label: 'Generate shopping list',
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => MealPlanShoppingListScreen(date: selectedDate),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -556,4 +617,238 @@ Future<void> showMealTypePicker(BuildContext context, RecipePost recipe) {
       ),
     ),
   );
+}
+
+class MealPlanShoppingListScreen extends StatefulWidget {
+  const MealPlanShoppingListScreen({
+    super.key,
+    required this.date,
+  });
+
+  final DateTime date;
+
+  @override
+  State<MealPlanShoppingListScreen> createState() =>
+      _MealPlanShoppingListScreenState();
+}
+
+class _MealPlanShoppingListScreenState
+    extends State<MealPlanShoppingListScreen> {
+  bool loading = true;
+  String? error;
+  List<MealPlanShoppingItem> items = [];
+  final checked = <String>{};
+
+  @override
+  void initState() {
+    super.initState();
+    loadShoppingList();
+  }
+
+  Future<void> loadShoppingList() async {
+    setState(() {
+      loading = true;
+      error = null;
+      checked.clear();
+    });
+
+    try {
+      final loaded =
+          await context.read<AppState>().loadMealPlanShoppingList(widget.date);
+
+      setState(() => items = loaded);
+    } catch (e) {
+      setState(() => error = e.toString());
+    } finally {
+      setState(() => loading = false);
+    }
+  }
+
+  String shoppingListText() {
+    final buffer = StringBuffer();
+
+    buffer.writeln('MacroChef meal plan shopping list');
+    buffer.writeln(DateFormat('EEEE, MMM d').format(widget.date));
+    buffer.writeln('');
+
+    for (final item in items) {
+      buffer.writeln('- ${item.ingredient} → ${item.localName} (${item.recipeTitle})');
+
+      if (item.brandSuggestion != null && item.brandSuggestion!.trim().isNotEmpty) {
+        buffer.writeln('  Brand: ${item.brandSuggestion}');
+      }
+
+      if (item.storeHint != null && item.storeHint!.trim().isNotEmpty) {
+        buffer.writeln('  Where: ${item.storeHint}');
+      }
+    }
+
+    return buffer.toString();
+  }
+
+  Future<void> copyList() async {
+    await Clipboard.setData(ClipboardData(text: shoppingListText()));
+
+    if (mounted) {
+      showSnack(context, 'Shopping list copied');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final grouped = <String, List<MealPlanShoppingItem>>{};
+
+    for (final item in items) {
+      grouped.putIfAbsent(item.recipeTitle, () => []).add(item);
+    }
+
+    return Scaffold(
+      backgroundColor: AppColors.bg,
+      appBar: AppBar(
+        title: const Text('Shopping List'),
+        backgroundColor: AppColors.bg,
+        actions: [
+          if (items.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.copy),
+              onPressed: copyList,
+            ),
+        ],
+      ),
+      body: RefreshIndicator(
+        onRefresh: loadShoppingList,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            AppCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SectionHeader(title: 'MEAL PLAN SHOPPING LIST'),
+                  Text(
+                    DateFormat('EEEE, MMM d').format(widget.date),
+                    style: const TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.ink,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '${items.length} ingredient${items.length == 1 ? '' : 's'} from your planned recipes.',
+                    style: const TextStyle(
+                      color: AppColors.muted,
+                      height: 1.4,
+                    ),
+                  ),
+                  if (items.isNotEmpty) ...[
+                    const SizedBox(height: 14),
+                    PrimaryButton(
+                      label: 'Copy shopping list',
+                      onPressed: copyList,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 18),
+            if (loading)
+              const Padding(
+                padding: EdgeInsets.all(28),
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (error != null)
+              ErrorText(error!)
+            else if (items.isEmpty)
+              const EmptyState(
+                title: 'No shopping list yet',
+                message:
+                    'Add recipes to your meal plan first, then generate a list.',
+              )
+            else
+              ...grouped.entries.map(
+                (entry) => AppCard(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        entry.key,
+                        style: const TextStyle(
+                          color: AppColors.ink,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      ...entry.value.map(
+                        (item) {
+                          final key =
+                              '${item.recipeId}:${item.recipeTitle}:${item.ingredient}';
+
+                          return CheckboxListTile(
+                            value: checked.contains(key),
+                            activeColor: AppColors.gold,
+                            contentPadding: EdgeInsets.zero,
+                            title: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item.localName,
+                                  style: TextStyle(
+                                    color: AppColors.text,
+                                    fontWeight: FontWeight.w800,
+                                    decoration: checked.contains(key)
+                                        ? TextDecoration.lineThrough
+                                        : TextDecoration.none,
+                                  ),
+                                ),
+                                if (item.ingredient != item.localName)
+                                  Text(
+                                    'Original: ${item.ingredient}',
+                                    style: const TextStyle(
+                                      color: AppColors.muted,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                if (item.brandSuggestion != null &&
+                                    item.brandSuggestion!.trim().isNotEmpty)
+                                  Text(
+                                    'Brand: ${item.brandSuggestion}',
+                                    style: const TextStyle(
+                                      color: AppColors.muted,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                if (item.storeHint != null && item.storeHint!.trim().isNotEmpty)
+                                  Text(
+                                    'Where: ${item.storeHint}',
+                                    style: const TextStyle(
+                                      color: AppColors.muted,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            onChanged: (_) {
+                              setState(() {
+                                if (checked.contains(key)) {
+                                  checked.remove(key);
+                                } else {
+                                  checked.add(key);
+                                }
+                              });
+                            },
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
 }

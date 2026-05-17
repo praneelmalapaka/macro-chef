@@ -402,6 +402,7 @@ class AppState extends ChangeNotifier {
       });
 
       await api.saveToken(payload['token']);
+      debugPrint('JWT TOKEN: ${payload['token']}');
       user = UserProfile.fromJson(payload['user']);
 
       if (user!.emailVerified) {

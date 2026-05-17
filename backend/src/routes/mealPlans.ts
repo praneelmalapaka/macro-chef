@@ -4,6 +4,59 @@ import { requireAuth } from '../middleware/auth';
 
 const router = Router();
 
+router.get('/meal-plans/:date/shopping-list', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user!.id;
+    const { date } = req.params;
+
+    const countryCode =
+      typeof req.query.countryCode === 'string'
+        ? req.query.countryCode.toUpperCase()
+        : 'AU';
+
+    const { rows } = await pool.query(
+    `
+    SELECT
+        r.id AS recipe_id,
+        r.title,
+        ingredient.value AS ingredient,
+        il.local_name,
+        il.brand_suggestion,
+        il.store_hint,
+        il.notes,
+        il.confidence
+    FROM meal_plans mp
+    JOIN recipes r ON r.id = mp.recipe_id
+    CROSS JOIN LATERAL jsonb_array_elements_text(r.ingredients) AS ingredient(value)
+    LEFT JOIN ingredient_localisations il
+        ON LOWER(il.base_ingredient) = LOWER(ingredient.value)
+    AND UPPER(il.country_code) = UPPER($3)
+    WHERE mp.user_id = $1
+        AND mp.planned_for = $2
+    ORDER BY mp.created_at ASC, ingredient.value ASC
+    `,
+    [userId, date, countryCode],
+    );
+
+    const items = rows.map((row) => ({
+    recipeId: String(row.recipe_id),
+    recipeTitle: row.title,
+    ingredient: row.ingredient,
+    localName: row.local_name ?? row.ingredient,
+    brandSuggestion: row.brand_suggestion,
+    storeHint: row.store_hint,
+    notes: row.notes,
+    confidence: Number(row.confidence ?? 0),
+    matched: row.local_name != null,
+    }));
+
+    return res.json({ countryCode, items });
+  } catch (error) {
+    console.error('Failed to build shopping list:', error);
+    return res.status(500).json({ error: 'Failed to build shopping list' });
+  }
+});
+
 router.get('/meal-plans/:date', requireAuth, async (req, res) => {
   try {
     const userId = req.user!.id;
