@@ -17,6 +17,7 @@ part 'social/ingredient_localiser.dart';
 part 'social/create_recipe_form.dart';
 part 'social/social_screens.dart';
 part 'social/social_widgets.dart';
+part 'social/meal_planner.dart';
 
 const apiBaseUrl = String.fromEnvironment(
   'API_BASE_URL',
@@ -346,6 +347,7 @@ class AppState extends ChangeNotifier {
   List<RecipePost> profileRecipes = [];
   List<RecipePost> recipeSearchResults = [];
   List<RecipeComment> activeComments = [];
+  List<MealPlanItem> mealPlans = [];
   String feedFilter = 'all';
   String feedSort = 'recent';
   String? selectedTag;
@@ -890,6 +892,7 @@ class _MainShellState extends State<MainShell> {
       'likes': const LikesScreen(),
       'settings': const SettingsPrivacyScreen(),
       'subscriptions': const SettingsPrivacyScreen(),
+      'planner': const MealPlannerScreen(),
     };
     final route = routes[selection];
     if (route != null) {

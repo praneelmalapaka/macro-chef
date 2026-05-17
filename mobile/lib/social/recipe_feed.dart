@@ -197,6 +197,7 @@ class SlideOutMenu extends StatelessWidget {
                     MenuColumn(
                       items: const [
                         ['CALORIE TRACKER', 'calories'],
+                        ['MEAL PLANNER', 'planner'],
                         ['FRIENDS', 'friends'],
                         ['SETTINGS', 'settings'],
                         ['SUBSCRIPTIONS', 'subscriptions'],

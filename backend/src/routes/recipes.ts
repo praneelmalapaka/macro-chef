@@ -93,18 +93,37 @@ recipesRouter.post("/", requireAuth, requireVerified, validateBody(recipeSchema)
   const payload = req.body;
   const result = await pool.query(
     `INSERT INTO recipes (
-       user_id, title, description, image_url, ingredients, instructions, calories, tags, visibility
-     ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
-     RETURNING *`,
+      user_id,
+      title,
+      description,
+      image_url,
+      ingredients,
+      instructions,
+      calories,
+      tags,
+      visibility
+    )
+    VALUES (
+      $1,
+      $2,
+      $3,
+      $4,
+      $5::jsonb,
+      $6::jsonb,
+      $7,
+      $8::jsonb,
+      $9
+    )
+    RETURNING *`,
     [
       req.user!.id,
       payload.title,
       payload.description,
       payload.imageUrl || null,
-      payload.ingredients,
-      payload.instructions,
+      JSON.stringify(payload.ingredients ?? []),
+      JSON.stringify(payload.instructions ?? []),
       payload.calories,
-      uniqueTags(payload.tags),
+      JSON.stringify(uniqueTags(payload.tags ?? [])),
       payload.visibility
     ]
   );

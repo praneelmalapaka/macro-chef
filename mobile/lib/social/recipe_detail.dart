@@ -178,6 +178,18 @@ class RecipeDetailScreen extends StatelessWidget {
                         },
                       ),
                     ),
+
+                    const SizedBox(width: 10),
+
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        icon: const Icon(Icons.event_available),
+                        label: const Text('Add to meal plan'),
+                        onPressed: () {
+                          showMealTypePicker(context, current);
+                        },
+                      ),
+                    ),
                   ],
                 ),
 
