@@ -526,6 +526,14 @@ Future<void> showMealTypePicker(BuildContext context, RecipePost recipe) {
                 title: Text(mealType),
                 trailing: const Icon(Icons.add),
                 onTap: () async {
+                  if (int.tryParse(recipe.id) == null) {
+                    showSnack(
+                      context,
+                      'Demo recipes cannot be added to meal plans yet. Create a real recipe first.',
+                    );
+                    return;
+                  }
+
                   final navigator = Navigator.of(context);
                   final messenger = ScaffoldMessenger.of(context);
                   final state = context.read<AppState>();
@@ -537,6 +545,7 @@ Future<void> showMealTypePicker(BuildContext context, RecipePost recipe) {
                   );
 
                   navigator.pop();
+
                   messenger.showSnackBar(
                     SnackBar(content: Text('Added to $mealType')),
                   );

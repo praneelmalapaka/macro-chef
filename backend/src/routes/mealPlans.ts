@@ -56,10 +56,34 @@ router.post('/meal-plans', requireAuth, async (req, res) => {
       });
     }
 
+    const numericRecipeId = Number(recipeId);
+
+    if (!Number.isInteger(numericRecipeId)) {
+      return res.status(400).json({
+        error: 'recipeId must be a numeric database id',
+      });
+    }
+
     const validMealTypes = ['breakfast', 'lunch', 'dinner', 'snack'];
 
     if (!validMealTypes.includes(mealType)) {
       return res.status(400).json({ error: 'Invalid mealType' });
+    }
+
+    const recipeCheck = await pool.query(
+      `
+      SELECT id
+      FROM recipes
+      WHERE id = $1
+      LIMIT 1
+      `,
+      [numericRecipeId],
+    );
+
+    if (recipeCheck.rows.length === 0) {
+      return res.status(404).json({
+        error: 'Recipe not found',
+      });
     }
 
     const { rows } = await pool.query(
@@ -68,7 +92,7 @@ router.post('/meal-plans', requireAuth, async (req, res) => {
       VALUES ($1, $2, $3, $4)
       RETURNING *
       `,
-      [userId, recipeId, mealType, plannedFor],
+      [userId, numericRecipeId, mealType, plannedFor],
     );
 
     return res.status(201).json({ mealPlan: rows[0] });
