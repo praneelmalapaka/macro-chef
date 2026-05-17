@@ -12,6 +12,7 @@ import { profileRouter } from "./routes/profile";
 import { recipesRouter } from "./routes/recipes";
 import { usersRouter } from "./routes/users";
 import localiserRouter from './routes/localiser';
+import mealPlansRouter from './routes/mealPlans';
 
 export function createApp() {
   const app = express();
@@ -21,6 +22,7 @@ export function createApp() {
   app.use(express.json({ limit: "1mb" }));
   app.use(rateLimit({ windowMs: 15 * 60 * 1000, limit: 300 }));
   app.use("/", localiserRouter);
+  app.use('/', mealPlansRouter);
 
   app.get("/", (_req, res) => {
     res.type("html").send(`<!doctype html>
