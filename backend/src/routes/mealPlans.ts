@@ -4,6 +4,45 @@ import { requireAuth } from '../middleware/auth';
 
 const router = Router();
 
+router.get('/meal-plans/:date/shopping-list', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user!.id;
+    const { date } = req.params;
+
+    const { rows } = await pool.query(
+      `
+      SELECT
+        r.id AS recipe_id,
+        r.title,
+        r.ingredients
+      FROM meal_plans mp
+      JOIN recipes r ON r.id = mp.recipe_id
+      WHERE mp.user_id = $1
+        AND mp.planned_for = $2
+      ORDER BY mp.created_at ASC
+      `,
+      [userId, date],
+    );
+
+    const items = rows.flatMap((row) => {
+      const ingredients = Array.isArray(row.ingredients)
+        ? row.ingredients
+        : [];
+
+      return ingredients.map((ingredient: string) => ({
+        recipeId: String(row.recipe_id),
+        recipeTitle: row.title,
+        ingredient,
+      }));
+    });
+
+    return res.json({ items });
+  } catch (error) {
+    console.error('Failed to build shopping list:', error);
+    return res.status(500).json({ error: 'Failed to build shopping list' });
+  }
+});
+
 router.get('/meal-plans/:date', requireAuth, async (req, res) => {
   try {
     const userId = req.user!.id;
