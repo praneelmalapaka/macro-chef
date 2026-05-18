@@ -6,11 +6,13 @@ class TopNavBar extends StatelessWidget {
     required this.onAdd,
     required this.onMenu,
     required this.onSearch,
+    required this.onScan,
   });
 
   final VoidCallback onAdd;
   final VoidCallback onMenu;
   final VoidCallback onSearch;
+  final VoidCallback onScan;
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +33,8 @@ class TopNavBar extends StatelessWidget {
             NavIconButton(icon: Icons.menu, onPressed: onMenu),
             const SizedBox(width: 10),
             NavIconButton(icon: Icons.search, onPressed: onSearch),
+            const SizedBox(width: 10),
+            NavIconButton(icon: Icons.qr_code_scanner, onPressed: onScan),
           ],
         ),
       ),
