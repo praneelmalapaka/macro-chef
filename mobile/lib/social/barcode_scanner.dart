@@ -61,6 +61,22 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
   String? barcode;
   ScannedProduct? product;
 
+  final gramsController = TextEditingController(text: '100');
+
+  @override
+  void dispose() {
+    gramsController.dispose();
+    super.dispose();
+  }
+
+  double get selectedGrams {
+    return double.tryParse(gramsController.text) ?? 100;
+  }
+
+  double scaleValue(num value) {
+    return value * selectedGrams / 100;
+  }
+
   Future<void> lookupBarcode(String code) async {
     setState(() {
       locked = true;
@@ -68,6 +84,7 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
       error = null;
       barcode = code;
       product = null;
+      gramsController.text = '100';
     });
 
     try {
@@ -91,6 +108,7 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
       error = null;
       barcode = null;
       product = null;
+      gramsController.text = '100';
     });
   }
 
@@ -100,14 +118,15 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
 
     await context.read<AppState>().saveLog(
           foodName: item.name,
-          calories: item.calories,
-          proteinG: item.proteinG,
-          carbsG: item.carbsG,
-          fatG: item.fatG,
+          calories: scaleValue(item.calories).round(),
+          proteinG: scaleValue(item.proteinG),
+          carbsG: scaleValue(item.carbsG),
+          fatG: scaleValue(item.fatG),
           mealType: 'other',
           consumedAt: DateTime.now(),
-          servingSize: item.servingSize ?? item.quantity,
-          notes: 'Scanned barcode ${item.barcode}. Sodium: ${item.sodiumMg}mg.',
+          servingSize: '${selectedGrams.toStringAsFixed(0)}g',
+          notes:
+              'Scanned barcode ${item.barcode}. Sodium: ${scaleValue(item.sodiumMg).round()}mg. Source: ${item.source}.',
         );
 
     if (!mounted) return;
@@ -154,6 +173,8 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
               loading: loading,
               error: error,
               product: product,
+              gramsController: gramsController,
+              scaleValue: scaleValue,
               onRetry: resetScanner,
               onLog: logProduct,
             ),
@@ -170,6 +191,8 @@ class _ScannerBottomPanel extends StatelessWidget {
     required this.loading,
     required this.error,
     required this.product,
+    required this.gramsController,
+    required this.scaleValue,
     required this.onRetry,
     required this.onLog,
   });
@@ -178,6 +201,8 @@ class _ScannerBottomPanel extends StatelessWidget {
   final bool loading;
   final String? error;
   final ScannedProduct? product;
+  final TextEditingController gramsController;
+  final double Function(num value) scaleValue;
   final VoidCallback onRetry;
   final VoidCallback onLog;
 
@@ -198,7 +223,7 @@ class _ScannerBottomPanel extends StatelessWidget {
             ),
             SizedBox(height: 6),
             Text(
-              'MacroChef will look up calories and macros automatically.',
+              'MacroChef will look up calories, macros, and sodium automatically.',
               style: TextStyle(color: AppColors.muted),
             ),
           ],
@@ -263,50 +288,90 @@ class _ScannerBottomPanel extends StatelessWidget {
             ),
           ),
           if (item.brand != null)
+            Text(item.brand!, style: const TextStyle(color: AppColors.muted)),
+          if (item.quantity != null || item.servingSize != null)
             Text(
-              item.brand!,
-              style: const TextStyle(color: AppColors.muted),
+              [
+                if (item.quantity != null) item.quantity!,
+                if (item.servingSize != null && item.servingSize!.isNotEmpty)
+                  'serving: ${item.servingSize}',
+              ].join(' • '),
+              style: const TextStyle(color: AppColors.muted, fontSize: 12),
             ),
           const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: MacroPill(
-                  label: 'Calories',
-                  value: '${item.calories}',
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: MacroPill(
-                  label: 'Protein',
-                  value: '${item.proteinG.toStringAsFixed(1)}g',
-                ),
-              ),
-            ],
+          TextField(
+            controller: gramsController,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              labelText: 'Amount eaten',
+              suffixText: 'g',
+            ),
           ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: MacroPill(
-                  label: 'Carbs',
-                  value: '${item.carbsG.toStringAsFixed(1)}g',
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: MacroPill(
-                  label: 'Fat',
-                  value: '${item.fatG.toStringAsFixed(1)}g',
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Sodium: ${item.sodiumMg}mg • Source: ${item.source}',
-            style: const TextStyle(color: AppColors.muted, fontSize: 12),
+          const SizedBox(height: 12),
+          AnimatedBuilder(
+            animation: gramsController,
+            builder: (context, _) {
+              return Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: MacroPill(
+                          label: 'Calories',
+                          value: '${scaleValue(item.calories).round()}',
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: MacroPill(
+                          label: 'Protein',
+                          value:
+                              '${scaleValue(item.proteinG).toStringAsFixed(1)}g',
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: MacroPill(
+                          label: 'Carbs',
+                          value:
+                              '${scaleValue(item.carbsG).toStringAsFixed(1)}g',
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: MacroPill(
+                          label: 'Fat',
+                          value:
+                              '${scaleValue(item.fatG).toStringAsFixed(1)}g',
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: MacroPill(
+                          label: 'Sodium',
+                          value: '${scaleValue(item.sodiumMg).round()}mg',
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: MacroPill(
+                          label: 'Source',
+                          value: item.source,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            },
           ),
           const SizedBox(height: 14),
           PrimaryButton(label: 'Log food', onPressed: onLog),
