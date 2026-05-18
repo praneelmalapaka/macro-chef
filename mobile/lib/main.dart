@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 
 part 'social/social_models.dart';
 part 'social/recipe_actions.dart';
@@ -18,6 +19,7 @@ part 'social/create_recipe_form.dart';
 part 'social/social_screens.dart';
 part 'social/social_widgets.dart';
 part 'social/meal_planner.dart';
+part 'social/barcode_scanner.dart';
 
 const apiBaseUrl = String.fromEnvironment(
   'API_BASE_URL',
@@ -838,8 +840,15 @@ class _MainShellState extends State<MainShell> {
               children: [
                 TopNavBar(
                   onAdd: () => showCreateRecipeSheet(context),
+                  onScan: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const BarcodeScannerScreen(),
+                    ),
+                  ),
                   onMenu: () => setState(() => menuOpen = true),
                   onSearch: () => setState(() => index = 1),
+                  
                 ),
                 Expanded(
                   child: AnimatedSwitcher(
