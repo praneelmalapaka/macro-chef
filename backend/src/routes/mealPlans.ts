@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { pool } from '../db';
 import { requireAuth } from '../middleware/auth';
+import { resolveIngredient } from '../services/ingredientResolver';
 
 const router = Router();
 
@@ -38,17 +39,24 @@ router.get('/meal-plans/:date/shopping-list', requireAuth, async (req, res) => {
     [userId, date, countryCode],
     );
 
-    const items = rows.map((row) => ({
-    recipeId: String(row.recipe_id),
-    recipeTitle: row.title,
-    ingredient: row.ingredient,
-    localName: row.local_name ?? row.ingredient,
-    brandSuggestion: row.brand_suggestion,
-    storeHint: row.store_hint,
-    notes: row.notes,
-    confidence: Number(row.confidence ?? 0),
-    matched: row.local_name != null,
-    }));
+    const items = await Promise.all(
+      rows.map(async (row) => {
+        const resolved = await resolveIngredient(row.ingredient, countryCode);
+
+        return {
+          recipeId: String(row.recipe_id),
+          recipeTitle: row.title,
+          ingredient: row.ingredient,
+          localName: row.local_name ?? row.ingredient,
+          brandSuggestion: row.brand_suggestion,
+          storeHint: row.store_hint,
+          notes: row.notes,
+          confidence: Number(row.confidence ?? 0),
+          matched: row.local_name != null,
+          ontology: resolved,
+        };
+      }),
+    );
 
     return res.json({ countryCode, items });
   } catch (error) {
