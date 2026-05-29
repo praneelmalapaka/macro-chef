@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { pool } from '../db';
 import { requireAuth } from '../middleware/auth';
 import { resolveIngredient } from '../services/ingredientResolver';
+import { rankSubstitutes } from '../services/substituteRanker';
 
 const router = Router();
 
@@ -41,7 +42,17 @@ router.get('/meal-plans/:date/shopping-list', requireAuth, async (req, res) => {
 
     const items = await Promise.all(
       rows.map(async (row) => {
-        const resolved = await resolveIngredient(row.ingredient, countryCode);
+        const resolved = await resolveIngredient(
+          row.ingredient,
+          countryCode,
+        );
+
+        const rankedSubstitutes = resolved.matched
+          ? rankSubstitutes(resolved.substitutes, {
+              cookingMethod: 'general-cooking',
+              userRegion: countryCode,
+            }).slice(0, 3)
+          : [];
 
         return {
           recipeId: String(row.recipe_id),
@@ -54,6 +65,7 @@ router.get('/meal-plans/:date/shopping-list', requireAuth, async (req, res) => {
           confidence: Number(row.confidence ?? 0),
           matched: row.local_name != null,
           ontology: resolved,
+          rankedSubstitutes,
         };
       }),
     );

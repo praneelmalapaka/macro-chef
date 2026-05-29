@@ -47,6 +47,7 @@ class MealPlanShoppingItem {
     this.brandSuggestion,
     this.storeHint,
     this.notes,
+    this.rankedSubstitutes = const [],
   });
 
   final String recipeId;
@@ -58,8 +59,14 @@ class MealPlanShoppingItem {
   final String? brandSuggestion;
   final String? storeHint;
   final String? notes;
+  final List<dynamic> rankedSubstitutes;
 
   factory MealPlanShoppingItem.fromJson(Map<String, dynamic> json) {
+    debugPrint(
+      'SHOPPING ITEM: ${json['ingredient']} '
+      'substitutes=${json['rankedSubstitutes']}',
+    );
+
     return MealPlanShoppingItem(
       recipeId: json['recipeId'].toString(),
       recipeTitle: json['recipeTitle'] ?? '',
@@ -70,6 +77,7 @@ class MealPlanShoppingItem {
       brandSuggestion: json['brandSuggestion'],
       storeHint: json['storeHint'],
       notes: json['notes'],
+      rankedSubstitutes: json['rankedSubstitutes'] as List? ?? [],
     );
   }
 }
@@ -116,11 +124,36 @@ extension MealPlanActions on AppState {
     DateTime date,
   ) async {
     final key = DateFormat('yyyy-MM-dd').format(date);
-    final payload = await api.request('/meal-plans/$key/shopping-list?countryCode=AU');
+    final payload = await api.request(
+      '/meal-plans/$key/shopping-list?countryCode=AU',
+    );
 
     return (payload['items'] as List? ?? [])
         .map((item) => MealPlanShoppingItem.fromJson(item))
         .toList();
+  }
+
+  Future<void> sendSubstituteFeedback({
+    required MealPlanShoppingItem item,
+    required Map<String, dynamic> substitute,
+    required String feedback,
+  }) async {
+    await api.request(
+      '/ingredients/substitute-feedback',
+      method: 'POST',
+      body: {
+        'rawIngredient': item.ingredient,
+        'canonicalIngredientId': substitute['canonicalIngredientId'],
+        'substituteIngredientId': substitute['ingredientId'],
+        'substituteDisplayName': substitute['displayName'],
+        'regionCode': 'AU',
+        'recipeTitle': item.recipeTitle,
+        'feedback': feedback,
+        'rankingScore': substitute['score'],
+        'reasons': substitute['reasons'] ?? [],
+        'warnings': substitute['warnings'] ?? [],
+      },
+    );
   }
 
   List<MealPlanItem> mealPlansFor(String mealType) {
@@ -245,7 +278,9 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => MealPlanShoppingListScreen(date: selectedDate),
+                          builder: (_) => MealPlanShoppingListScreen(
+                            date: selectedDate,
+                          ),
                         ),
                       );
                     },
@@ -553,7 +588,9 @@ class _MealRecipePickerState extends State<MealRecipePicker> {
 
                           navigator.pop();
                           messenger.showSnackBar(
-                            const SnackBar(content: Text('Added to meal plan')),
+                            const SnackBar(
+                              content: Text('Added to meal plan'),
+                            ),
                           );
                         },
                       ),
@@ -567,6 +604,7 @@ class _MealRecipePickerState extends State<MealRecipePicker> {
     );
   }
 }
+
 Future<void> showMealTypePicker(BuildContext context, RecipePost recipe) {
   return showModalBottomSheet(
     context: context,
@@ -672,9 +710,12 @@ class _MealPlanShoppingListScreenState
     buffer.writeln('');
 
     for (final item in items) {
-      buffer.writeln('- ${item.ingredient} → ${item.localName} (${item.recipeTitle})');
+      buffer.writeln(
+        '- ${item.ingredient} → ${item.localName} (${item.recipeTitle})',
+      );
 
-      if (item.brandSuggestion != null && item.brandSuggestion!.trim().isNotEmpty) {
+      if (item.brandSuggestion != null &&
+          item.brandSuggestion!.trim().isNotEmpty) {
         buffer.writeln('  Brand: ${item.brandSuggestion}');
       }
 
@@ -820,7 +861,8 @@ class _MealPlanShoppingListScreenState
                                       fontSize: 12,
                                     ),
                                   ),
-                                if (item.storeHint != null && item.storeHint!.trim().isNotEmpty)
+                                if (item.storeHint != null &&
+                                    item.storeHint!.trim().isNotEmpty)
                                   Text(
                                     'Where: ${item.storeHint}',
                                     style: const TextStyle(
@@ -828,6 +870,68 @@ class _MealPlanShoppingListScreenState
                                       fontSize: 12,
                                     ),
                                   ),
+                                if (item.rankedSubstitutes.isNotEmpty) ...[
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    'Suggested: ${item.rankedSubstitutes.first['displayName']}',
+                                    style: const TextStyle(
+                                      color: AppColors.forest,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                  Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(
+                                          Icons.thumb_up_alt_outlined,
+                                          size: 18,
+                                        ),
+                                        onPressed: () async {
+                                          await context
+                                              .read<AppState>()
+                                              .sendSubstituteFeedback(
+                                                item: item,
+                                                substitute: item
+                                                    .rankedSubstitutes.first,
+                                                feedback: 'helpful',
+                                              );
+
+                                          if (context.mounted) {
+                                            showSnack(
+                                              context,
+                                              'Feedback saved',
+                                            );
+                                          }
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(
+                                          Icons.thumb_down_alt_outlined,
+                                          size: 18,
+                                        ),
+                                        onPressed: () async {
+                                          await context
+                                              .read<AppState>()
+                                              .sendSubstituteFeedback(
+                                                item: item,
+                                                substitute: item
+                                                    .rankedSubstitutes.first,
+                                                feedback: 'bad',
+                                              );
+
+                                          if (context.mounted) {
+                                            showSnack(
+                                              context,
+                                              'Feedback saved',
+                                            );
+                                          }
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ],
                             ),
                             onChanged: (_) {
