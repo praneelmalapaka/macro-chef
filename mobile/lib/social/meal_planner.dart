@@ -62,10 +62,6 @@ class MealPlanShoppingItem {
   final List<dynamic> rankedSubstitutes;
 
   factory MealPlanShoppingItem.fromJson(Map<String, dynamic> json) {
-    debugPrint(
-      'SHOPPING ITEM: ${json['ingredient']} '
-      'substitutes=${json['rankedSubstitutes']}',
-    );
 
     return MealPlanShoppingItem(
       recipeId: json['recipeId'].toString(),
@@ -605,7 +601,9 @@ class _MealRecipePickerState extends State<MealRecipePicker> {
   }
 }
 
-Future<void> showMealTypePicker(BuildContext context, RecipePost recipe) {
+Future<void> showMealTypePicker(BuildContext context, RecipePost recipe, {
+  DateTime? plannedFor,
+  }) {
   return showModalBottomSheet(
     context: context,
     backgroundColor: AppColors.card,
@@ -640,7 +638,7 @@ Future<void> showMealTypePicker(BuildContext context, RecipePost recipe) {
                   await state.addRecipeToMealPlan(
                     recipe: recipe,
                     mealType: mealType,
-                    plannedFor: DateTime.now(),
+                    plannedFor: plannedFor ?? DateTime.now(),
                   );
 
                   navigator.pop();
@@ -889,20 +887,14 @@ class _MealPlanShoppingListScreenState
                                           size: 18,
                                         ),
                                         onPressed: () async {
-                                          await context
-                                              .read<AppState>()
-                                              .sendSubstituteFeedback(
+                                          await context.read<AppState>().sendSubstituteFeedback(
                                                 item: item,
-                                                substitute: item
-                                                    .rankedSubstitutes.first,
+                                                substitute: item.rankedSubstitutes.first,
                                                 feedback: 'helpful',
                                               );
 
                                           if (context.mounted) {
-                                            showSnack(
-                                              context,
-                                              'Feedback saved',
-                                            );
+                                            showSnack(context, 'Feedback saved');
                                           }
                                         },
                                       ),
@@ -912,24 +904,38 @@ class _MealPlanShoppingListScreenState
                                           size: 18,
                                         ),
                                         onPressed: () async {
-                                          await context
-                                              .read<AppState>()
-                                              .sendSubstituteFeedback(
+                                          await context.read<AppState>().sendSubstituteFeedback(
                                                 item: item,
-                                                substitute: item
-                                                    .rankedSubstitutes.first,
+                                                substitute: item.rankedSubstitutes.first,
                                                 feedback: 'bad',
                                               );
 
                                           if (context.mounted) {
-                                            showSnack(
-                                              context,
-                                              'Feedback saved',
-                                            );
+                                            showSnack(context, 'Feedback saved');
                                           }
                                         },
                                       ),
                                     ],
+                                  ),
+                                ] else if (!item.matched) ...[
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    '⚠ Ingredient not yet recognised by MacroChef',
+                                    style: TextStyle(
+                                      color: Colors.orange.shade700,
+                                      fontSize: 12,
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                  ),
+                                ] else ...[
+                                  const SizedBox(height: 6),
+                                  const Text(
+                                    'No substitute suggestion available yet',
+                                    style: TextStyle(
+                                      color: AppColors.muted,
+                                      fontSize: 12,
+                                      fontStyle: FontStyle.italic,
+                                    ),
                                   ),
                                 ],
                               ],
