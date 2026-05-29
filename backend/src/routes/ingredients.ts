@@ -192,4 +192,72 @@ router.post('/ingredients/resolve-one', requireAuth, async (req, res) => {
   }
 });
 
+router.post('/ingredients/substitute-feedback', requireAuth, async (req, res) => {
+  try {
+    const userId = req.user?.id;
+
+    const {
+      rawIngredient,
+      canonicalIngredientId,
+      substituteIngredientId,
+      substituteDisplayName,
+      regionCode,
+      recipeTitle,
+      feedback,
+      rankingScore,
+      reasons,
+      warnings,
+    } = req.body;
+
+    if (!rawIngredient || !substituteDisplayName || !feedback) {
+      return res.status(400).json({
+        error: 'rawIngredient, substituteDisplayName, and feedback are required',
+      });
+    }
+
+    if (!['helpful', 'bad'].includes(feedback)) {
+      return res.status(400).json({
+        error: 'feedback must be helpful or bad',
+      });
+    }
+
+    await pool.query(
+      `
+      INSERT INTO substitute_feedback (
+        user_id,
+        raw_ingredient,
+        canonical_ingredient_id,
+        substitute_ingredient_id,
+        substitute_display_name,
+        region_code,
+        recipe_title,
+        feedback,
+        ranking_score,
+        reasons,
+        warnings
+      )
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10::jsonb,$11::jsonb)
+      `,
+      [
+        userId,
+        rawIngredient,
+        canonicalIngredientId ?? null,
+        substituteIngredientId ?? null,
+        substituteDisplayName,
+        regionCode ?? null,
+        recipeTitle ?? null,
+        feedback,
+        rankingScore ?? null,
+        JSON.stringify(reasons ?? []),
+        JSON.stringify(warnings ?? []),
+      ],
+    );
+
+    return res.json({ ok: true });
+  } catch (error) {
+    console.error('Substitute feedback failed:', error);
+    return res.status(500).json({ error: 'Substitute feedback failed' });
+  }
+});
+
 export default router;

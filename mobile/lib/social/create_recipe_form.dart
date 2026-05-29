@@ -23,6 +23,9 @@ class _CreateRecipeFormState extends State<CreateRecipeForm> {
   final ingredients = TextEditingController();
   final instructions = TextEditingController();
   final calories = TextEditingController();
+  final protein = TextEditingController();
+  final carbs = TextEditingController();
+  final fat = TextEditingController();
   final tags = TextEditingController(text: 'high-protein');
 
   XFile? selectedImage;
@@ -52,6 +55,9 @@ class _CreateRecipeFormState extends State<CreateRecipeForm> {
       ingredients,
       instructions,
       calories,
+      protein,
+      carbs,
+      fat,
       tags,
     ]) {
       controller.dispose();
@@ -144,6 +150,50 @@ class _CreateRecipeFormState extends State<CreateRecipeForm> {
               keyboardType: TextInputType.multiline,
             ),
 
+            PrimaryButton(
+              label: 'Scan ingredient barcode',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => BarcodeScannerScreen(
+                      mode: BarcodeScannerMode.selectIngredient,
+                      onProductSelected: (product, grams) {
+                        final addedIngredient =
+                            '${grams.toStringAsFixed(0)}g ${product.name}';
+
+                        ingredients.text = [
+                          ingredients.text.trim(),
+                          addedIngredient,
+                        ].where((line) => line.isNotEmpty).join('\n');
+
+                        calories.text =
+                            ((int.tryParse(calories.text) ?? 0) +
+                                    (product.calories * grams / 100).round())
+                                .toString();
+
+                        protein.text =
+                            ((double.tryParse(protein.text) ?? 0) +
+                                    (product.proteinG * grams / 100))
+                                .toStringAsFixed(1);
+
+                        carbs.text =
+                            ((double.tryParse(carbs.text) ?? 0) +
+                                    (product.carbsG * grams / 100))
+                                .toStringAsFixed(1);
+
+                        fat.text =
+                            ((double.tryParse(fat.text) ?? 0) +
+                                    (product.fatG * grams / 100))
+                                .toStringAsFixed(1);
+                      },
+                    ),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 12),
+
             AppField(
               controller: instructions,
               label: 'Steps, one per line',
@@ -153,6 +203,24 @@ class _CreateRecipeFormState extends State<CreateRecipeForm> {
             AppField(
               controller: calories,
               label: 'Calories',
+              keyboardType: TextInputType.number,
+            ),
+
+            AppField(
+              controller: protein,
+              label: 'Protein (g)',
+              keyboardType: TextInputType.number,
+            ),
+
+            AppField(
+              controller: carbs,
+              label: 'Carbs (g)',
+              keyboardType: TextInputType.number,
+            ),
+
+            AppField(
+              controller: fat,
+              label: 'Fat (g)',
               keyboardType: TextInputType.number,
             ),
 
