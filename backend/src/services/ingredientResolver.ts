@@ -192,6 +192,41 @@ async function findFuzzyAlias(cleaned: string) {
   return result.rows[0] ?? null;
 }
 
+async function logResolverEvent(params: {
+  rawIngredient: string;
+  cleanedIngredient: string;
+  regionCode: string;
+  matched: boolean;
+  matchType: string;
+  canonicalIngredientId?: string | null;
+}) {
+  try {
+    await pool.query(
+      `
+      INSERT INTO resolver_events (
+        raw_ingredient,
+        cleaned_ingredient,
+        region_code,
+        matched,
+        match_type,
+        canonical_ingredient_id
+      )
+      VALUES ($1,$2,$3,$4,$5,$6)
+      `,
+      [
+        params.rawIngredient,
+        params.cleanedIngredient,
+        params.regionCode,
+        params.matched,
+        params.matchType,
+        params.canonicalIngredientId ?? null,
+      ],
+    );
+  } catch (error) {
+    console.error('Resolver event logging failed:', error);
+  }
+}
+
 function buildResolvedIngredient(params: {
   rawIngredient: string;
   regionCode: string;
@@ -229,6 +264,13 @@ export async function resolveIngredient(
   const cleaned = cleanIngredient(rawIngredient);
 
   if (!cleaned) {
+    await logResolverEvent({
+      rawIngredient,
+      cleanedIngredient: cleaned,
+      regionCode,
+      matched: false,
+      matchType: 'none',
+    });
     return buildResolvedIngredient({
       rawIngredient,
       regionCode,
@@ -241,6 +283,15 @@ export async function resolveIngredient(
 
   if (exactRegion) {
     const details = await loadIngredientDetails(exactRegion.id);
+
+    await logResolverEvent({
+      rawIngredient,
+      cleanedIngredient: cleaned,
+      regionCode,
+      matched: true,
+      matchType: 'exact-region-alias',
+      canonicalIngredientId: exactRegion.id,
+    });
 
     return buildResolvedIngredient({
       rawIngredient,
@@ -256,6 +307,15 @@ export async function resolveIngredient(
   if (exactGlobal) {
     const details = await loadIngredientDetails(exactGlobal.id);
 
+    await logResolverEvent({
+      rawIngredient,
+      cleanedIngredient: cleaned,
+      regionCode,
+      matched: true,
+      matchType: 'exact-global-alias',
+      canonicalIngredientId: exactGlobal.id,
+    });
+
     return buildResolvedIngredient({
       rawIngredient,
       regionCode,
@@ -270,6 +330,15 @@ export async function resolveIngredient(
   if (fuzzy) {
     const details = await loadIngredientDetails(fuzzy.id);
 
+    await logResolverEvent({
+      rawIngredient,
+      cleanedIngredient: cleaned,
+      regionCode,
+      matched: true,
+      matchType: 'fuzzy-alias',
+      canonicalIngredientId: fuzzy.id,
+    });
+
     return buildResolvedIngredient({
       rawIngredient,
       regionCode,
@@ -278,6 +347,14 @@ export async function resolveIngredient(
       details,
     });
   }
+
+  await logResolverEvent({
+    rawIngredient,
+    cleanedIngredient: cleaned,
+    regionCode,
+    matched: false,
+    matchType: 'none',
+  });
 
   return buildResolvedIngredient({
     rawIngredient,
