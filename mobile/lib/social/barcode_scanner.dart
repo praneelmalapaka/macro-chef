@@ -1,4 +1,8 @@
 part of '../main.dart';
+enum BarcodeScannerMode {
+  logFood,
+  selectIngredient,
+}
 
 class ScannedProduct {
   const ScannedProduct({
@@ -48,7 +52,14 @@ class ScannedProduct {
 }
 
 class BarcodeScannerScreen extends StatefulWidget {
-  const BarcodeScannerScreen({super.key});
+  const BarcodeScannerScreen({
+    super.key,
+    this.mode = BarcodeScannerMode.logFood,
+    this.onProductSelected,
+  });
+
+  final BarcodeScannerMode mode;
+  final void Function(ScannedProduct product, double grams)? onProductSelected;
 
   @override
   State<BarcodeScannerScreen> createState() => _BarcodeScannerScreenState();
@@ -116,6 +127,16 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
     final item = product;
     if (item == null) return;
 
+    if (widget.mode == BarcodeScannerMode.selectIngredient) {
+      widget.onProductSelected?.call(item, selectedGrams);
+
+      if (mounted) {
+        Navigator.pop(context);
+      }
+
+      return;
+    }
+
     await context.read<AppState>().saveLog(
           foodName: item.name,
           calories: scaleValue(item.calories).round(),
@@ -177,6 +198,9 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
               scaleValue: scaleValue,
               onRetry: resetScanner,
               onLog: logProduct,
+              actionLabel: widget.mode == BarcodeScannerMode.selectIngredient
+                  ? 'Add to recipe'
+                  : 'Log food',
             ),
           ),
         ],
@@ -195,6 +219,7 @@ class _ScannerBottomPanel extends StatelessWidget {
     required this.scaleValue,
     required this.onRetry,
     required this.onLog,
+    required this.actionLabel,
   });
 
   final String? barcode;
@@ -205,6 +230,7 @@ class _ScannerBottomPanel extends StatelessWidget {
   final double Function(num value) scaleValue;
   final VoidCallback onRetry;
   final VoidCallback onLog;
+  final String actionLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -374,7 +400,7 @@ class _ScannerBottomPanel extends StatelessWidget {
             },
           ),
           const SizedBox(height: 14),
-          PrimaryButton(label: 'Log food', onPressed: onLog),
+          PrimaryButton(label: actionLabel, onPressed: onLog),
           TextButton(onPressed: onRetry, child: const Text('Scan again')),
         ],
       ),
