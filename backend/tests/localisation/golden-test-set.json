@@ -1,0 +1,24 @@
+[
+  {
+    "ingredient": "heavy cream",
+    "region": "AU",
+    "expectedTopSubstitute": "Thickened Cream"
+  },
+  {
+    "ingredient": "paneer",
+    "region": "AU",
+    "expectedTopSubstitute": "Halloumi",
+    "expectedRejects": ["Greek Yoghurt"]
+  },
+  {
+    "ingredient": "greek yoghurt",
+    "region": "AU",
+    "expectedTopSubstitute": "Labneh",
+    "expectedRejects": ["Kefir"]
+  },
+  {
+    "ingredient": "kefir",
+    "region": "AU",
+    "expectedRejects": ["Labneh"]
+  }
+]
