@@ -48,6 +48,7 @@ class MealPlanShoppingItem {
     this.storeHint,
     this.notes,
     this.rankedSubstitutes = const [],
+    this.ontology,
   });
 
   final String recipeId;
@@ -60,6 +61,7 @@ class MealPlanShoppingItem {
   final String? storeHint;
   final String? notes;
   final List<dynamic> rankedSubstitutes;
+  final Map<String, dynamic>? ontology;
 
   factory MealPlanShoppingItem.fromJson(Map<String, dynamic> json) {
 
@@ -74,6 +76,7 @@ class MealPlanShoppingItem {
       storeHint: json['storeHint'],
       notes: json['notes'],
       rankedSubstitutes: json['rankedSubstitutes'] as List? ?? [],
+      ontology: json['ontology'] as Map<String, dynamic>?,
     );
   }
 }
@@ -139,7 +142,7 @@ extension MealPlanActions on AppState {
       method: 'POST',
       body: {
         'rawIngredient': item.ingredient,
-        'canonicalIngredientId': substitute['canonicalIngredientId'],
+        'canonicalIngredientId': item.ontology?['ingredient']?['id'],
         'substituteIngredientId': substitute['ingredientId'],
         'substituteDisplayName': substitute['displayName'],
         'regionCode': 'AU',

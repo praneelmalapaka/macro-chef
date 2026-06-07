@@ -67,6 +67,27 @@ router.get('/analytics/localisation-health', requireAuth, async (_req, res) => {
       LIMIT 10
     `);
 
+    const acceptanceByMatchType = await pool.query(`
+        WITH latest_resolver_match AS (
+            SELECT DISTINCT ON (canonical_ingredient_id)
+            canonical_ingredient_id,
+            match_type
+            FROM resolver_events
+            WHERE canonical_ingredient_id IS NOT NULL
+            ORDER BY canonical_ingredient_id, created_at DESC
+        )
+        SELECT
+            lrm.match_type,
+            COUNT(sf.id)::int AS feedback_count,
+            COUNT(*) FILTER (WHERE sf.feedback = 'helpful')::int AS helpful_count,
+            COUNT(*) FILTER (WHERE sf.feedback = 'bad')::int AS bad_count
+        FROM substitute_feedback sf
+        JOIN latest_resolver_match lrm
+            ON lrm.canonical_ingredient_id = sf.canonical_ingredient_id
+        WHERE sf.canonical_ingredient_id IS NOT NULL
+        GROUP BY lrm.match_type
+    `);
+
     const resolver = resolverSummary.rows[0];
     const feedback = feedbackSummary.rows[0];
 
@@ -113,6 +134,22 @@ router.get('/analytics/localisation-health', requireAuth, async (_req, res) => {
           substituteIngredientId: row.substitute_ingredient_id,
           substituteDisplayName: row.substitute_display_name,
           badCount: Number(row.bad_count ?? 0),
+        })),
+        acceptanceByMatchType: acceptanceByMatchType.rows.map((row) => ({
+            matchType: row.match_type,
+            feedbackCount: Number(row.feedback_count ?? 0),
+            helpfulCount: Number(row.helpful_count ?? 0),
+            badCount: Number(row.bad_count ?? 0),
+            acceptanceRate:
+                row.feedback_count > 0
+                ? Number(
+                    (
+                        (Number(row.helpful_count) /
+                        Number(row.feedback_count)) *
+                        100
+                    ).toFixed(2)
+                    )
+                : 0,
         })),
       },
     });
