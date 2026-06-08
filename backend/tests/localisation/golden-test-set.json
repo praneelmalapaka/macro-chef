@@ -1,0 +1,49 @@
+[
+  {
+    "name": "AU heavy cream core substitute",
+    "caseType": "core",
+    "ingredient": "heavy cream",
+    "region": "AU",
+    "cookingMethod": "general-cooking",
+    "expectedTopSubstitute": "Thickened Cream",
+    "expectedRejects": ["Evaporated Skim Milk"]
+  },
+  {
+    "name": "Paneer firm cheese substitute",
+    "caseType": "core",
+    "ingredient": "paneer",
+    "region": "AU",
+    "cookingMethod": "curry",
+    "expectedTopSubstitute": "Halloumi",
+    "expectedRejects": ["Greek Yoghurt"]
+  },
+  {
+    "name": "Greek yoghurt creamy-base substitute",
+    "caseType": "core",
+    "ingredient": "greek yoghurt",
+    "region": "AU",
+    "cookingMethod": "sauce",
+    "expectedTopSubstitute": "Labneh",
+    "expectedRejects": ["Kefir"]
+  },
+  {
+    "name": "Kefir liquid-acid adversarial case",
+    "caseType": "adversarial",
+    "ingredient": "kefir",
+    "region": "AU",
+    "cookingMethod": "baking",
+    "expectedRejects": ["Labneh"]
+  },
+  {
+    "name": "Heavy cream dairy-free constraint",
+    "caseType": "dietary",
+    "ingredient": "heavy cream",
+    "region": "AU",
+    "cookingMethod": "sauce",
+    "userNutritionGoals": {
+      "mustBeDairyFree": true
+    },
+    "expectedTopSubstitute": "Full Fat Coconut Cream",
+    "expectedRejects": ["Thickened Cream"]
+  }
+]

@@ -15,6 +15,7 @@ import localiserRouter from './routes/localiser';
 import mealPlansRouter from './routes/mealPlans';
 import productsRouter from './routes/products';
 import productSearchRouter from './routes/productSearch';
+import analyticsRoutes from './routes/analytics';
 
 export function createApp() {
   const app = express();
@@ -27,6 +28,7 @@ export function createApp() {
   app.use('/', mealPlansRouter);
   app.use('/', productsRouter);
   app.use('/', productSearchRouter);
+  app.use('/', analyticsRoutes);
 
   app.get("/", (_req, res) => {
     res.type("html").send(`<!doctype html>

@@ -48,6 +48,7 @@ class MealPlanShoppingItem {
     this.storeHint,
     this.notes,
     this.rankedSubstitutes = const [],
+    this.ontology,
   });
 
   final String recipeId;
@@ -60,12 +61,9 @@ class MealPlanShoppingItem {
   final String? storeHint;
   final String? notes;
   final List<dynamic> rankedSubstitutes;
+  final Map<String, dynamic>? ontology;
 
   factory MealPlanShoppingItem.fromJson(Map<String, dynamic> json) {
-    debugPrint(
-      'SHOPPING ITEM: ${json['ingredient']} '
-      'substitutes=${json['rankedSubstitutes']}',
-    );
 
     return MealPlanShoppingItem(
       recipeId: json['recipeId'].toString(),
@@ -78,6 +76,7 @@ class MealPlanShoppingItem {
       storeHint: json['storeHint'],
       notes: json['notes'],
       rankedSubstitutes: json['rankedSubstitutes'] as List? ?? [],
+      ontology: json['ontology'] as Map<String, dynamic>?,
     );
   }
 }
@@ -143,7 +142,7 @@ extension MealPlanActions on AppState {
       method: 'POST',
       body: {
         'rawIngredient': item.ingredient,
-        'canonicalIngredientId': substitute['canonicalIngredientId'],
+        'canonicalIngredientId': item.ontology?['ingredient']?['id'],
         'substituteIngredientId': substitute['ingredientId'],
         'substituteDisplayName': substitute['displayName'],
         'regionCode': 'AU',
@@ -605,7 +604,9 @@ class _MealRecipePickerState extends State<MealRecipePicker> {
   }
 }
 
-Future<void> showMealTypePicker(BuildContext context, RecipePost recipe) {
+Future<void> showMealTypePicker(BuildContext context, RecipePost recipe, {
+  DateTime? plannedFor,
+  }) {
   return showModalBottomSheet(
     context: context,
     backgroundColor: AppColors.card,
@@ -640,7 +641,7 @@ Future<void> showMealTypePicker(BuildContext context, RecipePost recipe) {
                   await state.addRecipeToMealPlan(
                     recipe: recipe,
                     mealType: mealType,
-                    plannedFor: DateTime.now(),
+                    plannedFor: plannedFor ?? DateTime.now(),
                   );
 
                   navigator.pop();
@@ -827,6 +828,12 @@ class _MealPlanShoppingListScreenState
                           final key =
                               '${item.recipeId}:${item.recipeTitle}:${item.ingredient}';
 
+                          final topSubstitute = item.rankedSubstitutes.isNotEmpty
+                              ? item.rankedSubstitutes.first as Map<String, dynamic>
+                              : null;
+
+                          final products = topSubstitute?['products'] as List? ?? [];
+
                           return CheckboxListTile(
                             value: checked.contains(key),
                             activeColor: AppColors.gold,
@@ -870,66 +877,90 @@ class _MealPlanShoppingListScreenState
                                       fontSize: 12,
                                     ),
                                   ),
-                                if (item.rankedSubstitutes.isNotEmpty) ...[
+                                if (topSubstitute != null) ...[
                                   const SizedBox(height: 6),
                                   Text(
-                                    'Suggested: ${item.rankedSubstitutes.first['displayName']}',
+                                    'Suggested: ${topSubstitute['displayName']}',
                                     style: const TextStyle(
                                       color: AppColors.forest,
                                       fontSize: 12,
                                       fontWeight: FontWeight.w800,
                                     ),
                                   ),
+                                  if (products.isNotEmpty) ...[
+                                    const SizedBox(height: 4),
+                                    const Text(
+                                      'Available products:',
+                                      style: TextStyle(
+                                        color: AppColors.muted,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    ...products.take(2).map((product) {
+                                      final productMap = product as Map<String, dynamic>;
+
+                                      return Text(
+                                        '• ${productMap['brand']} ${productMap['name']} (${productMap['retailer']})',
+                                        style: const TextStyle(
+                                          color: AppColors.muted,
+                                          fontSize: 12,
+                                        ),
+                                      );
+                                    }),
+                                  ],
                                   Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       IconButton(
-                                        icon: const Icon(
-                                          Icons.thumb_up_alt_outlined,
-                                          size: 18,
-                                        ),
+                                        icon: const Icon(Icons.thumb_up_alt_outlined, size: 18),
                                         onPressed: () async {
-                                          await context
-                                              .read<AppState>()
-                                              .sendSubstituteFeedback(
+                                          await context.read<AppState>().sendSubstituteFeedback(
                                                 item: item,
-                                                substitute: item
-                                                    .rankedSubstitutes.first,
+                                                substitute: topSubstitute,
                                                 feedback: 'helpful',
                                               );
 
                                           if (context.mounted) {
-                                            showSnack(
-                                              context,
-                                              'Feedback saved',
-                                            );
+                                            showSnack(context, 'Feedback saved');
                                           }
                                         },
                                       ),
                                       IconButton(
-                                        icon: const Icon(
-                                          Icons.thumb_down_alt_outlined,
-                                          size: 18,
-                                        ),
+                                        icon: const Icon(Icons.thumb_down_alt_outlined, size: 18),
                                         onPressed: () async {
-                                          await context
-                                              .read<AppState>()
-                                              .sendSubstituteFeedback(
+                                          await context.read<AppState>().sendSubstituteFeedback(
                                                 item: item,
-                                                substitute: item
-                                                    .rankedSubstitutes.first,
+                                                substitute: topSubstitute,
                                                 feedback: 'bad',
                                               );
 
                                           if (context.mounted) {
-                                            showSnack(
-                                              context,
-                                              'Feedback saved',
-                                            );
+                                            showSnack(context, 'Feedback saved');
                                           }
                                         },
                                       ),
                                     ],
+                                  ),
+                                ] else if (!item.matched) ...[
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    '⚠ Ingredient not yet recognised by MacroChef',
+                                    style: TextStyle(
+                                      color: Colors.orange.shade700,
+                                      fontSize: 12,
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                  ),
+                                ] else ...[
+                                  const SizedBox(height: 6),
+                                  const Text(
+                                    'No substitute suggestion available yet',
+                                    style: TextStyle(
+                                      color: AppColors.muted,
+                                      fontSize: 12,
+                                      fontStyle: FontStyle.italic,
+                                    ),
                                   ),
                                 ],
                               ],
