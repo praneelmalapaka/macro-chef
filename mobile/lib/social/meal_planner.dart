@@ -828,6 +828,12 @@ class _MealPlanShoppingListScreenState
                           final key =
                               '${item.recipeId}:${item.recipeTitle}:${item.ingredient}';
 
+                          final topSubstitute = item.rankedSubstitutes.isNotEmpty
+                              ? item.rankedSubstitutes.first as Map<String, dynamic>
+                              : null;
+
+                          final products = topSubstitute?['products'] as List? ?? [];
+
                           return CheckboxListTile(
                             value: checked.contains(key),
                             activeColor: AppColors.gold,
@@ -871,28 +877,47 @@ class _MealPlanShoppingListScreenState
                                       fontSize: 12,
                                     ),
                                   ),
-                                if (item.rankedSubstitutes.isNotEmpty) ...[
+                                if (topSubstitute != null) ...[
                                   const SizedBox(height: 6),
                                   Text(
-                                    'Suggested: ${item.rankedSubstitutes.first['displayName']}',
+                                    'Suggested: ${topSubstitute['displayName']}',
                                     style: const TextStyle(
                                       color: AppColors.forest,
                                       fontSize: 12,
                                       fontWeight: FontWeight.w800,
                                     ),
                                   ),
+                                  if (products.isNotEmpty) ...[
+                                    const SizedBox(height: 4),
+                                    const Text(
+                                      'Available products:',
+                                      style: TextStyle(
+                                        color: AppColors.muted,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    ...products.take(2).map((product) {
+                                      final productMap = product as Map<String, dynamic>;
+
+                                      return Text(
+                                        '• ${productMap['brand']} ${productMap['name']} (${productMap['retailer']})',
+                                        style: const TextStyle(
+                                          color: AppColors.muted,
+                                          fontSize: 12,
+                                        ),
+                                      );
+                                    }),
+                                  ],
                                   Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       IconButton(
-                                        icon: const Icon(
-                                          Icons.thumb_up_alt_outlined,
-                                          size: 18,
-                                        ),
+                                        icon: const Icon(Icons.thumb_up_alt_outlined, size: 18),
                                         onPressed: () async {
                                           await context.read<AppState>().sendSubstituteFeedback(
                                                 item: item,
-                                                substitute: item.rankedSubstitutes.first,
+                                                substitute: topSubstitute,
                                                 feedback: 'helpful',
                                               );
 
@@ -902,14 +927,11 @@ class _MealPlanShoppingListScreenState
                                         },
                                       ),
                                       IconButton(
-                                        icon: const Icon(
-                                          Icons.thumb_down_alt_outlined,
-                                          size: 18,
-                                        ),
+                                        icon: const Icon(Icons.thumb_down_alt_outlined, size: 18),
                                         onPressed: () async {
                                           await context.read<AppState>().sendSubstituteFeedback(
                                                 item: item,
-                                                substitute: item.rankedSubstitutes.first,
+                                                substitute: topSubstitute,
                                                 feedback: 'bad',
                                               );
 

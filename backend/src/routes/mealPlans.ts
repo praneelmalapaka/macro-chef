@@ -3,6 +3,7 @@ import { pool } from '../db';
 import { requireAuth } from '../middleware/auth';
 import { resolveIngredient } from '../services/ingredientResolver';
 import { rankSubstitutes } from '../services/substituteRanker';
+import { discoverProducts } from '../services/productDiscovery';
 
 const router = Router();
 
@@ -51,9 +52,14 @@ router.get('/meal-plans/:date/shopping-list', requireAuth, async (req, res) => {
           ? rankSubstitutes(resolved.substitutes, {
               cookingMethod: 'general-cooking',
               userRegion: countryCode,
-            }).slice(0, 3)
+            })
+              .slice(0, 3)
+              .map((substitute) => ({
+                ...substitute,
+                products: discoverProducts(substitute.ingredientId),
+              }))
           : [];
-
+      
         return {
           recipeId: String(row.recipe_id),
           recipeTitle: row.title,
